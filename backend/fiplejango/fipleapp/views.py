@@ -1,3 +1,6 @@
+from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 
-# Create your views here.
+def data_view(request):
+    return JsonResponse({"message": "Hello from Django!!!!"})
