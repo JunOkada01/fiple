@@ -1,20 +1,14 @@
-import { useEffect, useState } from "react";
+import React from 'react';
 
-export default function Home() {
-  const [message, setMessage] = useState(null);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/data/")
-      .then((response) => response.json())
-      .then((data) => {
-        setMessage(data.message);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
-
+const ShopHome: React.FC = () => {
   return (
-    <div>
-      <h1>{message || "Loading..."}</h1>
-    </div>
+    <ul className='target-nav'>
+      <li className='all-products'>ALL</li>
+      <li className='mens-products'>MENS</li>
+      <li className='ladies-products'>LADIES</li>
+      <li className='kids-products'>KIDS</li>
+    </ul>
   );
-}
+};
+
+export default ShopHome;
