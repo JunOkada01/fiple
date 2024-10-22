@@ -22,12 +22,6 @@ def user_list(request):
     users = CustomUser.objects.all().values('id', 'username', 'email')  # 必要なフィールドだけを取得
     return JsonResponse(list(users), safe=False)
 
-class UserCreate(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-
-
-
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)

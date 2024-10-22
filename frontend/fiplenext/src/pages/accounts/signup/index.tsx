@@ -4,7 +4,7 @@ import styles from '../../../styles/Register.module.css';  // CSS Modulesを使�
 
 const Register = () => {
     const [username, setName] = useState('');
-    const [email, setEmail] = useState('');  // emailのuseState追加
+    const [email, setEmail] = useState('');
     const [hurigana, setHurigana] = useState('');
     const [birth, setBirth] = useState('');
     const [sex, setSex] = useState('M');
@@ -14,11 +14,39 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const router = useRouter();
 
+    // 住所取得用の非同期関数
+    const fetchAddress = async (postalCode: string) => {
+        try {
+            const response = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`);
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+                const result = data.results[0];
+                // 住所の結合
+                const newAddress = `${result.address1} ${result.address2} ${result.address3}`;
+                setAddress(newAddress);  // フォームの住所フィールドに反映
+            } else {
+                console.error('住所が見つかりませんでした');
+            }
+        } catch (error) {
+            console.error('住所の取得に失敗しました', error);
+        }
+    };
+
+    const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPostalCode = e.target.value;
+        setPostalCode(newPostalCode);
+        
+        if (newPostalCode.length === 7) {  // 郵便番号が7桁になったら自動で住所を取得
+            fetchAddress(newPostalCode);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const data = {
             username,
-            email,  // emailフィールドをデータに追加
+            email,
             password,
             hurigana,
             sex,
@@ -28,19 +56,19 @@ const Register = () => {
             address,
         };
 
-        console.log('Sending data:', JSON.stringify(data));  // 送信データをログ出力
+        console.log('Sending data:', JSON.stringify(data));
 
         const response = await fetch('http://127.0.0.1:8000/register/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data),  // emailフィールドも含めて送信
+            body: JSON.stringify(data),
         });
 
         if (response.ok) {
             console.log('登録が成功しました');
-            await router.push('/accounts');  // 登録成功後のリダイレクト
+            await router.push('/accounts');
         } else {
             console.error('登録に失敗しました');
         }
@@ -62,7 +90,7 @@ const Register = () => {
             </div>
 
             <div className={styles.formGroup}>
-                <label>メールアドレス</label>  {/* emailフィールド追加 */}
+                <label>メールアドレス</label>
                 <input
                     type="email"
                     value={email}
@@ -136,8 +164,9 @@ const Register = () => {
                 <input
                     type="text"
                     value={postalCode}
-                    onChange={e => setPostalCode(e.target.value)}
-                    placeholder="郵便番号を入力してください"
+                    onChange={handlePostalCodeChange}  // 郵便番号が変わったら住所を取得
+                    placeholder="7桁で郵便番号を入力してください"
+                    maxLength={7}
                     required
                 />
             </div>
