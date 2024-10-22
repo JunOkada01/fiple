@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 
 class CustomUser(AbstractUser):
-    password = models.CharField(max_length=128, default='')  # パスワード
+    password = models.TextField(max_length=128, default='')  # パスワード
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
     
     class SexChoices(models.TextChoices):
@@ -20,7 +20,5 @@ class CustomUser(AbstractUser):
     weight = models.FloatField(default=0.0)  # 体重
     cancellation_day = models.DateField(null=True, blank=True, default=None)  # 退会日
     accounts_valid = models.BooleanField(default=True)  # アカウント有効
-    first_delivery_address = models.CharField(max_length=255, null=True, blank=True, default='')  # 配達先1
-    secound_delivery_address = models.CharField(max_length=255, null=True, blank=True, default='')  # 配達先2
-    third_delivery_address = models.CharField(max_length=255, null=True, blank=True, default='')  # 配達先3
+    
     last_login = models.DateField(null=True, blank=True, default=None)  # 最終ログイン日

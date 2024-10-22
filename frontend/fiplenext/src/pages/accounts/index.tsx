@@ -30,7 +30,7 @@ const UserList: React.FC<Props> = ({ users }) => {
 
 // サーバーサイドでデータを取得
 export const getServerSideProps: GetServerSideProps = async () => {
-  const res = await fetch('http://127.0.0.1:8000/api/users/');
+  const res = await fetch('http://127.0.0.1:8000/users/');
   const users: User[] = await res.json();
   
   return {

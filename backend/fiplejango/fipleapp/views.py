@@ -6,6 +6,13 @@ import json
 from rest_framework import generics
 from .models import CustomUser
 from .serializers import UserSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
+
+
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
@@ -17,3 +24,13 @@ def user_list(request):
 class UserCreate(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
