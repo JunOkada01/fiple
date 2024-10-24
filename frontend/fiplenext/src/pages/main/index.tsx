@@ -14,7 +14,8 @@ export default function Home() {
 
   return (
     <div>
-      <h1>{message || "Loading..."}</h1>
+      <h1>テスト</h1>
+      <h1>{message || "ろあでぃんう"}</h1>
     </div>
   );
 }
