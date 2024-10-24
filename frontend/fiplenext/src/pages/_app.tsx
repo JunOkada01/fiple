@@ -16,10 +16,7 @@ export default function App({ Component, pageProps }: AppProps) {
         </Link>
       </div>
       <nav className="flex justify-center space-x-4">
-        <Link href="/accounts/signup">新規登録</Link>
-        <Link href="/accounts">ユーザー一覧</Link>
         <Link href="/accounts/login">ログイン</Link>
-        <Link href="/">Home</Link>
       </nav>
       <Component {...pageProps} />
     </>

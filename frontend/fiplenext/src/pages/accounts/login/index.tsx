@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import styles from '../../../styles/Login.module.css'; // スタイルをインポート
+import Link from 'next/link';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -25,6 +26,7 @@ const Login = () => {
 
     return (
         <div className={styles.container}>
+            <Link href="/accounts/signup">新規登録</Link>
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h2 className={styles.title}>ログイン</h2>
                 <div className={styles.inputgroup}>
