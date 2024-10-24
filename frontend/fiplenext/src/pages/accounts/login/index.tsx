@@ -15,6 +15,8 @@ const Login = () => {
                 username,
                 password,
             });
+            // トークンをlocalStorageに保存
+            localStorage.setItem('token', response.data.token);  // ここでトークンを保存
             console.log(response.data);
             router.push('/'); // ホームページにリダイレクト
         } catch (error) {
