@@ -24,29 +24,14 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <Head>
-        <title>My App</title>
-      </Head>
-      <div className="flex justify-center border-b">
+    <Head>
+        <div className="flex justify-center border-b">
         <Link href="/" passHref>
-          <Image className="mt-[10px] mb-[10px]" src="/fipleheader.png" alt="fipleheader" width="200" height="80" />
+        <Image className="mt-[10px] mb-[10px]" src="/fipleheader.png" alt="fipleheader" width="200" height="80" />
         </Link>
-      </div>
-      <nav className="flex justify-center space-x-4">
-        {isLoggedIn ? (
-          <>
-            <Link href="/accounts">ユーザー一覧</Link>
-            <button onClick={handleLogout}>ログアウト</button>
-          </>
-        ) : (
-          <>
-            <Link href="/accounts/signup">新規登録</Link>
-            <Link href="/accounts/login">ログイン</Link>
-          </>
-        )}
-        <Link href="/">Home</Link>
-      </nav>
-      <Component {...pageProps} />
+        </div>
+    </Head>
+    <Component {...pageProps} />
     </>
   );
 }
