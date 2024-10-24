@@ -18,7 +18,7 @@ function App({ Component, pageProps }: AppProps) {
     <>
       {/* ログイン・神機登録画面ではAuthHeader、それ以外では通常のHeader */}
       {isAuthPage ? <AuthHeader /> : <Header />}
-      <main style={{ padding: '20px' }}>
+      <main style={{ padding: '0' }}>
         <Component {...pageProps} />
       </main>
     </>

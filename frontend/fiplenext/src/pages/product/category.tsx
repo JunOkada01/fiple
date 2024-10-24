@@ -1,18 +1,15 @@
 import ProductCard from '@styles/components/ProductCard';  
 import React from 'react';  
 
-const Favorites: React.FC = () => {  
+const Category: React.FC = () => {  
     return (  
         <div className="container mx-auto max-w-screen-xl px-4">  
-        <h1 className="text-3xl font-bold text-center my-8">YOUR LIKED ITEMS</h1>  
-        
+        {/* 商品リスト */}  
         <div className="flex flex-col items-center">  
+            <h1 className="text-2xl font-bold text-center mb-6">カテゴリ名</h1>  
+            
+            {/* 商品カードを5つずつ横に並べるグリッド */}  
             <div className="grid grid-cols-5 gap-4 max-w-full">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
             <ProductCard />  
             <ProductCard />  
             <ProductCard />  
@@ -34,4 +31,4 @@ const Favorites: React.FC = () => {
     );  
 };  
 
-export default Favorites;
+export default Category;

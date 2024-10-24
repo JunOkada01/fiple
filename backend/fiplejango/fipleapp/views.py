@@ -4,3 +4,4 @@ from django.shortcuts import render
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
+
