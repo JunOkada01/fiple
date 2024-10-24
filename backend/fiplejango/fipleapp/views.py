@@ -1,15 +1,19 @@
+from datetime import timezone
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from rest_framework import generics
-from .models import CustomUser
+from .models import *
 from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import AdminCreationForm, AdminLoginForm
+from django.views.generic import TemplateView
 
 
 
@@ -43,3 +47,42 @@ class LoginView(APIView):
             return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+def admin_create(request):
+    if request.method == 'POST':
+        form = AdminCreationForm(request.POST)
+        if form.is_valid():
+            admin = form.save(commit=False)
+            admin.set_password(form.cleaned_data['password'])
+            admin.save()
+            messages.success(request, '管理者アカウントが作成されました')
+            return redirect('accounts:admin_login')
+    else:
+        form = AdminCreationForm()
+    return render(request, 'admin_create.html', {'form': form})
+
+def admin_login(request):
+    if request.method == 'POST':
+        form = AdminLoginForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            password = form.cleaned_data['password']
+            try:
+                admin = Admin.objects.get(name=name)
+                if admin.check_password(password):
+                    # ログイン成功
+                    admin.save()  # login_dateを更新
+                    messages.success(request, 'ログインしました')
+                    return redirect('accounts:admin_top')  # ダッシュボードページへリダイレクト
+                else:
+                    messages.error(request, 'パスワードが間違っています')
+            except Admin.DoesNotExist:
+                messages.error(request, '管理者が見つかりません')
+    else:
+        form = AdminLoginForm()
+    return render(request, 'admin_login.html', {'form': form})
+
+class AdminTop(TemplateView):
+    template_name = 'admin_top.html'
