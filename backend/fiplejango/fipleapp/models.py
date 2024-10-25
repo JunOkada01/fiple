@@ -56,3 +56,20 @@ class AdminUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_superuser
     
+    
+class Category(models.Model):
+    category_name = models.CharField(max_length=255, unique=True)  # カテゴリ名
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+
+    def __str__(self):
+        return self.category_name
+    
+class SubCategory(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')  # カテゴリID（Categoryモデルへの外部キー）
+    subcategory_name = models.CharField(max_length=255, unique=True)  # サブカテゴリ名
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+
+    def __str__(self):
+        return self.subcategory_name

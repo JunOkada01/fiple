@@ -3,3 +3,5 @@ from .models import *
 # Register your models here.
 admin.site.register(CustomUser)
 admin.site.register(AdminUser)
+admin.site.register(Category)
+admin.site.register(SubCategory)

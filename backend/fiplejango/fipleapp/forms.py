@@ -1,5 +1,5 @@
 from django import forms
-from .models import AdminUser
+from .models import *
 
 class AdminCreationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -25,3 +25,21 @@ class AdminCreationForm(forms.ModelForm):
 class AdminLoginForm(forms.Form):
     name = forms.CharField(max_length=256)
     password = forms.CharField(widget=forms.PasswordInput)
+    
+    
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['category_name']
+        labels = {
+            'category_name': 'カテゴリ名',
+        }
+        
+class SubCategoryForm(forms.ModelForm):
+    class Meta:
+        model = SubCategory
+        fields = ['category', 'subcategory_name']
+        labels = {
+            'category': '主カテゴリ',
+            'subcategory_name': 'サブカテゴリ名',
+        }
