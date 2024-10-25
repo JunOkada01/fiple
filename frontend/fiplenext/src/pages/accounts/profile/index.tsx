@@ -33,7 +33,9 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center border-b pt-[20px] pb-[20px]">
                         <span>パスワード</span>
-                        <button className="text-blue-500">変更</button>
+                        <Link href={'/accounts/profile/change_password'}>
+                            <button className="text-blue-500">変更</button>
+                        </Link>
                     </div>
                 </div>
 
