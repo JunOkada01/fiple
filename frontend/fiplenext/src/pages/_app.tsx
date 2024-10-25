@@ -2,7 +2,7 @@ import "@styles/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Header from '../components/Header';
-import AuthHeader from '../components/AuthHeader';
+import AuthHeader from '../components/AccontsHeader';
 
 //import Head from 'next/head'
 //import Image from "next/image";
@@ -11,7 +11,7 @@ import AuthHeader from '../components/AuthHeader';
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();     // ユーザーのURL（ルートパス）を取得
-  const isAuthPage = ['/auth/login', '/auth/signup'].includes(router.pathname);
+  const isAuthPage = ['/accounts/login', '/accounts/signup'].includes(router.pathname);
   // 現在のパスがログイン・新規登録画面かどうかを判定
 
   return (
