@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
-from django.contrib.auth.hashers import make_password, check_password
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -24,15 +23,36 @@ class CustomUser(AbstractUser):
     
     last_login = models.DateField(null=True, blank=True, default=None)  # 最終ログイン日
 
-class Admin(models.Model):
-    name = models.CharField(max_length=256, unique=True)  # 名前
-    password = models.CharField(max_length=256)  # パスワード
-    login_date = models.DateTimeField(auto_now_add=True)  # ログイン日付
-    def __str__(self):
-        return self.name  # 管理者名を表示するためのメソッド
-    
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)
+class AdminUserManager(BaseUserManager):
+    def create_user(self, name, password=None, **extra_fields):
+        if not name:
+            raise ValueError('名前を入力してください')
+        user = self.model(name=name, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
+    def create_superuser(self, name, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(name, password, **extra_fields)
+
+
+class AdminUser(AbstractBaseUser):
+    name = models.CharField(max_length=255, unique=True)
+    is_superuser = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=True)
+
+    objects = AdminUserManager()
+
+    USERNAME_FIELD = 'name'  # 認証に使用するフィールド
+    REQUIRED_FIELDS = []  # スーパーユーザー作成時に追加で必要なフィールド
+
+    def __str__(self):
+        return self.name
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+    

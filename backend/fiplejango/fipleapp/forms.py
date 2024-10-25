@@ -1,12 +1,12 @@
 from django import forms
-from .models import Admin
+from .models import AdminUser
 
 class AdminCreationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
-        model = Admin
+        model = AdminUser
         fields = ['name', 'password']
         labels = {
             'name': '管理者名',

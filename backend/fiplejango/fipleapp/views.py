@@ -1,6 +1,7 @@
 from datetime import timezone
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 import json
 from rest_framework import generics
@@ -14,9 +15,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import AdminCreationForm, AdminLoginForm
 from django.views.generic import TemplateView
-
-
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def data_view(request):
@@ -43,7 +45,8 @@ class LoginView(APIView):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)  # ユーザーをログインさせる
+            backend = 'fipleapp.backends.UserBackend'
+            login(request, user, backend=backend)  # ユーザーをログインさせる
             return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
@@ -70,19 +73,39 @@ def admin_login(request):
             name = form.cleaned_data['name']
             password = form.cleaned_data['password']
             try:
-                admin = Admin.objects.get(name=name)
+                admin = AdminUser.objects.get(name=name)
                 if admin.check_password(password):
                     # ログイン成功
+                    backend = 'fipleapp.backends.AdminBackend'
+                    login(request, admin, backend=backend)
                     admin.save()  # login_dateを更新
                     messages.success(request, 'ログインしました')
                     return redirect('accounts:admin_top')  # ダッシュボードページへリダイレクト
                 else:
                     messages.error(request, 'パスワードが間違っています')
-            except Admin.DoesNotExist:
+            except AdminUser.DoesNotExist:
                 messages.error(request, '管理者が見つかりません')
     else:
         form = AdminLoginForm()
     return render(request, 'admin_login.html', {'form': form})
 
-class AdminTop(TemplateView):
+
+class AdminTop(LoginRequiredMixin, TemplateView):
     template_name = 'admin_top.html'
+    login_url = 'accounts:admin_login'  # ログインページのURL
+    redirect_field_name = 'redirect_to'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['user'] = self.request.user.name
+            print(self.request.user.name)
+        else:
+            print('ユーザーが見つかりません')
+        return context
+
+def admin_logout(request):
+    if request.method == 'GET':
+        logout(request)
+        messages.success(request, 'ログアウトしました')
+        return redirect('accounts:admin_login')

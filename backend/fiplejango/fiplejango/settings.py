@@ -128,3 +128,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'fipleapp.CustomUser'
 
+AUTHENTICATION_BACKENDS = [
+    'fipleapp.backends.AdminBackend',  # 管理者用バックエンド
+    'fipleapp.backends.UserBackend',   # 一般ユーザー用バックエンド
+    'django.contrib.auth.backends.ModelBackend',  # 必要に応じて追加（デフォルトバックエンド）
+]

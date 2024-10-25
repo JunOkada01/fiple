@@ -13,4 +13,5 @@ urlpatterns = [
     path('admin_create/', admin_create, name='admin_create'),
     path('admin_login/', admin_login, name='admin_login'),
     path('admin_top/', AdminTop.as_view(), name='admin_top'),
+    path('admin_logout/', admin_logout, name='admin_logout'),
 ]
