@@ -20,4 +20,7 @@ urlpatterns = [
     path('subcategories/', SubCategoryListView.as_view(), name='subcategory_list'),
     path('subcategories/add/', SubCategoryCreateView.as_view(), name='subcategory_add'),
     path('subcategories/delete/<int:pk>/', SubCategoryDeleteView.as_view(), name='subcategory_delete'),
+    path('colors/', ColorListView.as_view(), name='color_list'),
+    path('colors/add/', ColorCreateView.as_view(), name='color_add'),
+    path('colors/delete/<int:pk>/', ColorDeleteView.as_view(), name='color_delete'),
 ]

@@ -43,3 +43,11 @@ class SubCategoryForm(forms.ModelForm):
             'category': '主カテゴリ',
             'subcategory_name': 'サブカテゴリ名',
         }
+        
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        fields = ['color_name']
+        labels = {
+            'color_name': '色名',
+        }

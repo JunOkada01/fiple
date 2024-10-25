@@ -182,3 +182,38 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return SubCategory.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
+    
+# 色関連-----------------------------------------------------------------------------------------
+
+class ColorListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Color
+    template_name = 'color_list.html'
+    context_object_name = 'colors'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Color.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したサブカテゴリのみ
+    
+class ColorCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Color
+    form_class = ColorForm
+    template_name = 'color_form.html'
+    success_url = reverse_lazy('fipleapp:color_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+    
+class ColorDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Color
+    template_name = 'color_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:color_list')
+
+    def get_queryset(self):
+        return Color.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ

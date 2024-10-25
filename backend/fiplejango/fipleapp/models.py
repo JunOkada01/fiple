@@ -73,3 +73,8 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return self.subcategory_name
+    
+class Color(models.Model):
+    color_name = models.CharField(max_length=255, unique=True)  # 色名
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
