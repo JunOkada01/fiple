@@ -2,6 +2,10 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faKey } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -35,29 +39,31 @@ const Login = () => {
                     <h2 className="text-[20px] font-semibold text-center mt-5 mb-5">
                         会員登録されている方
                     </h2>
-                    <div>
-                        <label className="block text-sm mb-2">
-                            ユーザー名
-                            <input
-                                type="text"
-                                className="mt-1 w-full p-2 text-xl border-b-2 border-gray-400 focus:outline-none focus:border-black transition-colors"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                required
-                            />
+                    <div className="flex items-center border-b-2 border-gray-400 mb-4">
+                        <label className="flex items-center text-sm">
+                            <FontAwesomeIcon icon={faEnvelope} className='mr-2 text-xl' />
                         </label>
+                        <input
+                            type="text"
+                            className="mt-1 w-full p-2 text-m focus:outline-none"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder='メールだけど名前を入力してください'
+                            required
+                        />
                     </div>
-                    <div>
-                        <label className="block text-sm mb-2">
-                            パスワード
-                            <input
-                                type="password"
-                                className="mt-1 w-full p-2 text-xl border-b-2 border-gray-400 focus:outline-none focus:border-black transition-colors"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                    <div className="flex items-center border-b-2 border-gray-400 mb-4">
+                        <label className="flex items-center text-m">
+                            <FontAwesomeIcon icon={faKey} className='mr-2 text-xl' />
                         </label>
+                        <input
+                            type="password"
+                            className="mt-1 w-full p-2 text-sm focus:outline-none"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder='パスワードを入力してください'
+                            required
+                        />
                     </div>
                     <button className="px-20 py-2 bg-black text-white hover:bg-gray-800">
                         ログイン
