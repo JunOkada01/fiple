@@ -51,3 +51,11 @@ class ColorForm(forms.ModelForm):
         labels = {
             'color_name': '色名',
         }
+        
+class SizeForm(forms.ModelForm):
+    class Meta:
+        model = Size
+        fields = ['size_name']
+        labels = {
+            'size_name': 'サイズ名',
+        }

@@ -217,3 +217,38 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Color.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
+    
+# サイズ関連-----------------------------------------------------------------------------------------
+
+class SizeListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Color
+    template_name = 'size_list.html'
+    context_object_name = 'sizes'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Size.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したサブカテゴリのみ
+    
+class SizeCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Size
+    form_class = SizeForm
+    template_name = 'size_form.html'
+    success_url = reverse_lazy('fipleapp:size_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+    
+class SizeDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Size
+    template_name = 'size_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:size_list')
+
+    def get_queryset(self):
+        return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
