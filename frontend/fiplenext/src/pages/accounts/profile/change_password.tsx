@@ -1,13 +1,25 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 const ChangePass: React.FC = () => {
+    const router = useRouter();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // パスワード変更処理は未実装です。
+        
+        // 成功したら登録情報画面にリダイレクト
+        router.push('/accounts/profile'); // ここでリダイレクト先のパスを指定
+    };
+
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
             <h1 className="text-4xl font-bold mt-[100px] mb-5">CHANGE PASSWORD</h1>
-            <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-10" /> {/* 区切り線の幅をさらに広く */}
+            <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-10" />
+
             <div className="flex flex-col items-center w-full max-w-lg">
-                <form className="w-full space-y-8">
+                <form className="w-full space-y-8" onSubmit={handleSubmit}>
                     <div className='flex items-center mb-5'>
                         <label className="text-left text-lg w-1/3">
                             現在のパスワード
@@ -38,7 +50,10 @@ const ChangePass: React.FC = () => {
                             placeholder="パスワードの確認"
                         />
                     </div>
-                    <button type="submit" className='w-full py-2 bg-black text-white text-xl hover:bg-gray-800 transition duration-200'>
+                    <button
+                        type="submit"
+                        className='w-full py-2 bg-black text-white text-xl hover:bg-gray-800 transition duration-200'
+                    >
                         パスワードを変更する
                     </button>
                 </form>

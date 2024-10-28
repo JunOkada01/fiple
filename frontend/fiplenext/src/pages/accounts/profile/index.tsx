@@ -25,11 +25,15 @@ const Profile: React.FC = () => {
                 <div className="profile-card-detail">
                     <div className="flex justify-between items-center border-b pt-[50px] pb-[50px]">
                         <span>基本情報</span>
-                        <button className="text-blue-500">変更</button>
+                        <Link href={'/accounts/profile/edit_profile'}>
+                            <button className="text-blue-500">変更</button>
+                        </Link>
                     </div>
                     <div className="flex justify-between items-center border-b pt-[20px] pb-[20px]">
                         <span>メールアドレス</span>
-                        <button className="text-blue-500">変更</button>
+                        <Link href={'/accounts/profile/change_email'}>
+                            <button className="text-blue-500">変更</button>
+                        </Link>
                     </div>
                     <div className="flex justify-between items-center border-b pt-[20px] pb-[20px]">
                         <span>パスワード</span>
