@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}商品画像一覧{% endblock %}
+{% block content %}
+<h4>商品画像一覧</h4>
+<br>
+<a href="{% url 'fipleapp:product_image_add' %}"><h5>商品画像を追加</h5></a>
+<br>
+<ul>
+    {% for image in product_images %}
+        <li>
+            <img src="{{ image.image.url }}" alt="{{ image.image_description }}" width="100"><br>
+            商品名: {{ image.product }}<br>
+            画像説明: {{ image.image_description }}<br>
+            追加日時: {{ image.created_at }}<br>
+            <a href="{% url 'fipleapp:product_image_edit' image.id %}">変更</a>
+            <a href="{% url 'fipleapp:product_image_delete' image.id %}">削除</a>
+        </li>
+        {% empty %}
+        <li>商品画像がありません。</li>
+    {% endfor %}
+</ul>
+
+<nav aria-label="ページネーション">
+	<ul class="pagination">
+
+		{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+		{% for page_num in page_obj.paginator.page_range %} 
+			{% if page_num == page_obj.number %}
+				<li class="page-item active">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% else %}
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% endif %}
+		{% endfor %}
+
+		{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+	</ul>
+</nav>
+{% endblock %}

@@ -418,9 +418,52 @@ class ProductTagUpdateView(LoginRequiredMixin, UpdateView):
 class ProductTagDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
-    model = Tag
+    model = ProductTag
     template_name = 'product_tag_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
 
     def get_queryset(self):
         return ProductTag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+# 商品画像関連----------------------------------------------------------------------------------------------------------
+
+class ProductImageListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductImage
+    template_name = 'product_image_list.html'
+    context_object_name = 'product_images'
+    paginate_by = 20
+    
+class ProductImageCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductImage
+    form_class = ProductImageForm
+    template_name = 'product_image_form.html'
+    success_url = reverse_lazy('fipleapp:product_image_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+
+class ProductImageUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductImage
+    form_class = ProductImageForm
+    template_name = 'product_image_form.html'
+    success_url = reverse_lazy('fipleapp:product_image_list')
+    
+    def get_queryset(self):
+        return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductImage
+    template_name = 'product_image_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:product_image_list')
+
+    def get_queryset(self):
+        return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ

@@ -101,3 +101,13 @@ class ProductTagForm(forms.ModelForm):
             'product_origin': '商品元',
             'tag': 'タグ',
         }
+        
+class ProductImageForm(forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = ['product', 'image', 'image_description']
+        labels = {
+            'product': '商品',
+            'image': '画像',
+            'image_description': '画像説明',
+        }

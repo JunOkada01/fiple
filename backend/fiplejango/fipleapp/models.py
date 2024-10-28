@@ -150,3 +150,13 @@ class ProductTag(models.Model):
 
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.tag.tag_name}"
+    
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID（Productモデルへの外部キー）
+    image = models.ImageField(upload_to='product_images/')  # 画像ファイル
+    image_description = models.TextField(blank=True, null=True)  # 画像説明
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+
+    def __str__(self):
+        return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示

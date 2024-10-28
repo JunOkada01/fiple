@@ -42,4 +42,8 @@ urlpatterns = [
     path('product-tags/add/', ProductTagCreateView.as_view(), name='product_tag_add'),
     path('product-tags/edit/<int:pk>/', ProductTagUpdateView.as_view(), name='product_tag_edit'),
     path('product-tags/delete/<int:pk>/', ProductTagDeleteView.as_view(), name='product_tag_delete'),
+    path('product-images/', ProductImageListView.as_view(), name='product_image_list'),
+    path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
+    path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
+    path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
 ]
