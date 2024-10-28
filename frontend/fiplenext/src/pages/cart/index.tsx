@@ -2,6 +2,10 @@ import React from 'react';
 import Link from 'next/link';  
 
 const Cart: React.FC = () => {  
+    const handleContinueShopping = () => {
+        window.history.back(); // 1つ前のページに戻る
+    };
+
     return (  
         <div className="container mx-auto max-w-screen-xl px-4">  
             <h1 className="text-3xl font-bold text-center my-8">SHOPPING CART</h1>  
@@ -48,7 +52,11 @@ const Cart: React.FC = () => {
                     <Link href="/cart/check">  
                         <button className="checkoutButton bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4">レジに進む</button>  
                     </Link>  
-                    <a href="#" className="continueLink text-blue-500 mt-2 inline-block">ショッピングを続ける</a>  
+                    <a 
+                        onClick={handleContinueShopping} 
+                        className="continueLink text-blue-500 mt-2 inline-block underline cursor-pointer">
+                        ショッピングを続ける
+                    </a>  
                 </div>  
             </div>  
         </div>  
