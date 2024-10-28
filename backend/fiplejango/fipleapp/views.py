@@ -19,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 
 def data_view(request):
@@ -252,3 +252,46 @@ class SizeDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
+    
+# 商品元関連----------------------------------------------------------------------------------------
+
+class ProductOriginListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductOrigin
+    template_name = 'product_origin_list.html'
+    context_object_name = 'products_origin'
+    paginate_by = 10
+    
+class ProductOriginCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductOrigin
+    form_class = ProductOriginForm
+    template_name = 'product_origin_form.html'
+    success_url = reverse_lazy('fipleapp:product_origin_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+
+class ProductOriginUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductOrigin
+    form_class = ProductOriginForm
+    template_name = 'product_origin_form.html'
+    success_url = reverse_lazy('fipleapp:product_origin_list')
+    
+    def get_queryset(self):
+        return ProductOrigin.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+class ProductOriginDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = ProductOrigin
+    template_name = 'product_origin_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:product_origin_list')
+
+    def get_queryset(self):
+        return ProductOrigin.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ

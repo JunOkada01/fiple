@@ -26,4 +26,8 @@ urlpatterns = [
     path('sizes/', SizeListView.as_view(), name='size_list'),
     path('sizes/add/', SizeCreateView.as_view(), name='size_add'),
     path('sizes/delete/<int:pk>/', SizeDeleteView.as_view(), name='size_delete'),
+    path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),
+    path('product-origins/add/', ProductOriginCreateView.as_view(), name='product_origin_add'),
+    path('product-origins/edit/<int:pk>/', ProductOriginUpdateView.as_view(), name='product_origin_edit'),
+    path('product-origins/delete/<int:pk>/', ProductOriginDeleteView.as_view(), name='product_origin_delete'),
 ]

@@ -83,3 +83,23 @@ class Size(models.Model):
     size_name = models.CharField(max_length=255, unique=True)  # サイズ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    
+class ProductOrigin(models.Model):
+    GENDER_CHOICES = [
+        ('male', '男性'),
+        ('female', '女性'),
+        ('other', 'その他'),
+    ]
+
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    product_name = models.CharField(max_length=255)  # 商品名
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # カテゴリID（Categoryモデルへの外部キー
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)  # サブカテゴリID（SubCategoryモデルへの外部キー
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)  # 性別（ラジオボタン）
+    description = models.TextField()  # 詳細
+    created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
+    is_active = models.BooleanField(default=True)  # 販売ステータス
+
+    def __str__(self):
+        return self.product_name

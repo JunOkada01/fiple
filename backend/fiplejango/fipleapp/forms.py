@@ -59,3 +59,15 @@ class SizeForm(forms.ModelForm):
         labels = {
             'size_name': 'サイズ名',
         }
+        
+class ProductOriginForm(forms.ModelForm):
+    class Meta:
+        model = ProductOrigin
+        fields = ['product_name', 'category', 'subcategory', 'gender', 'description']
+        labels = {
+            'product_name': '商品名',
+            'category': '主カテゴリ',
+            'subcategory': 'サブカテゴリ',
+            'gender': '性別',
+            'description': '商品説明',
+        }

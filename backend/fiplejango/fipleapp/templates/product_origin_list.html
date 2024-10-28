@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}商品元一覧{% endblock %}
+{% block content %}
+<h4>商品元一覧</h4>
+<br>
+<a href="{% url 'fipleapp:product_origin_add' %}"><h5>商品元を追加</h5></a>
+<br>
+<ul>
+    {% for product in products_origin %}
+        <li>
+            商品名: {{ product.product_name }}<br>
+            カテゴリ: {{ product.category.category_name }}<br>
+            サブカテゴリ: {{ product.subcategory.subcategory_name }}<br>
+            性別: {{ product.gender }}<br>
+            商品説明: {{ product.description }}<br>
+            追加日時: {{ product.created_at }}<br>
+            更新日時: {{ product.updated_at }}<br>
+            <a href="{% url 'fipleapp:product_origin_edit' product.id %}">変更</a>
+            <a href="{% url 'fipleapp:product_origin_delete' product.id %}">削除</a>
+        </li>
+        {% empty %}
+        <li>商品元がありません。</li>
+    {% endfor %}
+</ul>
+
+<nav aria-label="ページネーション">
+	<ul class="pagination">
+
+		{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+		{% for page_num in page_obj.paginator.page_range %} 
+			{% if page_num == page_obj.number %}
+				<li class="page-item active">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% else %}
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% endif %}
+		{% endfor %}
+
+		{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+	</ul>
+</nav>
+{% endblock %}
