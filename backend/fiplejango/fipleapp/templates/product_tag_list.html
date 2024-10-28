@@ -10,7 +10,7 @@
         <li>
             商品名:{{ tag.product_origin.product_name }}<br>
             タグ名:{{ tag.tag.tag_name }}<br>
-            <a href="{% url 'fipleapp:product_tag_edit' tag.id %}">変更</a>
+            <a href="{% url 'fipleapp:product_tag_edit' tag.id %}">変更</a>・
             <a href="{% url 'fipleapp:product_tag_delete' tag.id %}">削除</a>
         </li>
         {% empty %}

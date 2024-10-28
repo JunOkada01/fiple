@@ -12,7 +12,7 @@
             商品名: {{ image.product }}<br>
             画像説明: {{ image.image_description }}<br>
             追加日時: {{ image.created_at }}<br>
-            <a href="{% url 'fipleapp:product_image_edit' image.id %}">変更</a>
+            <a href="{% url 'fipleapp:product_image_edit' image.id %}">変更</a>・
             <a href="{% url 'fipleapp:product_image_delete' image.id %}">削除</a>
         </li>
         {% empty %}

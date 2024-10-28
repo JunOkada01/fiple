@@ -16,7 +16,7 @@
             販売ステータス: {{ product.status }}<br>
             追加日時: {{ product.created_at }}<br>
             更新日時: {{ product.updated_at }}<br>
-            <a href="{% url 'fipleapp:product_edit' product.id %}">変更</a>
+            <a href="{% url 'fipleapp:product_edit' product.id %}">変更</a>・
             <a href="{% url 'fipleapp:product_delete' product.id %}">削除</a>
         </li>
         {% empty %}

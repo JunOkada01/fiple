@@ -9,7 +9,7 @@
     {% for tag in tags %}
         <li>
             {{ tag.tag_name }}
-            <a href="{% url 'fipleapp:tag_edit' tag.id %}">変更</a>
+            <a href="{% url 'fipleapp:tag_edit' tag.id %}">変更</a>・
             <a href="{% url 'fipleapp:tag_delete' tag.id %}">削除</a>
         </li>
         {% empty %}

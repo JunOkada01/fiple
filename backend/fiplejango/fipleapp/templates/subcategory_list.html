@@ -9,6 +9,7 @@
     {% for category in subcategories %}
         <li>
             {{ category.subcategory_name }} (主カテゴリ: {{ category.category.category_name }})
+            <a href="{% url 'fipleapp:subcategory_edit' category.id %}">変更</a>・
             <a href="{% url 'fipleapp:subcategory_delete' category.id %}">削除</a>
         </li>
         {% empty %}

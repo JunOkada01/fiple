@@ -9,6 +9,7 @@
     {% for size in sizes %}
         <li>
             {{ size.size_name }}
+            <a href="{% url 'fipleapp:size_edit' size.id %}">変更</a>・
             <a href="{% url 'fipleapp:size_delete' size.id %}">削除</a>
         </li>
         {% empty %}

@@ -9,6 +9,7 @@
     {% for category in categories %}
         <li>
             {{ category.category_name }}
+            <a href="{% url 'fipleapp:category_edit' category.id %}">変更</a>・
             <a href="{% url 'fipleapp:category_delete' category.id %}">削除</a>
         </li>
         {% empty %}

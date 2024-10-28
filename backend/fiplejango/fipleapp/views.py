@@ -122,9 +122,6 @@ class CategoryListView(LoginRequiredMixin, ListView):
     template_name = 'category_list.html'
     context_object_name = 'categories'
     paginate_by = 20
-    
-    def get_queryset(self):
-        return Category.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したカテゴリのみ
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
@@ -137,6 +134,17 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
         return super().form_valid(form)
+    
+class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_form.html'
+    success_url = reverse_lazy('fipleapp:category_list')
+    
+    def get_queryset(self):
+        return Category.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
 
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
@@ -158,9 +166,6 @@ class SubCategoryListView(LoginRequiredMixin, ListView):
     context_object_name = 'subcategories'
     paginate_by = 20
     
-    def get_queryset(self):
-        return SubCategory.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したサブカテゴリのみ
-    
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -172,6 +177,17 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
         return super().form_valid(form)
+    
+class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = SubCategory
+    form_class = SubCategoryForm
+    template_name = 'subcategory_form.html'
+    success_url = reverse_lazy('fipleapp:subcategory_list')
+    
+    def get_queryset(self):
+        return SubCategory.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
@@ -193,9 +209,6 @@ class ColorListView(LoginRequiredMixin, ListView):
     context_object_name = 'colors'
     paginate_by = 20
     
-    def get_queryset(self):
-        return Color.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したサブカテゴリのみ
-    
 class ColorCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -207,6 +220,17 @@ class ColorCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
         return super().form_valid(form)
+    
+class ColorUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Color
+    form_class = ColorForm
+    template_name = 'color_form.html'
+    success_url = reverse_lazy('fipleapp:color_list')
+    
+    def get_queryset(self):
+        return Color.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
 class ColorDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
@@ -223,13 +247,10 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
 class SizeListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
-    model = Color
+    model = Size
     template_name = 'size_list.html'
     context_object_name = 'sizes'
     paginate_by = 20
-    
-    def get_queryset(self):
-        return Size.objects.filter(admin_user=self.request.user) # ログイン中の管理者が作成したサブカテゴリのみ
     
 class SizeCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
@@ -242,6 +263,17 @@ class SizeCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
         return super().form_valid(form)
+    
+class SizeUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Size
+    form_class = SizeForm
+    template_name = 'size_form.html'
+    success_url = reverse_lazy('fipleapp:size_list')
+    
+    def get_queryset(self):
+        return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
 class SizeDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'

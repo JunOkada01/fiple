@@ -9,6 +9,7 @@
     {% for color in colors %}
         <li>
             {{ color.color_name }}
+            <a href="{% url 'fipleapp:color_edit' color.id %}">変更</a>・
             <a href="{% url 'fipleapp:color_delete' color.id %}">削除</a>
         </li>
         {% empty %}
