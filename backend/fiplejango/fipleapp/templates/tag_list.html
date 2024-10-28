@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}タグ一覧{% endblock %}
+{% block content %}
+<h4>タグ一覧</h4>
+<br>
+<a href="{% url 'fipleapp:tag_add' %}"><h5>タグを追加</h5></a>
+<br>
+<ul>
+    {% for tag in tags %}
+        <li>
+            {{ tag.tag_name }}
+            <a href="{% url 'fipleapp:tag_edit' tag.id %}">変更</a>
+            <a href="{% url 'fipleapp:tag_delete' tag.id %}">削除</a>
+        </li>
+        {% empty %}
+        <li>タグがありません。</li>
+    {% endfor %}
+</ul>
+
+<nav aria-label="ページネーション">
+	<ul class="pagination">
+
+		{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+		{% for page_num in page_obj.paginator.page_range %} 
+			{% if page_num == page_obj.number %}
+				<li class="page-item active">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% else %}
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+				</li>
+			{% endif %}
+		{% endfor %}
+
+		{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{% endif %}
+
+	</ul>
+</nav>
+{% endblock %}

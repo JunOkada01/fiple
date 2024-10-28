@@ -71,3 +71,33 @@ class ProductOriginForm(forms.ModelForm):
             'gender': '性別',
             'description': '商品説明',
         }
+        
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status']
+        labels = {
+            'product_origin': '商品元',
+            'color': '色',
+            'size': 'サイズ',
+            'stock': '在庫数',
+            'price': '価格',
+            'status': '販売ステータス',
+        }
+        
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ['tag_name']
+        lables = {
+            'tag_name': 'タグ名',
+        }
+        
+class ProductTagForm(forms.ModelForm):
+    class Meta:
+        model = ProductTag
+        fields = ['product_origin', 'tag']
+        labels = {
+            'product_origin': '商品元',
+            'tag': 'タグ',
+        }

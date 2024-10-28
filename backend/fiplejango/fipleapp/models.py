@@ -79,10 +79,18 @@ class Color(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     
+    def __str__(self):
+        return self.color_name  # 色名を返す
+
+    
 class Size(models.Model):
     size_name = models.CharField(max_length=255, unique=True)  # サイズ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    
+    def __str__(self):
+        return self.size_name  # サイズ名を返す
+
     
 class ProductOrigin(models.Model):
     GENDER_CHOICES = [
@@ -103,3 +111,42 @@ class ProductOrigin(models.Model):
 
     def __str__(self):
         return self.product_name
+    
+class Product(models.Model):
+    STATUS_CHOICES = [
+        ('予約販売', '予約販売'),
+        ('販売中', '販売中'),
+        ('在庫切れ', '在庫切れ'),
+    ]
+    
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)  # 色ID
+    size = models.ForeignKey(Size, on_delete=models.CASCADE)  # サイズID
+    stock = models.PositiveIntegerField()  # 在庫数
+    price = models.IntegerField()  # 価格
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
+    created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
+
+    def __str__(self):
+        return f"{self.product_origin.product_name} - {self.color.color_name} - {self.size.size_name}"
+    
+class Tag(models.Model):
+    tag_name = models.CharField(max_length=255)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    
+    def __str__(self):
+        return self.tag_name
+    
+class ProductTag(models.Model):
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID（ProductOriginモデルへの外部キー）
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)  # タグID（Tagモデルへの外部キー）
+
+    class Meta:
+        unique_together = ('product_origin', 'tag')  # 商品とタグの組み合わせがユニークであることを保証
+
+    def __str__(self):
+        return f"{self.product_origin.product_name} - {self.tag.tag_name}"
