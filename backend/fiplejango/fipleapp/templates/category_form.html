@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}カテゴリ追加{% endblock %}
+{% block content %}
+<h4>カテゴリ追加</h4>
+<br>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">追加</button>
+</form>
+<br>
+<a href="{% url 'fipleapp:category_list' %}"><h5>戻る</h5></a>
+
+{% endblock %}
