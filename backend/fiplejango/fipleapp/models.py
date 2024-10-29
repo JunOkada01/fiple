@@ -61,6 +61,7 @@ class Category(models.Model):
     category_name = models.CharField(max_length=255, unique=True)  # カテゴリ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     def __str__(self):
         return self.category_name
@@ -70,6 +71,7 @@ class SubCategory(models.Model):
     subcategory_name = models.CharField(max_length=255, unique=True)  # サブカテゴリ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     def __str__(self):
         return self.subcategory_name
@@ -78,6 +80,7 @@ class Color(models.Model):
     color_name = models.CharField(max_length=255, unique=True)  # 色名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
         return self.color_name  # 色名を返す
@@ -87,6 +90,7 @@ class Size(models.Model):
     size_name = models.CharField(max_length=255, unique=True)  # サイズ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
         return self.size_name  # サイズ名を返す
@@ -136,6 +140,7 @@ class Tag(models.Model):
     tag_name = models.CharField(max_length=255)
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
         return self.tag_name
@@ -144,6 +149,8 @@ class ProductTag(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID（ProductOriginモデルへの外部キー）
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)  # タグID（Tagモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     class Meta:
         unique_together = ('product_origin', 'tag')  # 商品とタグの組み合わせがユニークであることを保証
@@ -157,6 +164,7 @@ class ProductImage(models.Model):
     image_description = models.TextField(blank=True, null=True)  # 画像説明
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
