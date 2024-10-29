@@ -3,6 +3,11 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
+import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Profile: React.FC = () => {
     return (
@@ -52,25 +57,29 @@ const Profile: React.FC = () => {
             {/* 下部のアイコンメニュー */}
             <div className="grid grid-cols-4 gap-4 mt-5 w-full max-w-[600px]">
                 <Link href={'/accounts/profile/address_form'}>
-                    <div className="flex flex-col items-center p-5 border rounded-lg h-32 w-32"> {/* 幅と高さを指定 */}
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#202020"><path d="M370-440h60v-120h100v120h60v-185l-110-73-110 73v185Zm110 281q133-121 196.5-219.5T740-552q0-118-75.5-193T480-820q-109 0-184.5 75T220-552q0 75 65 173.5T480-159Zm0 79Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>
-                            <span className="text-[12px] mt-2">お届け先の<br />追加と変更</span>
+                    <div className="flex flex-col items-center justify-center p-5 border rounded-lg h-32 w-32 hover:shadow-lg transition-transform transform hover:scale-105">
+                        <FontAwesomeIcon icon={faLocationDot} className='text-[36px]' />
+                        <span className="text-[12px] mt-2 text-center">お届け先の<br />追加と変更</span>
                     </div>
                 </Link>
                 <Link href={'/accounts/profile/credit_card'}>
-                    <div className="flex flex-col items-center p-5 border rounded-lg h-32 w-32"> {/* 幅と高さを指定 */}
-                        <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#202020"><path d="M880-740v520q0 24-18 42t-42 18H140q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42ZM140-631h680v-109H140v109Zm0 129v282h680v-282H140Zm0 282v-520 520Z"/></svg>
-                        <span className="text-[12px] mt-2">クレジット<br />カード変更</span>
+                    <div className="flex flex-col items-center justify-center p-5 border rounded-lg h-32 w-32 hover:shadow-lg transition-transform transform hover:scale-105">
+                        <FontAwesomeIcon icon={faCreditCard} className='text-[36px]' />
+                        <span className="text-[12px] mt-2 text-center">クレジット<br />カード変更</span>
                     </div>
                 </Link>
-                <div className="flex flex-col items-center p-5 border rounded-lg h-32 w-32"> {/* 幅と高さを指定 */}
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#202020"><path d="M300-286q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm0-164q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm0-164q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm132 328h244v-60H432v60Zm0-164h244v-60H432v60Zm0-164h244v-60H432v60ZM180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm0-600v600-600Z"/></svg>
-                    <span className="text-[12px] mt-2">注文履歴</span>
-                </div>
-                <div className="flex flex-col items-center p-5 border rounded-lg h-32 w-32"> {/* 幅と高さを指定 */}
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#202020"><path d="M224.12-161q-49.12 0-83.62-34.42Q106-229.83 106-279H40v-461q0-24 18-42t42-18h579v167h105l136 181v173h-71q0 49.17-34.38 83.58Q780.24-161 731.12-161t-83.62-34.42Q613-229.83 613-279H342q0 49-34.38 83.5t-83.5 34.5Zm-.12-60q24 0 41-17t17-41q0-24-17-41t-41-17q-24 0-41 17t-17 41q0 24 17 41t41 17ZM100-339h22q17-27 43.04-43t58-16q31.96 0 58.46 16.5T325-339h294v-401H100v401Zm631 118q24 0 41-17t17-41q0-24-17-41t-41-17q-24 0-41 17t-17 41q0 24 17 41t41 17Zm-52-204h186L754-573h-75v148ZM360-529Z"/></svg>
-                    <span className="text-[12px] mt-2">配送状況</span>
-                </div>
+                <Link href={'#'}>
+                    <div className="flex flex-col items-center justify-center p-5 border rounded-lg h-32 w-32 hover:shadow-lg transition-transform transform hover:scale-105">
+                        <FontAwesomeIcon icon={faClockRotateLeft} className='text-[36px]' />
+                        <span className="text-[12px] mt-2 text-center">注文履歴</span>
+                    </div>
+                </Link>
+                <Link href={'#'}>
+                    <div className="flex flex-col items-center justify-center p-5 border rounded-lg h-32 w-32 hover:shadow-lg transition-transform transform hover:scale-105">
+                        <FontAwesomeIcon icon={faTruck} className='text-[36px]' />
+                        <span className="text-[12px] mt-2 text-center">配送状況</span>
+                    </div>
+                </Link>
             </div>
         </div>
     );
