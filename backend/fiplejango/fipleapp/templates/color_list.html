@@ -1,16 +1,25 @@
 {% extends 'base.html' %}
 {% block title %}色一覧{% endblock %}
 {% block content %}
-<h4>色一覧</h4>
+<h4>・色一覧</h4>
 <br>
-<a href="{% url 'fipleapp:color_add' %}"><h5>色を追加</h5></a>
+<div class="col-lg-2 col-md-3 col-sm-4 col-6">
+	<a href="{% url 'fipleapp:color_add' %}"><div class="icon-tile">
+		<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#28A745"><path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-85 32-158t87.5-127q55.5-54 130-84.5T489-880q79 0 150 26.5T763.5-780q53.5 47 85 111.5T880-527q0 108-63 170.5T650-294h-75q-18 0-31 14t-13 31q0 27 14.5 46t14.5 44q0 38-21 58.5T480-80Zm0-400Zm-233 26q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm126-170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm214 0q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm131 170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15ZM480-140q11 0 15.5-4.5T500-159q0-14-14.5-26T471-238q0-46 30-81t76-35h73q76 0 123-44.5T820-527q0-132-100-212.5T489-820q-146 0-247.5 98.5T140-480q0 141 99.5 240.5T480-140Z"/></svg>
+		<h6>色追加</h6>
+	</div></a>
+</div>
 <br>
 <ul>
     {% for color in colors %}
         <li>
-            {{ color.color_name }}
-            <a href="{% url 'fipleapp:color_edit' color.id %}">変更</a>・
-            <a href="{% url 'fipleapp:color_delete' color.id %}">削除</a>
+            {{ color.color_name }}　
+            <a href="{% url 'fipleapp:color_edit' color.id %}">変更
+			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg></a>
+			・
+            <a href="{% url 'fipleapp:color_delete' color.id %}">削除
+			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/></svg>
+			</a>
         </li>
         {% empty %}
         <li>色がありません。</li>

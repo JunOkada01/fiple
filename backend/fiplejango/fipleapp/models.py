@@ -94,9 +94,9 @@ class Size(models.Model):
     
 class ProductOrigin(models.Model):
     GENDER_CHOICES = [
-        ('male', '男性'),
-        ('female', '女性'),
-        ('other', 'その他'),
+        ('男性', '男性'),
+        ('女性', '女性'),
+        ('その他', 'その他'),
     ]
 
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）

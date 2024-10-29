@@ -89,7 +89,7 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ['tag_name']
-        lables = {
+        labels = {
             'tag_name': 'タグ名',
         }
         
