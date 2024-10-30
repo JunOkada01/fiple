@@ -1,13 +1,24 @@
 /* マネキンエリアのスタイル */
-.mannequinArea {
+/* .mannequinArea {
     width: 100%;
-    height: 20rem; /* 高さを指定して縦長にする */
-    background-color: #e5e7eb; /* gray-200 */
-    margin-bottom: 1rem; /* mb-4 */
+    height: 20rem; 
+    background-color: #e5e7eb; 
+    margin-bottom: 1rem; 
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} */
+
+
+.mannequinArea {
+    height: 300px;
+    width: 100%;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
 
 /* カートエリアのスタイル */
 .cartArea {
@@ -41,7 +52,7 @@
     position: sticky; /* スクロールしてもついてくるようにする */
     top: 100px; /* スクロール時にページ上部からの位置を0にする */
     margin-top: -200px;
-    height: 100vh; /* 画面全体の高さに合わせる */
+    height: 150vh; /* 画面全体の高さに合わせる */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
