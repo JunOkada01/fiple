@@ -8,8 +8,7 @@ import Link from "next/link";
 import '@fortawesome/fontawesome-svg-core'
 import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
-//import Image from "next/image";
-//import Link from 'next/link'
+import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
 
 
 function App({ Component, pageProps }: AppProps) {

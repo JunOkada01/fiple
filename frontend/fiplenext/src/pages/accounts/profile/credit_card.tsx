@@ -46,7 +46,7 @@ const CreditCardManagement: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-6">
-            <h1 className="text-3xl font-bold mt-10 mb-6">クレジットカード情報の管理</h1>
+            <h1 className="text-3xl mt-10 mb-6">クレジットカード情報の管理</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-10" />
 
             <div className="w-full max-w-lg space-y-6">

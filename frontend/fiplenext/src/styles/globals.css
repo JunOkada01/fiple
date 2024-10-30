@@ -12,7 +12,7 @@
 body {  
   color: var(--foreground);  
   background: var(--background);  
-  font-family: Arial, Helvetica, sans-serif;  
+  font-family: 'Julius Sans One', sans-serif; /* デフォルトフォントを設定 */
 }  
 
 /* レイアウトコンテナ */  
@@ -21,14 +21,14 @@ body {
   margin: 0 auto;  
 }  
 
-/* ナビゲーション */  
+/* ナビゲーション */
 .target-nav {  
   display: flex;  
   justify-content: center;  
   align-items: center;  
-  margin: 50px 0;  
+  margin: 50px 0;
 }  
-.target-nav li {  
+.target-nav li {
   padding: 0 15px;  
   border-left: 0.5px solid #333;  
   border-right: 0.5px solid #333;  

@@ -30,7 +30,7 @@ const Login = () => {
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
             {/* タイトル部分 */}
-            <h1 className="text-4xl font-bold mt-[100px] mb-5">LOGIN</h1>
+            <h1 className="text-4xl mt-[100px] mb-5">LOGIN</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" /> {/* 区切り線の幅をさらに広く */}
 
             <div className="flex w-full max-w-2xl justify-between items-stretch"> {/* 最大幅を調整 */}
