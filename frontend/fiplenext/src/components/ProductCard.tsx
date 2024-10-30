@@ -19,7 +19,6 @@ const ProductCard: React.FC = () => {
         <div className="bg-white rounded-sm border border-[1px] p-0 w-full max-w-sm">
             <Link href={`/product/detail/`}>
                 <div className="relative w-full aspect-[3/4]"> {/* アスペクト比3:4を維持 */}
-                    {/* ここはDBから商品を受け取り、画像を表示する */}
                     <Image 
                         src="/sample_item.png" 
                         alt="商品画像" 
@@ -35,11 +34,11 @@ const ProductCard: React.FC = () => {
                 <p className="text-gray-900 text-lg mt-1">¥5,800</p>
 
                 {/* ボタンエリア */}
-                <div className="flex justify-end mt-2 space-x-3">
+                <div className="flex justify-end mt-2 space-x-[80px]"> {/* ボタン同士の間隔とパディングを追加 */}
                     {/* 試着アイコンボタン */}
                     <div 
                         onClick={toggleTryingOn} 
-                        className={`w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'}`}
+                        className={`cursor-pointer transition-all duration-150 ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'}`}
                     >
                         <FontAwesomeIcon 
                             icon={faShirt} 
@@ -50,7 +49,7 @@ const ProductCard: React.FC = () => {
                     {/* お気に入りアイコンボタン */}
                     <div 
                         onClick={toggleFavorited} 
-                        className={`w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 ${isFavorited ? 'text-red-500' : 'text-red-300 hover:text-red-200'}`}
+                        className={`cursor-pointer transition-all duration-150 ${isFavorited ? 'text-red-500' : 'text-red-300 hover:text-red-200'}`}
                     >
                         <FontAwesomeIcon 
                             icon={faHeart} 
