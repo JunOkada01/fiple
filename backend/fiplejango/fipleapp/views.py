@@ -43,3 +43,77 @@ class LoginView(APIView):
             return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+import jwt
+from datetime import datetime, timedelta
+
+User = get_user_model()
+
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {'error': 'メールアドレスは必須です。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = User.objects.filter(email=email).first()
+        if user:
+            # トークンの生成
+            token = jwt.encode({
+                'user_id': user.id,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, settings.SECRET_KEY, algorithm='HS256')
+
+            # リセットリンクの作成
+            reset_link = f'http://localhost:3000/accounts/password/reset/{token}'
+
+            # メール送信
+            send_mail(
+                '【サイト名】パスワードリセット',
+                f'以下のリンクからパスワードをリセットしてください：\n\n{reset_link}\n\nこのリンクは24時間有効です。',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+
+        # セキュリティのため、ユーザーが存在しない場合でも同じレスポンスを返す
+        return Response({'message': 'パスワードリセット手順をメールで送信しました。'})
+
+class PasswordResetConfirmView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        password = request.data.get('password')
+
+        if not token or not password:
+            return Response(
+                {'error': '無効なリクエストです。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # トークンの検証
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.get(id=payload['user_id'])
+
+            # パスワードの更新
+            user.set_password(password)
+            user.save()
+
+            return Response({'message': 'パスワードが正常に更新されました。'})
+
+        except (jwt.ExpiredSignatureError, jwt.DecodeError, User.DoesNotExist):
+            return Response(
+                {'error': '無効または期限切れのトークンです。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
