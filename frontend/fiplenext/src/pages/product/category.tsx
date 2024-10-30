@@ -9,7 +9,7 @@ const Category: React.FC = () => {
             <h1 className="text-2xl font-bold text-center mb-6">カテゴリ名</h1>  
             
             {/* 商品カードを5つずつ横に並べるグリッド */}  
-            <div className="grid grid-cols-5 gap-4 max-w-full">  
+            <div className="grid grid-cols-5 gap-6 max-w-full">  
             <ProductCard />  
             <ProductCard />  
             <ProductCard />  
