@@ -137,9 +137,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-mail.outlook.com' # 使用するメールサーバー
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'fko2347023@stu.o-hara.ac.jp'
-EMAIL_HOST_PASSWORD = 'Kuhaku2de1'
-DEFAULT_FROM_EMAIL = 'fko2347023@stu.o-hara.ac.jp'
+EMAIL_HOST_USER = 'fko2347022@stu.o-hara.ac.jp'
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'fko2347022@stu.o-hara.ac.jp'
 
 # JWT設定
 # SECRET_KEY = 'your-secret-key'  # すでに設定されているはず

@@ -15,8 +15,8 @@ interface CartItem {
 }
 
 const Home: React.FC = () => {
-  const [height, setHeight] = useState<number>(0); // デフォルト身長
-  const [weight, setWeight] = useState<number>(0); // デフォルト体重
+  const [height, setHeight] = useState<number>(180); // デフォルト身長
+  const [weight, setWeight] = useState<number>(70); // デフォルト体重
   const [cartItems, setCartItems] = useState<CartItem[]>([
     { id: 1, name: 'Tシャツ', price: 3000 },
     { id: 2, name: 'ジーンズ', price: 5000 },
@@ -35,9 +35,9 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    setHeight(180);
-    setWeight(70);
-  }, [height, weight]);
+    // 初期値がすでにステートに設定されているため、
+    // ここでの設定は不要になります
+  }, []);
 
 
   return (
