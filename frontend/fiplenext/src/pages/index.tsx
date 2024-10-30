@@ -1,67 +1,20 @@
-import ProductCard from '@styles/components/ProductCard';  
-import React from 'react';  
+import { useEffect, useState } from "react";
 
-const Home: React.FC = () => {  
-  return (  
-    <div className="container mx-auto max-w-screen-xl px-4">  
-      {/* 性別カテゴリメニュー */}  
-      <ul className="flex justify-center items-center my-12">  
-        <li className="px-4 border-l border-r border-gray-300">ALL</li>  
-        <li className="px-4 border-l border-r border-gray-300">MENS</li>  
-        <li className="px-4 border-l border-r border-gray-300">LADIES</li>  
-        <li className="px-4 border-l border-r border-gray-300">KIDS</li>  
-      </ul>  
+export default function Home() {
+  const [message, setMessage] = useState(null);
 
-      {/* 商品リスト */}  
-      <div className="flex justify-center items-center flex-col">  
-        <div className="flex flex-col space-y-6">  
-          <p className="text-lg text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-          </div>  
-        </div>  
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/data/")
+      .then((response) => response.json())
+      .then((data) => {
+        setMessage(data.message);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
-        {/* 以下、他のカテゴリについても同様にリスト */}  
-        <div className="flex flex-col space-y-6 mt-10">  
-          <p className="text-lg text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-          </div>  
-        </div>  
-
-        <div className="flex flex-col space-y-6 mt-10">  
-          <p className="text-lg text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-          </div>  
-        </div>  
-      </div>  
-    </div>  
-  );  
-};  
-
-export default Home;
+  return (
+    <div>
+      <h1>{message || "Loading..."}</h1>
+    </div>
+  );
+}
