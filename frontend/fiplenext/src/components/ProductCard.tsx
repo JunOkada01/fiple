@@ -1,30 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
 
 const ProductCard: React.FC = () => {
+    // ボタンの状態を管理するステート
+    const [isTryingOn, setIsTryingOn] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(false);
+
+    // 試着ボタンのトグル関数
+    const toggleTryingOn = () => setIsTryingOn((prev) => !prev);
+    
+    // お気に入りボタンのトグル関数
+    const toggleFavorited = () => setIsFavorited((prev) => !prev);
+
     return (
-        <Link href={`/product/detail/`}>
-            <div className="bg-white rounded-sm shadow-lg p-0 w-[170px]">
-                <img src="" alt="商品画像" className="w-full aspect-[3/4] object-cover shadow-md rounded-t-md" />
-                <div className="p-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-gray-900 text-lg font-medium">商品名</h3>
-                        <p className="text-gray-500 text-sm">カテゴリ</p>
+        <div className="bg-white rounded-sm border border-[1px] p-0 w-full max-w-sm">
+            <Link href={`/product/detail/`}>
+                <div className="relative w-full aspect-[3/4]"> {/* アスペクト比3:4を維持 */}
+                    {/* ここはDBから商品を受け取り、画像を表示する */}
+                    <Image 
+                        src="/sample_item.png" 
+                        alt="商品画像" 
+                        layout="fill" // 親要素のサイズに合わせて自動調整
+                        objectFit="cover" // 親要素のアスペクト比に合わせて切り抜き
+                    />
+                </div>
+            </Link>
+            <div className="p-4">
+                <div className="flex justify-between items-center">
+                    <p className="text-gray-500 text-sm">カテゴリ</p>
+                </div>
+                <p className="text-gray-900 text-lg mt-1">¥5,800</p>
+
+                {/* ボタンエリア */}
+                <div className="flex justify-end mt-2 space-x-3">
+                    {/* 試着アイコンボタン */}
+                    <div 
+                        onClick={toggleTryingOn} 
+                        className={`w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'}`}
+                    >
+                        <FontAwesomeIcon 
+                            icon={faShirt} 
+                            className="text-md transition-all duration-150" 
+                        />
                     </div>
-                    <p className="text-gray-900 text-xl mt-1">¥5,800</p>
-                    <div className="flex justify-end mt-2">
-                        <button className="text-gray-800 font-bold py-2 px-4 rounded">
-                            <FontAwesomeIcon icon={faShirt} />
-                        </button>
-                        <button className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded ml-2">
-                            <FontAwesomeIcon icon={faHeart} />
-                        </button>
+
+                    {/* お気に入りアイコンボタン */}
+                    <div 
+                        onClick={toggleFavorited} 
+                        className={`w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 ${isFavorited ? 'text-red-500' : 'text-red-300 hover:text-red-200'}`}
+                    >
+                        <FontAwesomeIcon 
+                            icon={faHeart} 
+                            className="text-md transition-all duration-150" 
+                        />
                     </div>
                 </div>
             </div>
-        </Link>
+        </div>
     );
 };
 
