@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from rest_framework import generics
 from .models import *
-from .serializers import UserSerializer
+from .serializers import *
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,6 +24,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
+
+class APIProductListView(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

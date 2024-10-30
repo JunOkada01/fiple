@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,3 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])  # パスワードをハッシュ化して保存
         user.save()
         return user
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'product_origin', 'color', 'size', 'stock', 'price', 'status']
