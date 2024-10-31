@@ -21,6 +21,24 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
+from django.contrib.auth.hashers import check_password
+from .models import Admin
+import json  # jsonモジュールのインポート
+from django.utils import timezone  # timezoneのインポート
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+import json
+from rest_framework import generics
+from .serializers import UserSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login
+
+
+
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
