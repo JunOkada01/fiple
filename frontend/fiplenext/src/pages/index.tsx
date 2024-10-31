@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from '@styles/components/ProductCard';
 // import MannequinModel from '../components/MannequinModel';
 import styles from '../styles/Home.module.css';

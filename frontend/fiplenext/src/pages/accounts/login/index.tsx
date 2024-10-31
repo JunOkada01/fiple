@@ -70,7 +70,7 @@ const Login = () => {
                     </button>
                     <a href="password/forget" className="text-black underline text-center">
                         パスワードを忘れた？
-                    </Link>
+                    </a>
                 </form>
 
                 {/* 区切り線 */}
