@@ -14,6 +14,7 @@ urlpatterns = [
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
+    path('api/products/', ProductListView.as_view(), name='product-list'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
     path('categories/add/', CategoryCreateView.as_view(), name='category_add'),
     path('categories/edit/<int:pk>/', CategoryUpdateView.as_view(), name='category_edit'),

@@ -12,7 +12,7 @@ const Home: React.FC = () => {
       {/* 商品リスト */}  
       <div className="flex justify-center items-center flex-col">  
         <div className="flex flex-col space-y-6">  
-          <p className="text-lg text-center">カテゴリ名</p>  
+          <p className="text-xl text-center">カテゴリ名</p>  
           <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
             <ProductCard />  
             <ProductCard />  

@@ -7,7 +7,7 @@ const Favorites: React.FC = () => {
         <h1 className="text-3xl text-center my-8">YOUR LIKED ITEMS</h1>  
         
         <div className="flex flex-col items-center">  
-            <div className="grid grid-cols-5 gap-4 max-w-full">  
+            <div className="grid grid-cols-5 gap-5 max-w-full">  
             <ProductCard />  
             <ProductCard />  
             <ProductCard />  

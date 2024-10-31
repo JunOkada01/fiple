@@ -9,6 +9,8 @@ import '@fortawesome/fontawesome-svg-core'
 import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
 import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
+import { motion } from "framer-motion";
+
 
 
 function App({ Component, pageProps }: AppProps) {

@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import *
+from .serializers import ProductListSerializer
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
@@ -499,3 +500,12 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+
+
+"""ーーーーーーここからNext.jsーーーーーー"""
+class APIProductListView(APIView):
+    def get(self, request):
+        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
+        serializer = ProductListSerializer(products, many=True)
+        return Response(serializer.data)

@@ -9,7 +9,7 @@ const Category: React.FC = () => {
         <AllMensLeadiesKidsFilter />
         {/* 商品リスト */}  
         <div className="flex flex-col items-center">  
-            <h1 className="text-2xl text-center mb-6">カテゴリ名</h1>  
+            <h1 className="text-xl text-center mb-6">カテゴリ名</h1>  
             
             {/* 商品カードを5つずつ横に並べるグリッド */}  
             <div className="grid grid-cols-4 gap-6 max-w-[700px]">  

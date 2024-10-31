@@ -9,6 +9,9 @@
   }  
 }  
 
+/* globals.css */
+
+
 body {  
   color: var(--foreground);  
   background: var(--background);  
