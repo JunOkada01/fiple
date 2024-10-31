@@ -10,7 +10,39 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+import jwt
+from datetime import datetime, timedelta
 
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        try:
+            # まずメールアドレスからユーザーを取得
+            user = CustomUser.objects.get(email=email)
+            # そのユーザーの認証を試みる
+            auth_user = authenticate(request, username=user.username, password=password)
+            
+            if auth_user is not None:
+                login(request, auth_user)
+                return Response({
+                    "message": "Login successful!",
+                    "user": {
+                        "email": auth_user.email,
+                        "username": auth_user.username
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "パスワードが正しくありません。"}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except CustomUser.DoesNotExist:
+            return Response({"error": "このメールアドレスは登録されていません。"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -30,31 +62,6 @@ class RegisterView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)  # ユーザーをログインさせる
-            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
 
 User = get_user_model()
 
