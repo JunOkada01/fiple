@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import CustomUser
 from .models import Product
 from .models import *
- 
+from rest_framework import serializers
+from .models import Admin
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -51,8 +52,8 @@ class ProductListSerializer(serializers.ModelSerializer):
  
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory_name', 'price', 'images']from rest_framework import serializers
-from .models import Admin
+        fields = ['id', 'product_name', 'category', 'subcategory_name', 'price', 'images']
+
 
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
