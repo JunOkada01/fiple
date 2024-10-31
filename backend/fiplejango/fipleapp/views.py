@@ -334,6 +334,11 @@ class ProductOriginDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return ProductOrigin.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'subcategory_name')
+    return JsonResponse(list(subcategories), safe=False)
+    
 # 商品関連----------------------------------------------------------------------------------------------------------
 
 class ProductListView(LoginRequiredMixin, ListView):

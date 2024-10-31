@@ -32,6 +32,7 @@ urlpatterns = [
     path('sizes/delete/<int:pk>/', SizeDeleteView.as_view(), name='size_delete'),
     path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),
     path('product-origins/add/', ProductOriginCreateView.as_view(), name='product_origin_add'),
+    path('get-subcategories/', get_subcategories, name='get_subcategories'),
     path('product-origins/edit/<int:pk>/', ProductOriginUpdateView.as_view(), name='product_origin_edit'),
     path('product-origins/delete/<int:pk>/', ProductOriginDeleteView.as_view(), name='product_origin_delete'),
     path('products/', ProductListView.as_view(), name='product_list'),
