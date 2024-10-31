@@ -1,20 +1,71 @@
-import { useEffect, useState } from "react";
+import ProductCard from '@styles/components/ProductCard';
+import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
+import React from 'react';  
+import Link from 'next/link';
 
-export default function Home() {
-  const [message, setMessage] = useState(null);
+const Home: React.FC = () => {  
+  return (  
+    <div className="container mx-auto max-w-screen-xl px-4">  
+      {/* 性別カテゴリメニュー */}
+      <AllMensLeadiesKidsFilter />
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/data/")
-      .then((response) => response.json())
-      .then((data) => {
-        setMessage(data.message);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+      {/* 商品リスト */}  
+      <div className="flex justify-center items-center flex-col">  
+        <div className="flex flex-col space-y-6">  
+          <p className="text-lg text-center">カテゴリ名</p>  
+          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+          </div>
+          <Link href="/product/category" className="text-black underline text-right">
+              もっと見る
+          </Link>
+        </div>  
 
-  return (
-    <div>
-      <h1>{message || "Loading..."}</h1>
-    </div>
-  );
-}
+        {/* 以下、他のカテゴリについても同様にリスト */}  
+        <div className="flex flex-col space-y-6 mt-10">  
+          <p className="text-lg text-center">カテゴリ名</p>  
+          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+          </div>
+          <Link href="/product/category" className="text-black underline text-right">
+              もっと見る
+          </Link>
+        </div>  
+
+        <div className="flex flex-col space-y-6 mt-10">  
+          <p className="text-lg text-center">カテゴリ名</p>  
+          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+            <ProductCard />  
+          </div>
+          <Link href="/product/category" className="text-black underline text-right">
+              もっと見る
+          </Link>
+        </div>  
+      </div>  
+    </div>  
+  );  
+};  
