@@ -42,3 +42,60 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'price', 'images']
+        
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = ['id', 'color_name']
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ['id', 'size_name']
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'tag_name']
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'image_description']
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    color = ColorSerializer()
+    size = SizeSerializer()
+    stock_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['id', 'color', 'size', 'stock', 'price', 'status', 'stock_status']
+
+    def get_stock_status(self, obj):
+        if obj.stock > 0:
+            return "在庫あり"
+        return "在庫なし"
+
+class ProductOriginDetailSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductOrigin
+        fields = ['id', 'product_name', 'description', 'gender', 'products', 'tags', 'images']
+
+    def get_products(self, obj):
+        products = Product.objects.filter(product_origin=obj)
+        return ProductDetailSerializer(products, many=True).data
+
+    def get_tags(self, obj):
+        product_tags = ProductTag.objects.filter(product_origin=obj)
+        return TagSerializer([pt.tag for pt in product_tags], many=True).data
+
+    def get_images(self, obj):
+        # 関連する全ての製品のIDを取得
+        product_ids = Product.objects.filter(product_origin=obj).values_list('id', flat=True)
+        images = ProductImage.objects.filter(product_id__in=product_ids)
+        return ProductImageSerializer(images, many=True).data

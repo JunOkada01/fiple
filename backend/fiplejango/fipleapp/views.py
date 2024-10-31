@@ -7,7 +7,7 @@ import json
 from rest_framework import generics
 from .models import *
 from .serializers import *
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -20,6 +20,8 @@ from django.contrib.auth import logout
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.db.models import Prefetch
+from rest_framework.decorators import action
 
 
 def data_view(request):
@@ -30,6 +32,7 @@ class APIProductListView(APIView):
         products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

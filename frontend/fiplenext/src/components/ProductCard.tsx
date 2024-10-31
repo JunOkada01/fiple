@@ -4,14 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
 
 interface ProductCardProps {
+    id: number;
     categoryName: string;
     price: number;
     imageUrl: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ categoryName, price, imageUrl }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, categoryName, price, imageUrl }) => {
     return (
-        <Link href={`/product/detail/`}>
+        <Link href={`/product/detail/${id}`}>
             <div className="bg-white rounded-sm shadow-lg p-0 w-[170px]">
                 <img src={imageUrl} alt="商品画像" className="w-full aspect-[3/4] object-cover shadow-md rounded-t-md" />
                 <div className="p-4">
