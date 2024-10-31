@@ -27,8 +27,8 @@ def data_view(request):
 
 class APIProductListView(APIView):
     def get(self, request):
-        products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
+        serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
 
 # アカウント関連-----------------------------------------------------------------------------------------

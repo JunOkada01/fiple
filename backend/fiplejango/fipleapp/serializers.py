@@ -24,7 +24,21 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-class ProductSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'category_name']
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'image_description']
+
+class ProductListSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(source='product_origin.category')
+    images = ProductImageSerializer(source='productimage_set', many=True)
+    product_name = serializers.CharField(source='product_origin.product_name')
+
     class Meta:
         model = Product
-        fields = ['id', 'product_origin', 'color', 'size', 'stock', 'price', 'status']
+        fields = ['id', 'product_name', 'category', 'price', 'images']
