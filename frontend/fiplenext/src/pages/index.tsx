@@ -14,15 +14,15 @@ const Home: React.FC = () => {
         <div className="flex flex-col space-y-6">  
           <p className="text-xl text-center">カテゴリ名</p>  
           <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
+            <ProductCard />
           </div>
           <Link href="/product/category" className="text-black underline text-right">
               もっと見る

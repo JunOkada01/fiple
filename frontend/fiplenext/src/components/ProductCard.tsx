@@ -29,7 +29,7 @@ const ProductCard: React.FC = () => {
             </Link>
             <div className="p-4">
                 <div className="flex justify-between items-center">
-                    <p className="text-gray-500 text-sm">カテゴリ</p>
+                    <p className="text-gray-500 text-[10px]">カテゴリ/サブカテゴリ</p>
                 </div>
                 <p className="text-gray-900 text-lg mt-1">¥5,800</p>
 
