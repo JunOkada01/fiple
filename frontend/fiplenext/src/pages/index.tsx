@@ -13,16 +13,18 @@ const Home: React.FC = () => {
       <div className="flex justify-center items-center flex-col">  
         <div className="flex flex-col space-y-6">  
           <p className="text-xl text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
+          <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">  
+            <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+            </div>
           </div>
           <Link href="/product/category" className="text-black underline text-right">
               もっと見る
@@ -32,16 +34,18 @@ const Home: React.FC = () => {
         {/* 以下、他のカテゴリについても同様にリスト */}  
         <div className="flex flex-col space-y-6 mt-10">  
           <p className="text-lg text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
+          <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">  
+            <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+            </div>
           </div>
           <Link href="/product/category" className="text-black underline text-right">
               もっと見る
@@ -50,16 +54,18 @@ const Home: React.FC = () => {
 
         <div className="flex flex-col space-y-6 mt-10">  
           <p className="text-lg text-center">カテゴリ名</p>  
-          <div className="flex overflow-x-auto max-w-[700px] gap-4 scrollbar-hide">  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
+          <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">  
+            <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+              <ProductCard />  
+            </div>
           </div>
           <Link href="/product/category" className="text-black underline text-right">
               もっと見る
