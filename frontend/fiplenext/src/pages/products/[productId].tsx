@@ -95,7 +95,7 @@ const ProductDetail: React.FC = () => {
             {selectedImage && (
               <img 
                 className="w-full h-auto" 
-                src={selectedImage} 
+                src={`http://127.0.0.1:8000${selectedImage}`}
                 alt={product.product_name} 
               />
             )}
@@ -111,11 +111,7 @@ const ProductDetail: React.FC = () => {
                   }`}
                   onClick={() => setSelectedImage(image.image)}
                 >
-                  <img 
-                    className="w-full h-auto" 
-                    src={image.image} 
-                    alt={image.image_description || product.product_name} 
-                  />
+                  <button>{variant.color.color_name}</button>
                 </div>
               ))
             )}

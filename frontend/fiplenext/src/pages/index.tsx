@@ -1,9 +1,9 @@
 import { GetServerSideProps } from 'next';
 import ProductCard from '../components/ProductCard'; // ProductCardをインポート
-import { Card } from "../../@/components/ui/card";
 
 interface Product {
   id: number;
+  product_origin_id: number;
   category: {
     id: number;
     category_name: string;
@@ -49,7 +49,7 @@ export default function ProductList({ products }: ProductListProps) {
           <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">
             {products.map((product) => (
               <ProductCard 
-                id={product.id}
+                id={product.product_origin_id}
                 categoryName={product.category.category_name}
                 price={product.price}
                 imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定

@@ -95,8 +95,9 @@ class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
     images = ProductImageSerializer(source='productimage_set', many=True)
     product_name = serializers.CharField(source='product_origin.product_name')
+    product_origin_id = serializers.IntegerField(source='product_origin.id')
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'price', 'images']
+        fields = ['id', 'product_name', 'category', 'price', 'images', 'product_origin_id']
         
