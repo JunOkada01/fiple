@@ -14,7 +14,6 @@ urlpatterns = [
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
-    path('api/products/', ProductListView.as_view(), name='product-list'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
     path('categories/add/', CategoryCreateView.as_view(), name='category_add'),
     path('categories/edit/<int:pk>/', CategoryUpdateView.as_view(), name='category_edit'),
@@ -33,6 +32,7 @@ urlpatterns = [
     path('sizes/delete/<int:pk>/', SizeDeleteView.as_view(), name='size_delete'),
     path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),
     path('product-origins/add/', ProductOriginCreateView.as_view(), name='product_origin_add'),
+    path('get-subcategories/', get_subcategories, name='get_subcategories'),
     path('product-origins/edit/<int:pk>/', ProductOriginUpdateView.as_view(), name='product_origin_edit'),
     path('product-origins/delete/<int:pk>/', ProductOriginDeleteView.as_view(), name='product_origin_delete'),
     path('products/', ProductListView.as_view(), name='product_list'),
@@ -51,4 +51,7 @@ urlpatterns = [
     path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
+    
+    path('api/products/', APIProductListView.as_view(), name='api_product-list'),
+    path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
 ]

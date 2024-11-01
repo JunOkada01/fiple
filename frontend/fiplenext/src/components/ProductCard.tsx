@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
 
-const ProductCard: React.FC = () => {
+interface ProductCardProps {
+    id: number;
+    categoryName: string;
+    subcategoryName: string;
+    price: number;
+    imageUrl: string;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ id, categoryName, subcategoryName, price, imageUrl }) => {
     const [isTryingOn, setIsTryingOn] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
 
@@ -13,10 +21,10 @@ const ProductCard: React.FC = () => {
 
     return (
         <div className="bg-white rounded-sm border border-gray-200 w-full sm:max-w-[200px] md:max-w-[250px] lg:max-w-sm mx-auto">
-            <Link href={`/product/detail/`}>
+            <Link href={`/products/${id}`}>
                 <div className="relative w-full aspect-[3/4]">
                     <Image 
-                        src="/sample_item.png" 
+                        src={imageUrl}
                         alt="商品画像" 
                         layout="fill"
                         objectFit="cover"
@@ -25,9 +33,9 @@ const ProductCard: React.FC = () => {
             </Link>
             <div className="p-4">
                 <div className="flex justify-between items-center">
-                    <p className="text-gray-500 text-xs sm:text-[10px]">カテゴリ/サブカテゴリ</p>
+                    <p className="text-gray-500 text-xs sm:text-[10px]">{`${categoryName}/${subcategoryName}`}</p>
                 </div>
-                <p className="text-gray-900 text-base sm:text-lg mt-1">¥5,800</p>
+                <p className="text-gray-900 text-base sm:text-lg mt-1">¥{price.toLocaleString()}</p>
 
                 <div className="flex justify-end mt-2 space-x-10 sm:space-x-16 lg:space-x-20">
                     <div 
