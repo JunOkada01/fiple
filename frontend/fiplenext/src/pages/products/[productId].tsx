@@ -57,7 +57,7 @@ const ProductDetail: React.FC = () => {
       if (!productId) return;
       try {
         setLoading(true);
-        const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}`);
+        const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
         setProduct(response.data);
         if (response.data.variants[0]?.images[0]) {
           setSelectedImage(response.data.variants[0].images[0].image);
