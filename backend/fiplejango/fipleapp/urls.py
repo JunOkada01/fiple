@@ -53,5 +53,5 @@ urlpatterns = [
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
     
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
-    path('api/products/detail/', APIProductViewSet.as_view, name='api_product_detail'),
+    path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
 ]

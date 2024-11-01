@@ -11,7 +11,7 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from .forms import *
 from django.views.generic import TemplateView
@@ -32,6 +32,21 @@ class APIProductListView(APIView):
         products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+    
+class APIProductDetailView(generics.RetrieveAPIView):
+    serializer_class = ProductDetailSerializer
+    queryset = ProductOrigin.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            product = self.get_object()
+            serializer = self.get_serializer(product)
+            return Response(serializer.data)
+        except ProductOrigin.DoesNotExist:
+            return Response(
+                {"error": "商品が見つかりません"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 # アカウント関連-----------------------------------------------------------------------------------------
