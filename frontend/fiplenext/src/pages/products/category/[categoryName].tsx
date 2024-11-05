@@ -72,9 +72,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
             <AllMensLadiesKidsFilter />
-            <div className="flex flex-col items-center">
+            {/* 商品リスト */}
+            <div className="flex justify-center items-center flex-col">
                 <h1 className="text-xl text-center mb-6">{categoryName}</h1>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-w-[1200px]">
+                <div className="grid grid-cols-4 gap-6 max-w-[700px]">
                     {products.length === 0 ? (
                         <div className="text-center">商品が見つかりませんでした。</div>
                     ) : (

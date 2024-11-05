@@ -44,6 +44,7 @@ export interface ProductDetailType {
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import Link from 'next/link';
 
 const ProductDetail: React.FC = () => {
     const router = useRouter();
@@ -182,16 +183,18 @@ const ProductDetail: React.FC = () => {
                                 )}
                             </td>
                             <td className="border-b border-gray-300 p-2">
-                                <button 
-                                className={`px-4 py-2 rounded ${
-                                    variant.stock > 0
-                                    ? 'bg-gray-500 text-white hover:bg-gray-700'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
-                                disabled={variant.stock === 0}
-                                >
-                                カートに入れる
-                                </button>
+                                <Link href={'/cart'}>
+                                    <button 
+                                    className={`px-4 py-2 rounded ${
+                                        variant.stock > 0
+                                        ? 'bg-gray-500 text-white hover:bg-gray-700'
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    }`}
+                                    disabled={variant.stock === 0}
+                                    >
+                                    カートに入れる
+                                    </button>
+                                </Link>
                             </td>
                             </tr>
                         ))}

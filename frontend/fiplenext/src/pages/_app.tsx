@@ -25,7 +25,7 @@ function App({ Component, pageProps }: AppProps) {
         <Link rel="preconnect" href="https://fonts.gstatic.com"></Link>
         <Link href="https://fonts.googleapis.com/css2?family=Julius+Sans+One&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet"></Link>
       </Head>
-      {/* ログイン・神機登録画面ではAuthHeader、それ以外では通常のHeader */}
+      {/* ログイン・新規登録画面ではAuthHeader、それ以外では通常のHeader */}
       {isAuthPage ? <AuthHeader /> : <Header />}
       <main style={{ padding: '0' }}>
         <Component {...pageProps} />
