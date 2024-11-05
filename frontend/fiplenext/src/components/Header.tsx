@@ -13,7 +13,7 @@ const Header: React.FC = () => {
                         alt="fipleheader"
                         width={200}
                         height={80}
-                        className="w-32 h-16 md:w-48 md:h-20 lg:w-56 lg:h-24 object-contain"
+                        className="w-32 h-16 sm:w-48 md:h-20 sm:w-56 sm:h-24 object-contain"
                     />
                 </Link>
             </header>

@@ -59,7 +59,7 @@ export default function ProductList({ products }: ProductListProps) {
       {/* 商品リスト */}  
       <div className="flex justify-center items-center flex-col">  
         {Object.keys(categoriesMap).map(categoryName => (
-          <div key={categoryName} className="flex flex-col space-y-6 mt-10">  
+          <div key={categoryName} className="flex flex-col space-y-6 mt-5">  
             <p className="text-xl text-center">{categoryName}</p>  
             <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">  
               <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}

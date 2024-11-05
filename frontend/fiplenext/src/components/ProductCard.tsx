@@ -34,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, categoryName
             </Link>
             <div className="p-4">
                 <div className="flex justify-between items-center">
-                    <p className="text-gray-500 text-xs sm:text-[10px]">{`${categoryName}/${subcategoryName}`}</p>
+                    <p className="text-gray-500 text-xs sm:text-[10px]">{`${categoryName} / ${subcategoryName}`}</p>
                 </div>
                 <p className="text-gray-900 text-base sm:text-lg mt-1">¥{price.toLocaleString()}</p>
 
