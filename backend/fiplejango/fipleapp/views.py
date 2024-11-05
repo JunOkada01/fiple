@@ -6,12 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from rest_framework import generics
 from .models import *
-from .serializers import UserSerializer
-from rest_framework import status
+from .serializers import *
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from .forms import *
 from .serializers import ProductListSerializer
@@ -21,10 +21,34 @@ from django.contrib.auth import logout
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.db.models import Prefetch
+from rest_framework.decorators import action
 
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
+
+class APIProductListView(APIView):
+    def get(self, request):
+        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
+        serializer = ProductListSerializer(products, many=True)
+        return Response(serializer.data)
+    
+class APIProductDetailView(generics.RetrieveAPIView):
+    serializer_class = ProductDetailSerializer
+    queryset = ProductOrigin.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            product = self.get_object()
+            serializer = self.get_serializer(product)
+            return Response(serializer.data)
+        except ProductOrigin.DoesNotExist:
+            return Response(
+                {"error": "商品が見つかりません"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 # アカウント関連-----------------------------------------------------------------------------------------
 
@@ -329,6 +353,11 @@ class ProductOriginDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return ProductOrigin.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'subcategory_name')
+    return JsonResponse(list(subcategories), safe=False)
+    
 # 商品関連----------------------------------------------------------------------------------------------------------
 
 class ProductListView(LoginRequiredMixin, ListView):
@@ -502,13 +531,6 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
 
-
-"""ーーーーーーここからNext.jsーーーーーー"""
-class APIProductListView(APIView):
-    def get(self, request):
-        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
-        serializer = ProductListSerializer(products, many=True)
-        return Response(serializer.data)
 
 
 

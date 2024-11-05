@@ -1,33 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import ProductCard from '@styles/components/ProductCard';
+import { GetServerSideProps } from 'next';
+import ProductCard from '../components/ProductCard'; // ProductCardをインポート
+import React, { useState } from 'react';
+// import ProductCard from '@styles/components/ProductCard';
 // import MannequinModel from '../components/MannequinModel';
 import styles from '../styles/Home.module.css';
 import dynamic from 'next/dynamic';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
-import Link from 'next/link';
-
-const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
-  ssr: false
-})
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
+interface Product {
+    id: number;
+    category: {
+      id: number;
+      category_name: string;
+    };
+    price: number;
+    images: {
+      id: number;
+      image: string;
+      image_description: string;
+    }[];
+}
+  
+interface ProductListProps {
+    products: Product[];
 }
 
-const Home: React.FC = () => {
+const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
+    ssr: false
+})
+  
+interface CartItem {
+    id: number;
+    name: string;
+    price: number;
+}
+
+export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
+  const res = await fetch('http://127.0.0.1:8000/api/products/');
+  const products = await res.json();
+
+
+  return {
+    props: {
+    products,
+    },
+  };
+}
+
+
+
+export default function ProductList({ products }: ProductListProps) {
   const [height, setHeight] = useState<number>(180); // デフォルト身長
   const [weight, setWeight] = useState<number>(70); // デフォルト体重
   const [cartItems, setCartItems] = useState<CartItem[]>([
     { id: 1, name: 'Tシャツ', price: 3000 },
     { id: 2, name: 'ジーンズ', price: 5000 },
-  ]);
-
+    ]);
   const removeItemFromCart = (id: number) => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
-
   const handleAddToCart = () => {
     console.log('商品をカートに追加');
   };
@@ -35,14 +65,7 @@ const Home: React.FC = () => {
   const handleAddToFavorites = () => {
     console.log('商品をお気に入りに追加');
   };
-
-  useEffect(() => {
-    // 初期値がすでにステートに設定されているため、
-    // ここでの設定は不要になります
-  }, []);
-
-
-  return (
+return (
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* 身長と体重入力フォーム */}
       <div className="flex justify-center items-center my-8">
@@ -79,22 +102,24 @@ const Home: React.FC = () => {
             </ul>
           </div>
 
-          {/* 商品リスト */}
-          <div className="w-3/4">
-            <div className="flex flex-col space-y-6">
-              <p className="text-lg text-center">商品一覧</p>
-              <div className="flex overflow-x-auto max-w-[670px] gap-2 p-2 scrollbar-hide">
-                <ProductCard />
-                <ProductCard />
-                <ProductCard />
-              </div>
-              <Link href="/product/category" className="text-black underline text-right">
-              もっと見る
-          </Link>
+            {/* 商品リスト */}
+            <div className="flex justify-center items-center flex-col">
+                <div className="flex flex-col space-y-6">
+                <p className="text-lg text-center">カテゴリ名</p>
+                    <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">
+                        {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            id={product.id}
+                            categoryName={product.category.category_name}
+                            price={product.price}
+                            imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                        />
+                        ))}
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-
         {/* 右側: マネキンエリアとカート */}
         <div className={`${styles.sideSection} flex flex-col`}>
           {/* マネキンエリア */}
@@ -144,6 +169,4 @@ const Home: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default Home;
+}
