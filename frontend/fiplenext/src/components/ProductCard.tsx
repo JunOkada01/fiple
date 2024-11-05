@@ -6,13 +6,14 @@ import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
 
 interface ProductCardProps {
     id: number;
+    productName: string;
     categoryName: string;
     subcategoryName: string;
     price: number;
     imageUrl: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, categoryName, subcategoryName, price, imageUrl }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, productName, categoryName, subcategoryName, price, imageUrl }) => {
     const [isTryingOn, setIsTryingOn] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
 
@@ -25,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, categoryName, subcategory
                 <div className="relative w-full aspect-[3/4]">
                     <Image 
                         src={imageUrl}
-                        alt="商品画像" 
+                        alt={`${productName} の画像`} 
                         layout="fill"
                         objectFit="cover"
                     />

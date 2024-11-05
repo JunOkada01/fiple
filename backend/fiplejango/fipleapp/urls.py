@@ -54,4 +54,5 @@ urlpatterns = [
     
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
 ]

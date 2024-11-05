@@ -93,30 +93,30 @@ const ProductDetail: React.FC = () => {
             <div className="flex flex-col md:flex-row">
                 {/* 左側: 商品画像セクション */}
                 <div className="md:w-1/2 mb-4">
-                <div className="border overflow-hidden">
-                    {selectedImage && (
-                    <img 
-                        className="w-auto h-[400px]"
-                        src={`http://127.0.0.1:8000${selectedImage}`}
-                        alt={product.product_name} 
-                    />
-                    )}
-                </div>
-                {/* サムネイル画像一覧 */}
-                <div className="grid grid-cols-4 gap-2 mt-4">
-                    {product.variants.flatMap(variant => 
-                    variant.images.map(image => (
-                        <div 
-                        key={image.id}
-                        className={`border rounded cursor-pointer ${
-                            selectedImage === image.image ? 'border-blue-500' : ''
-                        }`}
-                        onClick={() => setSelectedImage(image.image)}
-                        >
-                        <button>{variant.color.color_name}</button>
-                        </div>
-                    ))
-                    )}
+                    <div className="border overflow-hidden">
+                        {selectedImage && (
+                        <img 
+                            className="w-auto h-[400px]"
+                            src={`http://127.0.0.1:8000${selectedImage}`}
+                            alt={product.product_name}
+                        />
+                        )}
+                    </div>
+                    {/* サムネイル画像一覧 */}
+                    <div className="grid grid-cols-4 gap-2 mt-4">
+                        {product.variants.flatMap(variant => 
+                        variant.images.map(image => (
+                            <div 
+                            key={image.id}
+                            className={`border rounded cursor-pointer ${
+                                selectedImage === image.image ? 'border-blue-500' : ''
+                            }`}
+                            onClick={() => setSelectedImage(image.image)}
+                            >
+                            <button>{variant.color.color_name}</button>
+                            </div>
+                        ))
+                        )}
                 </div>
                 {/* 商品説明 */}
                 <div className="mt-4">

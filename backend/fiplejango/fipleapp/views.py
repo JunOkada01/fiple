@@ -47,7 +47,28 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+class ProductByCategoryView(APIView):
+    def get(self, request, category_name):
+        try:
+            # カテゴリ名でフィルタリング
+            category = Category.objects.get(category_name=category_name)
+            products = Product.objects.filter(product_origin__category=category)
 
+            # 商品が見つからない場合の処理
+            if not products.exists():
+                return Response(
+                    {"message": "このカテゴリには商品がありません"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
+            # シリアライザーを使用してデータを変換
+            serializer = ProductListSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "カテゴリが見つかりません"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

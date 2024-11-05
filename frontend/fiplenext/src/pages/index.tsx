@@ -6,6 +6,7 @@ import { GetServerSideProps } from 'next';
 
 interface Product {
   id: number;
+  product_name: string;
   product_origin_id: number;
   category: {
     id: number;
@@ -66,6 +67,7 @@ export default function ProductList({ products }: ProductListProps) {
                   <ProductCard 
                     key={product.id}
                     id={product.product_origin_id}
+                    productName={product.product_name}
                     categoryName={product.category.category_name}
                     subcategoryName={product.subcategory.subcategory_name}
                     price={product.price}
@@ -75,7 +77,7 @@ export default function ProductList({ products }: ProductListProps) {
               </div>
             </div>
             {/* カテゴリごとの「もっと見る」リンク */}
-            <Link href={`/product/category/${categoryName}`} className="text-black underline text-right">
+            <Link href={`/products/category/${encodeURIComponent(categoryName)}`} className="text-black underline text-right">
               もっと見る
             </Link>
           </div>
