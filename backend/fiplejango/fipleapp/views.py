@@ -22,6 +22,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models import Prefetch
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 
 
 def data_view(request):
@@ -83,22 +86,25 @@ class RegisterView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class LoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
 
-
-
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
         password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
-
+        user = authenticate(email=email, password=password)
         if user is not None:
-            backend = 'fipleapp.backends.UserBackend'
-            login(request, user, backend=backend)  # ユーザーをログインさせる
-            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({"message": "Login successful"})
+        return Response({"error": "Invalid credentials"}, status=400)
+
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)  # ユーザーをログアウトさせる
+        return Response({"message": "Logout successful!"}, status=status.HTTP_200_OK)
 
 
 def admin_create(request):

@@ -10,6 +10,7 @@ urlpatterns = [
     path('users/', views.user_list, name='user-list'),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('admin_create/', admin_create, name='admin_create'),
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
@@ -51,7 +52,6 @@ urlpatterns = [
     path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
-    
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
