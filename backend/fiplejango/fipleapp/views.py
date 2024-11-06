@@ -56,8 +56,25 @@ def user_list(request):
     users = CustomUser.objects.all().values('id', 'username', 'email')  # 必要なフィールドだけを取得
     return JsonResponse(list(users), safe=False)
 
+# class RegisterView(APIView):
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class RegisterView(APIView):
     def post(self, request):
+        # まず、メールアドレスの重複をチェック
+        email = request.data.get('email')
+        if email and CustomUser.objects.filter(email=email).exists():
+            return Response(
+                {"error": "このメールアドレスは既に登録されています。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -66,18 +83,52 @@ class RegisterView(APIView):
 
 
 
+
+
 class LoginView(APIView):
     def post(self, request):
-        username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
+        
+        try:
+            # メールアドレスでユーザーを検索
+            user = CustomUser.objects.get(email=email)
+            if user.check_password(password):
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                return Response({
+                    "message": "Login successful!",
+                    "user": {
+                        "email": user.email,
+                        "username": user.username
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "error": "パスワードが正しくありません。"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({
+                "error": "このメールアドレスは登録されていません。"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "error": "ログイン中にエラーが発生しました。"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if user is not None:
-            backend = 'fipleapp.backends.UserBackend'
-            login(request, user, backend=backend)  # ユーザーをログインさせる
-            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class LoginView(APIView):
+#     def post(self, request):
+#         username = request.data.get('username')
+#         password = request.data.get('password')
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None:
+#             backend = 'fipleapp.backends.UserBackend'
+#             login(request, user, backend=backend)  # ユーザーをログインさせる
+#             return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
+#         else:
+#             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
         
 
 
