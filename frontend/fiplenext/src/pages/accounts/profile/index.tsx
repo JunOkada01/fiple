@@ -3,6 +3,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
@@ -10,6 +12,26 @@ import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Profile: React.FC = () => {
+    const router = useRouter();
+    const logout = async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/logout/', {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`, // トークンをヘッダーに追加
+                },
+            });
+            console.log(response.data.message);
+            localStorage.removeItem('access_token'); // トークンを削除
+            localStorage.removeItem('refresh_token'); // リフレッシュトークンを削除
+            // 必要に応じてリダイレクトなどを行う
+            window.location.href="/accounts/logout";
+        } catch (error) {
+            console.error('Logout failed:');
+        }
+    };
+
+    
+
     return (
         <div className="container mx-auto flex flex-col items-center pt-10">
             {/* アカウントアイコンとタイトル部分 */}
@@ -50,7 +72,7 @@ const Profile: React.FC = () => {
 
                 {/* ログアウトボタン */}
                 <div className="mt-8 mb-3 flex justify-center">
-                    <button className="px-10 py-2 border rounded-md">ログアウト</button>
+                    <button className="px-10 py-2 border rounded-md" onClick={logout}>ログアウト</button>
                 </div>
             </div>
 

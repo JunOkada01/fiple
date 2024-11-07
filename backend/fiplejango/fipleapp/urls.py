@@ -2,6 +2,10 @@ from django.urls import path
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 app_name = 'fipleapp'
 
@@ -10,6 +14,7 @@ urlpatterns = [
     path('users/', views.user_list, name='user-list'),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('admin_create/', admin_create, name='admin_create'),
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
@@ -54,4 +59,11 @@ urlpatterns = [
     
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
+    path('api/cart/', CartListView.as_view(), name='cart-list'),
+    path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
+    path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
+    
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
 ]

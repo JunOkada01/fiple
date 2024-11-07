@@ -22,6 +22,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models import Prefetch
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db import transaction
+from rest_framework.permissions import AllowAny
 
 
 def data_view(request):
@@ -47,6 +55,104 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    serializer = AddToCartSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data['quantity']
+        
+        with transaction.atomic():
+            # 同じ商品がカートに既に存在するかチェック
+            cart_item = Cart.objects.filter(
+                user=request.user,
+                product=product
+            ).first()
+            
+            if cart_item:
+                # 既存のカートアイテムの数量を更新
+                new_quantity = cart_item.quantity + quantity
+                if new_quantity > product.stock:
+                    return Response(
+                        {"error": "在庫が不足しています"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                cart_item.quantity = new_quantity
+                cart_item.product_status = product.status
+                cart_item.save()
+            else:
+                # 新しいカートアイテムを作成
+                cart_item = Cart.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=quantity,
+                    product_status=product.status
+                )
+            
+            response_serializer = CartItemSerializer(cart_item)
+            return Response(
+                {
+                    "message": "商品をカートに追加しました",
+                    "cart_item": response_serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CartListView(generics.ListAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.filter(
+            user=self.request.user,
+        ).select_related(
+            'product',
+            'product__product_origin',
+            'product__product_origin__category',
+            'product__product_origin__subcategory',
+            'product__color',
+            'product__size'
+        )
+
+class CartUpdateView(generics.UpdateAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def patch(self, request, *args, **kwargs):
+        cart_item = self.get_object()
+        quantity = request.data.get('quantity', 1)
+        
+        if quantity <= 0:
+            return Response(
+                {"error": "数量は1以上である必要があります"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if quantity > cart_item.product.stock:
+            return Response(
+                {"error": "在庫が足りません"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        serializer = self.get_serializer(cart_item)
+        return Response(serializer.data)
+
+class CartDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
 
 
 # アカウント関連-----------------------------------------------------------------------------------------
@@ -65,18 +171,31 @@ class RegisterView(APIView):
 
 
 
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
+class LoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
 
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = authenticate(email=email, password=password)
         if user is not None:
-            backend = 'fipleapp.backends.UserBackend'
-            login(request, user, backend=backend)  # ユーザーをログインさせる
-            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # JWTトークンを生成
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                "message": "Login successful!",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }, status=status.HTTP_200_OK)
+            
+        return Response({"error": "メールアドレスかパスワードが間違っています"}, status=400)
+        
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)  # ユーザーをログアウトさせる
+        return Response({"message": "Logout successful!"}, status=status.HTTP_200_OK)
         
 
 

@@ -6,8 +6,17 @@ import { faHeart } from '@fortawesome/free-regular-svg-icons';
 // Cartアイコンはsolid版を使用
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { useState, useEffect } from 'react';
 
 const Navigation: React.FC = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // ここでトークンやユーザー情報のチェックを行い、ログイン状態を更新する
+        const token = localStorage.getItem('access_token');
+        setIsLoggedIn(!!token);
+    }, []);
+
     return (
         <nav className="flex justify-center items-center gap-7 py-5">
             <div className="relative max-w-[250px]">
@@ -21,15 +30,31 @@ const Navigation: React.FC = () => {
                 />
             </div>
             <div className="flex gap-7">
-                <Link href="/accounts/login" className="hover:text-gray-400">
-                    <FontAwesomeIcon icon={faUser} className="text-[24px]" />
-                </Link>
-                <Link href="/favorites" className="hover:text-gray-400">
-                    <FontAwesomeIcon icon={faHeart} className="text-[24px]" />
-                </Link>
-                <Link href="/cart" className="hover:text-gray-400">
-                    <FontAwesomeIcon icon={faCartShopping} className="text-[24px]" />
-                </Link>
+            {isLoggedIn ? (
+                <>
+                    <Link href="/accounts/profile" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faUser} className="text-[24px]" />
+                    </Link>
+                    <Link href="/favorites" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faHeart} className="text-[24px]" />
+                    </Link>
+                    <Link href="/cart" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faCartShopping} className="text-[24px]" />
+                    </Link>
+                </>
+            ) : (
+                <>
+                    <Link href="/accounts/login" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faUser} className="text-[24px]" />
+                    </Link>
+                    <Link href="/accounts/login" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faHeart} className="text-[24px]" />
+                    </Link>
+                    <Link href="/accounts/login" className="hover:text-gray-400">
+                        <FontAwesomeIcon icon={faCartShopping} className="text-[24px]" />
+                    </Link>
+                </>
+            )}
             </div>
         </nav>
     );
