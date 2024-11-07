@@ -96,6 +96,8 @@ class LoginView(generics.GenericAPIView):
         password = request.data.get('password')
         user = authenticate(email=email, password=password)
         if user is not None:
+            print("- - - - - ユーザー情報 - - - - -")
+            print(vars(user))
             return Response({"message": "Login successful"})
         return Response({"error": "Invalid credentials"}, status=400)
 
