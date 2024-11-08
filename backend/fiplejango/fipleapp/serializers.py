@@ -50,10 +50,22 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['id', 'tag_name']
 
+# class ProductImageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ProductImage
+#         fields = ['id', 'image', 'image_description']
+
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'image_description']
+
+    def get_image(self, obj):
+        if obj.image:
+            return f"{obj.image.url}"
+        return None
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
@@ -72,6 +84,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     subcategory = SubCategorySerializer()
     tags = serializers.SerializerMethodField()
     variants = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = ProductOrigin
@@ -102,3 +115,6 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'price', 'images', 'product_origin_id']
+
+
+

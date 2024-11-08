@@ -98,6 +98,7 @@ const ProductDetail: React.FC = () => {
                 src={selectedImage} 
                 alt={product.product_name} 
               />
+              
             )}
           </div>
           {/* サムネイル画像一覧 */}
