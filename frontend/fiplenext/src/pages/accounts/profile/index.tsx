@@ -1,36 +1,42 @@
-/* ログイン済みでアカウントリンクを踏んだ場合はこの画面 */
-/* ログイン済みじゃない場合はログイン画面へ */
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
-import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
-import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
-import { faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faCreditCard, faClockRotateLeft, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Profile: React.FC = () => {
     const router = useRouter();
+
+    // トークンの有効性をチェックし、未認証の場合ログインページにリダイレクト
+    useEffect(() => {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            router.push('/accounts/login');
+        } else {
+            axios.post('http://localhost:8000/api/token/verify/', {
+                token: localStorage.getItem('access_token')
+            }).catch(() => {
+                router.push('/accounts/login');
+            });
+        }
+    }, [router]);
+
+    // ログアウト関数
     const logout = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/logout/', {}, {
+            await axios.post('http://localhost:8000/logout/', {}, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('access_token')}`, // トークンをヘッダーに追加
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
                 },
             });
-            console.log(response.data.message);
-            localStorage.removeItem('access_token'); // トークンを削除
-            localStorage.removeItem('refresh_token'); // リフレッシュトークンを削除
-            // 必要に応じてリダイレクトなどを行う
-            window.location.href="/accounts/logout";
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            router.push('/accounts/logout');
         } catch (error) {
-            console.error('Logout failed:');
+            console.error('Logout failed:', error);
         }
     };
-
-    
 
     return (
         <div className="container mx-auto flex flex-col items-center pt-10">

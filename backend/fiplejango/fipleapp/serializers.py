@@ -102,13 +102,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
+    subcategory = SubCategorySerializer(source='product_origin.subcategory')
     images = ProductImageSerializer(source='productimage_set', many=True)
     product_name = serializers.CharField(source='product_origin.product_name')
     product_origin_id = serializers.IntegerField(source='product_origin.id')
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'price', 'images', 'product_origin_id']
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
         
 
 class ProductSerializer(serializers.ModelSerializer):

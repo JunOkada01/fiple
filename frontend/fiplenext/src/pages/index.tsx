@@ -8,6 +8,10 @@ interface Product {
     id: number;
     category_name: string;
   };
+  subcategory: {
+    id: number;
+    subcategory_name: string;
+  }
   price: number;
   images: {
     id: number;
@@ -50,7 +54,9 @@ export default function ProductList({ products }: ProductListProps) {
             {products.map((product) => (
               <ProductCard 
                 id={product.product_origin_id}
+                productName=''
                 categoryName={product.category.category_name}
+                subcategoryName={product.subcategory.subcategory_name}
                 price={product.price}
                 imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
               />
