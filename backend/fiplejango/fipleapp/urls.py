@@ -63,6 +63,9 @@ urlpatterns = [
     path('api/cart/', CartListView.as_view(), name='cart-list'),
     path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
     path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
+    path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
+    path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
+    path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
     
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 

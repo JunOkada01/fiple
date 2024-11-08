@@ -30,6 +30,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import NotFound
 
 
 def data_view(request):
@@ -153,6 +154,60 @@ class CartDeleteView(generics.DestroyAPIView):
     
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
+    
+@api_view(['POST'])
+def add_to_favorite(request):
+    # ユーザーが認証されているか確認
+    if not request.user.is_authenticated:
+        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # 商品IDをリクエストデータから取得
+    product_id = request.data.get('product_id')
+    if not product_id:
+        return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # 商品を取得
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # すでにお気に入りに追加されている場合はエラー
+    if Favorite.objects.filter(user=request.user, product=product).exists():
+        return Response({"detail": "Product is already in your favorites."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 新しいお気に入りを作成
+    favorite = Favorite.objects.create(user=request.user, product=product)
+
+    # 成功したらシリアライズして返す
+    serializer = FavoriteSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class FavoriteListView(generics.ListAPIView):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # 現在認証されているユーザーのお気に入りを取得
+        return Favorite.objects.filter(user=self.request.user)
+    
+class FavoriteDeleteView(generics.DestroyAPIView):
+    queryset = Favorite.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # ユーザーが削除するお気に入りを取得
+        favorite = Favorite.objects.filter(id=self.kwargs['pk'], user=self.request.user).first()
+        if not favorite:
+            raise NotFound(detail="お気に入りが見つかりません")
+        return favorite
+
+    def delete(self, request, *args, **kwargs):
+        # 削除する
+        favorite = self.get_object()
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # アカウント関連-----------------------------------------------------------------------------------------

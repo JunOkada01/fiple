@@ -173,3 +173,10 @@ class AddToCartSerializer(serializers.Serializer):
             return data
         except Product.DoesNotExist:
             raise serializers.ValidationError("指定された商品が見つかりません")
+        
+class FavoriteSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()  # 商品情報も返す場合
+    images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
+    class Meta:
+        model = Favorite
+        fields = ['id', 'user', 'product', 'images', 'created_at', 'updated_at']

@@ -226,7 +226,7 @@ const Cart: React.FC = () => {
                                     <tr>
                                         <td className="py-2 font-semibold">合計（税込）</td>
                                         <td className="py-2 text-right text-xl font-bold">
-                                            ¥{(calculateTotal() * 1.1).toLocaleString()}
+                                            ¥{Math.floor((calculateTotal() * 1.1)).toLocaleString()}
                                         </td>
                                     </tr>
                                 </tbody>
