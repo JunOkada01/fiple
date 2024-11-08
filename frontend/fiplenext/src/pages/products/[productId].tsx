@@ -60,7 +60,7 @@ const ProductDetail: React.FC = () => {
         const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
         setProduct(response.data);
         if (response.data.variants[0]?.images[0]) {
-          setSelectedImage(response.data.variants[0].images[0].image);
+          setSelectedImage(`http://127.0.0.1:8000/${response.data.variants[0].images[0].image}`);
         }
       } catch (err) {
         setError('商品情報の取得に失敗しました');
@@ -104,21 +104,26 @@ const ProductDetail: React.FC = () => {
           {/* サムネイル画像一覧 */}
           <div className="grid grid-cols-4 gap-2 mt-4">
             {product.variants.flatMap(variant => 
-              variant.images.map(image => (
-                <div 
-                  key={image.id}
-                  className={`border rounded cursor-pointer ${
-                    selectedImage === image.image ? 'border-blue-500' : ''
-                  }`}
-                  onClick={() => setSelectedImage(image.image)}
-                >
-                  <img 
-                    className="w-full h-auto" 
-                    src={image.image} 
-                    alt={image.image_description || product.product_name} 
-                  />
-                </div>
-              ))
+              variant.images.map(image => {
+                const imageUrl = `http://127.0.0.1:8000/${image.image}`;
+                return (
+                  <div 
+                    key={image.id}
+                    className={`border rounded cursor-pointer ${
+                      selectedImage === imageUrl ? 'border-blue-500' : ''
+                    }`}
+                    onClick={() => setSelectedImage(imageUrl)}
+                  >
+                    <img
+                      className="w-full h-auto" 
+                      src={imageUrl} 
+                      alt={image.image_description || product.product_name} 
+                      width={100} 
+                      height={100} 
+                    />
+                  </div>
+                );
+              })
             )}
           </div>
           {/* 商品説明 */}
