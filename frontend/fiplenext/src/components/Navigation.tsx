@@ -20,26 +20,26 @@ const Navigation: React.FC = () => {
     return (
         <nav className="flex justify-center items-center gap-7 py-5">
             <div className="relative max-w-[250px]">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                    <FontAwesomeIcon icon={faMagnifyingGlass} className="text-[24px]" />
+                <span className="absolute inset-y-0 left-0 pl-2 flex items-center">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
                 </span>
                 <input
                     type="text"
-                    placeholder=""
-                    className="w-full border-b border-black px-4 py-1 pl-10"
+                    placeholder="search"
+                    className="w-full border-b border-black px-4 pl-10 focus:outline-none text-gray-500"
                 />
             </div>
             <div className="flex gap-7">
             {isLoggedIn ? (
                 <>
                     <Link href="/accounts/profile" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faUser} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faUser} className="text-lg" />
                     </Link>
                     <Link href="/favorites" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faHeart} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faHeart} className="text-lg" />
                     </Link>
                     <Link href="/cart" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faCartShopping} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
                     </Link>
                 </>
             ) : (

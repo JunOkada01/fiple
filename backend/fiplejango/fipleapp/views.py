@@ -25,6 +25,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 def data_view(request):
@@ -98,10 +99,34 @@ class LoginView(generics.GenericAPIView):
         if user is not None:
             print("- - - - - ユーザー情報 - - - - -")
             print(vars(user))
-            return Response({"message": "Login successful"})
+
+            # JWTトークンを生成
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            # ユーザー情報をシリアライズ
+            serializer = UserSerializer(user)
+            # レスポンスにトークンとユーザー情報を含めて返す
+            return Response({
+                "message": "Login successful",
+                "user": serializer.data,
+                "access": access_token,
+                "refresh": str(refresh)
+            })
         return Response({"error": "Invalid credentials"}, status=400)
 
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]  # 認証されたユーザーのみアクセス可能
+    authentication_classes = [JWTAuthentication]  # JWT認証を使用
+    serializer_class = UserSerializer
 
+    def get(self, request, *args, **kwargs):
+        # 認証されたユーザーを取得
+        user = request.user
+        print(user)
+        # シリアライザを使用してユーザー情報をシリアライズ
+        serializer = UserSerializer(user)
+        # シリアライズしたデータを返す
+        return Response(serializer.data)
 
 class LogoutView(APIView):
     def post(self, request):

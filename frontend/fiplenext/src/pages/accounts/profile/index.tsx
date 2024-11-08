@@ -10,21 +10,27 @@ import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { faTruck } from '@fortawesome/free-solid-svg-icons';
 
-type LoginUser = {
+interface User {
+    id: number;
     username: string;
-    birth: number;
-    sex: string;
-    postal_code: number;
-    address: string;  // 住所が文字列の場合、stringに変更
-    phone: number;
-
     email: string;
+    hurigana: string;
+    sex: string;
+    phone: string;
+    postal_code: string;
+    birth: string;
+    address: string;
     password: string;
-};
-
+    height: number;
+    weight: number;
+}
 
 const Profile: React.FC = () => {
     const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    
     const logout = async () => {
         try {
             const response = await axios.post('http://localhost:8000/logout/', {}, {
@@ -41,7 +47,34 @@ const Profile: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/user/', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('access_token')}`,  // トークンをヘッダーに追加
+                    },
+                });
+                console.log(response.data);
+                setUser(response.data);  // 取得したユーザー情報を state にセット
+                setLoading(false);  // ローディング終了
+            } catch (err) {
+                setError('ユーザー情報の取得に失敗しました');
+                setLoading(false);  // ローディング終了
+            }
+        };
 
+        fetchUserData();
+    }, []);
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    // birthの年、月、日を分割
+    const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
 
     return (
         <div className="container mx-auto flex flex-col items-center pt-10">
@@ -52,7 +85,7 @@ const Profile: React.FC = () => {
                         <path d="M222-255q63-44 125-67.5T480-346q71 0 133.5 23.5T739-255q44-54 62.5-109T820-480q0-145-97.5-242.5T480-820q-145 0-242.5 97.5T140-480q0 61 19 116t63 109Zm257.81-195q-57.81 0-97.31-39.69-39.5-39.68-39.5-97.5 0-57.81 39.69-97.31 39.68-39.5 97.5-39.5 57.81 0 97.31 39.69 39.5 39.68 39.5 97.5 0 57.81-39.69 97.31-39.68 39.5-97.5 39.5Zm.66 370Q398-80 325-111.5t-127.5-86q-54.5-54.5-86-127.27Q80-397.53 80-480.27 80-563 111.5-635.5q31.5-72.5 86-127t127.27-86q72.76-31.5 155.5-31.5 82.73 0 155.23 31.5 72.5 31.5 127 86t86 127.03q31.5 72.53 31.5 155T848.5-325q-31.5 73-86 127.5t-127.03 86Q562.94-80 480.47-80Zm-.47-60q55 0 107.5-16T691-212q-51-36-104-55t-107-19q-54 0-107 19t-104 55q51 40 103.5 56T480-140Zm0-370q34 0 55.5-21.5T557-587q0-34-21.5-55.5T480-664q-34 0-55.5 21.5T403-587q0 34 21.5 55.5T480-510Zm0-77Zm0 374Z"/>
                     </svg>
                 </div>
-                <h1 className="profile-title text-xl font-semibold">様の登録情報</h1>
+                <h1 className="profile-title text-xl font-semibold">{user?.username} 様の登録情報</h1>
             </div>
 
             {/* 会員登録情報カード */}
@@ -63,12 +96,12 @@ const Profile: React.FC = () => {
                     <div className="flex items-center border-b py-4">
                         <span className="w-1/4">基本情報</span> {/* 左のタイトル部分を広く */}
                         <div className="profile-info w-2/3"> {/* 中央のユーザー情報を広めに */}
-                            <p>メールアドレス</p>
-                            <p>生年月日</p>
-                            <p>性別</p>
-                            <p>郵便番号</p>
-                            <p>住所</p>
-                            <p>電話番号</p>
+                            <p>{user?.username}</p>
+                            <p>{birthYear} 年 {birthMonth} 月 {birthDay} 日</p>
+                            <p>{user?.sex === 'M' ? '男性' : user?.sex === 'F' ? '女性' : 'その他'}</p>
+                            <p>〒{user?.postal_code}</p>
+                            <p><FontAwesomeIcon icon={faLocationDot} className='text-sm text-gray-400'/> {user?.address}</p>
+                            <p>{user?.phone}</p>
                         </div>
                         <div className="w-auto text-right"> {/* 変更ボタンエリア */}
                             <Link href={'/accounts/profile/edit_profile'}>
@@ -79,7 +112,7 @@ const Profile: React.FC = () => {
                     <div className="flex items-center border-b py-4">
                         <span className="w-1/4">メールアドレス</span>
                         <div className="w-2/3">
-                            <p></p>
+                            <p>{user?.email}</p>
                         </div>
                         <div className="w-auto text-right">
                             <Link href={'/accounts/profile/change_email'}>
@@ -89,8 +122,8 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="flex items-center border-b py-4">
                         <span className="w-1/4">パスワード</span>
-                        <div className="w-2/3">
-                            <p>********</p>
+                        <div className="w-2/3 text-xs text-gray-500">
+                            <p>※セキュリティのため非表示です</p>
                         </div>
                         <div className="w-auto text-right">
                             <Link href={'/accounts/profile/change_password'}>
