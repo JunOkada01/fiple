@@ -17,9 +17,10 @@ import'@fortawesome/react-fontawesome'
  
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();     // ユーザーのURL（ルートパス）を取得
-  const isAuthPage = ['/accounts/login', '/accounts/signup'].includes(router.pathname);
+  //ここにfooterを追加してすみません↓
+  const isAuthPage = ['/accounts/login', '/accounts/signup','/footer/company','/footer/privacypolicy','/footer/ToU'].includes(router.pathname);
   // 現在のパスがログイン・新規登録画面かどうかを判定
- 
+
   return (
     <>
       <Head>

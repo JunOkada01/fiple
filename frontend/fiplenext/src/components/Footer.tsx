@@ -1,21 +1,21 @@
 import Link from 'next/link'
- 
+import Image from 'next/image';
 const Footer = () => {
   const footerLinks = [
     {
       title: 'About',
       items: [
-        { label: '会社概要', href: '/company' },
-        { label: 'プライバシーポリシー', href: '/privacy' },
-        { label: '利用規約', href: '/terms' },
+        { label: '会社概要', href: '/footer/company' },
+        { label: 'プライバシーポリシー', href: '/footer/privacypolicy' },
+        { label: '利用規約', href: '/footer/ToU' },
       ]
     },
     {
       title: 'Support',
       items: [
-        { label: 'お問い合わせ', href: '/contact' },
-        { label: 'ご利用ガイド', href: '/guide' },
-        { label: '特定商取引法', href: '/legal' },
+        { label: 'お問い合わせ', href: 'footer/contact/contact' },
+        // { label: 'ご利用ガイド', href: '/guide' },
+        { label: '特定商取引法', href: '/footer/tokushoho' },
       ]
     },
     {
@@ -25,19 +25,20 @@ const Footer = () => {
         { label: 'LADIES', href: '/size-guide/ladies' },
         { label: 'KIDS', href: '/size-guide/kids' },
       ]
-    }
+    },
   ]
  
   return (
     <footer className="w-full bg-white mt-20 border-t border-gray-100">
       <div className="max-w-[1200px] mx-auto px-4 py-12">
         {/* ロゴ */}
-        <div className="text-center mb-12">
+        <div className="flex justify-center mb-12">
           <Link href="/" className="text-2xl font-light tracking-widest">
-            FIPLE
+            <Image src="/fipleheader.png" alt="fipleheader" width="200" height="80" />
           </Link>
         </div>
- 
+
+
         {/* リンクセクション */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {footerLinks.map((section, idx) => (
