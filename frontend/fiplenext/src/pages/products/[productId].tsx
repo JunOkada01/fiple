@@ -129,7 +129,7 @@ const ProductDetail: React.FC = () => {
                     {product.tags.map(tag => (
                     <span 
                         key={tag.id}
-                        className="bg-gray-100 px-3 py-1 rounded-full text-sm"
+                        className="bg-gray-100 px-3 py-1 rounded-full text-sm hover:bg-gray-200"
                     >
                         {tag.tag_name}
                     </span>
@@ -138,9 +138,9 @@ const ProductDetail: React.FC = () => {
                 </div>
         
                 {/* 右側: 商品情報テーブル */}
-                <div className="md:w-1/2 md:pl-6">
+                <div className="md:w-1/2 md:pl-6 mt-6">
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold">{product.product_name}</h1>
+                    <h1 className="text-2xl">{product.product_name}</h1>
                     <div className="text-sm text-gray-600">
                     {product.category.category_name} &gt; {product.subcategory.subcategory_name}
                     </div>
@@ -160,7 +160,8 @@ const ProductDetail: React.FC = () => {
                     {Object.entries(groupedVariants).map(([colorName, variants]) => (
                         <React.Fragment key={colorName}>
                         {variants.map((variant, index) => (
-                            <tr key={variant.id} className="hover:bg-gray-100">
+                            /* カラー */
+                            <tr key={variant.id} className="">
                             {index === 0 && (
                                 <td 
                                 className="border-b border-gray-300 p-2" 
