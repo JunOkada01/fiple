@@ -89,13 +89,6 @@ const FavoriteList: React.FC = () => {
                 price={favorite.product.price}
                 imageUrl={favorite.product.images[0]?.image}
               />
-              {/* <button
-                onClick={() => handleDeleteFavorite(favorite.id)}
-                className="mt-2 text-red-600 font-bold"
-              >
-                <FontAwesomeIcon icon={faHeart} />
-                削除
-              </button> */}
             </div>
           ))
         )}
