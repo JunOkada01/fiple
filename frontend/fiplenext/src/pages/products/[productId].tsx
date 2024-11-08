@@ -39,10 +39,10 @@ export interface ProductDetailType {
   is_active: boolean;
 }
 
-// pages/products/[productId].tsx
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+
 
 const ProductDetail: React.FC = () => {
   const router = useRouter();
@@ -50,6 +50,7 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<ProductDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ const ProductDetail: React.FC = () => {
         setProduct(response.data);
         if (response.data.variants[0]?.images[0]) {
           setSelectedImage(`http://127.0.0.1:8000/${response.data.variants[0].images[0].image}`);
+          setSelectedColor(response.data.variants[0].color.color_name);
         }
       } catch (err) {
         setError('商品情報の取得に失敗しました');
@@ -76,7 +78,6 @@ const ProductDetail: React.FC = () => {
   if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
   if (!product) return null;
 
-  // 商品バリエーションをカラーでグループ化
   const groupedVariants = product.variants.reduce((acc, variant) => {
     const colorName = variant.color.color_name;
     if (!acc[colorName]) {
@@ -86,24 +87,47 @@ const ProductDetail: React.FC = () => {
     return acc;
   }, {} as Record<string, typeof product.variants>);
 
+  const selectedVariants = selectedColor
+    ? groupedVariants[selectedColor]
+    : product.variants;
+
   return (
     <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row ">
         {/* 左側: 商品画像セクション */}
-        <div className="md:w-1/2 mb-4">
+        <div className="md:w-1/4 mb-4">
           <div className="border rounded-lg overflow-hidden">
             {selectedImage && (
               <img 
-                className="w-full h-auto" 
+                className="w-full h-auto max-w-[300px] object-cover object-center"
                 src={selectedImage} 
                 alt={product.product_name} 
               />
-              
             )}
           </div>
+
+          {/* カラー選択ボタン（画像の下に移動） */}
+          <div className="flex gap-2 mt-4">
+            {Object.keys(groupedVariants).map(colorName => (
+              <button
+                key={colorName}
+                className={`px-2 py-1 rounded ${selectedColor === colorName ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+                onClick={() => {
+                  setSelectedColor(colorName);
+                  const firstImage = groupedVariants[colorName][0]?.images[0];
+                  if (firstImage) {
+                    setSelectedImage(`http://127.0.0.1:8000/${firstImage.image}`);
+                  }
+                }}
+              >
+                {colorName}
+              </button>
+            ))}
+          </div>
+
           {/* サムネイル画像一覧 */}
           <div className="grid grid-cols-4 gap-2 mt-4">
-            {product.variants.flatMap(variant => 
+            {selectedVariants.flatMap(variant => 
               variant.images.map(image => {
                 const imageUrl = `http://127.0.0.1:8000/${image.image}`;
                 return (
@@ -115,7 +139,7 @@ const ProductDetail: React.FC = () => {
                     onClick={() => setSelectedImage(imageUrl)}
                   >
                     <img
-                      className="w-full h-auto" 
+                      className="w-full h-auto object-cover object-center" 
                       src={imageUrl} 
                       alt={image.image_description || product.product_name} 
                       width={100} 
@@ -126,11 +150,13 @@ const ProductDetail: React.FC = () => {
               })
             )}
           </div>
+
           {/* 商品説明 */}
           <div className="mt-4">
             <h3 className="text-lg font-semibold">商品説明</h3>
             <p className="mt-2 text-gray-600">{product.description}</p>
           </div>
+
           {/* タグ */}
           <div className="mt-4 flex flex-wrap gap-2">
             {product.tags.map(tag => (
