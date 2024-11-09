@@ -77,8 +77,10 @@ export default function ProductList({ products }: ProductListProps) {
               </div>
             </div>
             {/* カテゴリごとの「もっと見る」リンク */}
-            <Link href={`/products/category/${encodeURIComponent(categoryName)}`} className="text-black underline text-right">
+            <Link href={`/products/category/${encodeURIComponent(categoryName)}`} className="text-right">
+              <button>
               もっと見る
+              </button>
             </Link>
           </div>
         ))}

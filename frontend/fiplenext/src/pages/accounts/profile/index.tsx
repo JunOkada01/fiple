@@ -66,9 +66,6 @@ const Profile: React.FC = () => {
 
         fetchUserData();
     }, []);
-    if (loading) {
-        return <div>Loading...</div>;
-    }
     if (error) {
         return <div>{error}</div>;
     }
@@ -95,7 +92,7 @@ const Profile: React.FC = () => {
                 <div className="profile-card-detail">
                     <div className="flex items-center border-b py-4">
                         <span className="w-1/4">基本情報</span> {/* 左のタイトル部分を広く */}
-                        <div className="profile-info w-2/3"> {/* 中央のユーザー情報を広めに */}
+                        <div className="profile-info w-2/3 text-gray-600"> {/* 中央のユーザー情報を広めに */}
                             <p>{user?.username}</p>
                             <p>{birthYear} 年 {birthMonth} 月 {birthDay} 日</p>
                             <p>{user?.sex === 'M' ? '男性' : user?.sex === 'F' ? '女性' : 'その他'}</p>
@@ -111,7 +108,7 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="flex items-center border-b py-4">
                         <span className="w-1/4">メールアドレス</span>
-                        <div className="w-2/3">
+                        <div className="w-2/3 text-gray-600">
                             <p>{user?.email}</p>
                         </div>
                         <div className="w-auto text-right">

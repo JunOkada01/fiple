@@ -45,13 +45,13 @@ const Navigation: React.FC = () => {
             ) : (
                 <>
                     <Link href="/accounts/login" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faUser} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faUser} className="text-lg" />
                     </Link>
                     <Link href="/accounts/login" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faHeart} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faHeart} className="text-lg" />
                     </Link>
                     <Link href="/accounts/login" className="hover:text-gray-400">
-                        <FontAwesomeIcon icon={faCartShopping} className="text-[24px]" />
+                        <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
                     </Link>
                 </>
             )}

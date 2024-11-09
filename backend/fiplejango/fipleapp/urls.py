@@ -2,6 +2,11 @@ from django.urls import path
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 app_name = 'fipleapp'
 
@@ -53,9 +58,22 @@ urlpatterns = [
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
 
+    # トークン
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     # ログイン中のユーザーの情報を表示
     path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
+    # カート
+    path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
+    path('api/cart/', CartListView.as_view(), name='cart-list'),
+    path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
+    path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
+    # お気に入り
+    path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
+    path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
+    path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
 ]

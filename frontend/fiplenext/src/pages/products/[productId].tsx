@@ -46,6 +46,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
 
+
 const ProductDetail: React.FC = () => {
     const router = useRouter();
     const { productId } = router.query;
@@ -53,6 +54,7 @@ const ProductDetail: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null); // メッセージの状態
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -87,7 +89,29 @@ const ProductDetail: React.FC = () => {
         acc[colorName].push(variant);
         return acc;
     }, {} as Record<string, typeof product.variants>);
-    
+
+    // 商品をカートに追加する関数
+    const addToCart = async (productId: number) => {
+        const access_token = localStorage.getItem('access_token');
+        try {
+        const response = await axios.post(
+            'http://localhost:8000/api/cart/add/',
+            { product_id: productId, quantity: 1 },
+            {
+            headers: {
+                Authorization: `Bearer ${access_token}`,
+            },
+            }
+        );
+        setMessage(response.data.message); // 成功メッセージを表示
+        } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            setMessage(error.response.data.error || '商品の追加に失敗しました');
+        } else {
+            setMessage('エラーが発生しました');
+        }
+        }
+    };
 
     return (
         <div className="container mx-auto p-4">
@@ -185,16 +209,13 @@ const ProductDetail: React.FC = () => {
                             </td>
                             <td className="border-b border-gray-300 p-2">
                                 <Link href={'/cart'}>
-                                    <button 
-                                    className={`px-4 py-2 rounded ${
-                                        variant.stock > 0
-                                        ? 'bg-gray-500 text-white hover:bg-gray-700'
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }`}
+                                <button
+                                    className={`px-4 py-2 rounded ${variant.stock > 0 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-400 text-white cursor-not-allowed'}`}
+                                    onClick={() => variant.stock > 0 && addToCart(variant.id)}
                                     disabled={variant.stock === 0}
-                                    >
-                                    カートに入れる
-                                    </button>
+                                >
+                                    {variant.stock > 0 ? 'カートに入れる' : '在庫なし'}
+                                </button>
                                 </Link>
                             </td>
                             </tr>

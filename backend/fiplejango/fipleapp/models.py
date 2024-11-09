@@ -168,3 +168,26 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
+    
+
+# cart
+class Cart(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    product_status = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.product_origin.product_name}"
+
+# お気に入り
+class Favorite(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.product_origin.product_name}"
