@@ -43,7 +43,7 @@ export interface ProductDetailType {
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-
+import ReviewList from '../../components/Review';
 const ProductDetail: React.FC = () => {
   const router = useRouter();
   const { productId } = router.query;
@@ -87,6 +87,7 @@ const ProductDetail: React.FC = () => {
   }, {} as Record<string, typeof product.variants>);
 
   return (
+    
     <div className="container mx-auto p-4">
       <div className="flex flex-col md:flex-row">
         {/* 左側: 商品画像セクション */}
@@ -225,6 +226,8 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
         </div>
+        {/* {productId && <ReviewList productId={Number(productId)} />} */}
+        <ReviewList productId={Number(productId)} />
       </div>
     </div>
   );

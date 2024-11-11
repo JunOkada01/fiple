@@ -57,4 +57,5 @@ urlpatterns = [
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),#Review
 ]

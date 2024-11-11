@@ -604,3 +604,32 @@ class PasswordResetConfirmView(APIView):
                 {'error': '無効または期限切れのトークンです。'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+# -----------------------------Review表示です-------------------------------
+
+# 詳細表示・更新・削除用ビュー
+# class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+    
+# views.py
+from rest_framework import generics
+from .models import Review
+from .serializers import ReviewSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
+class ReviewListCreateView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    
+    def get_queryset(self):
+        queryset = Review.objects.all()
+        product_id = self.request.query_params.get('productId', None)
+        if product_id:
+            # 修正: productId ではなく product_id を使用する
+            queryset = queryset.filter(product_id=product_id)  # 修正部分
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
