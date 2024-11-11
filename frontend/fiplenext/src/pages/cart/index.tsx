@@ -7,6 +7,7 @@ interface CartItem {
     product: {
         id: number;
         product_origin: {
+            id: number;
             product_name: string;
             category: {
                 category_name: string;
@@ -167,9 +168,9 @@ const Cart: React.FC = () => {
                                         className="itemImage w-24 h-24 object-cover mr-4"
                                     />
                                     <div className="itemDetails flex-1">
-                                        <p className="text-lg font-semibold">
+                                        <Link href={`/products/${item.product.product_origin.id}`}><p className="text-lg font-semibold">
                                             {item.product.product_origin.product_name}
-                                        </p>
+                                        </p></Link>
                                         <p className="text-gray-500">
                                             カテゴリー: {item.product.product_origin.category.category_name} / 
                                             {item.product.product_origin.subcategory.subcategory_name}
