@@ -186,38 +186,38 @@ const ProductDetail: React.FC = () => {
                         {variants.map((variant, index) => (
                             /* カラー */
                             <tr key={variant.id} className="">
-                            {index === 0 && (
-                                <td 
-                                className="border-b border-gray-300 p-2" 
-                                rowSpan={variants.length}
-                                >
-                                {colorName}
-                                </td>
-                            )}
-                            <td className="border-b border-gray-300 p-2">
-                                {variant.size.size_name}
-                            </td>
-                            <td className="border-b border-gray-300 p-2">
-                                ¥{variant.price.toLocaleString()}
-                            </td>
-                            <td className="border-b border-gray-300 p-2">
-                                {variant.stock > 0 ? (
-                                <span className="text-green-600">在庫あり</span>
-                                ) : (
-                                <span className="text-red-600">在庫なし</span>
+                                {index === 0 && (
+                                    <td 
+                                    className="border-b border-gray-300 p-2" 
+                                    rowSpan={variants.length}
+                                    >
+                                    {colorName}
+                                    </td>
                                 )}
-                            </td>
-                            <td className="border-b border-gray-300 p-2">
-                                <Link href={'/cart'}>
-                                <button
-                                    className={`px-4 py-2 rounded ${variant.stock > 0 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-400 text-white cursor-not-allowed'}`}
-                                    onClick={() => variant.stock > 0 && addToCart(variant.id)}
-                                    disabled={variant.stock === 0}
-                                >
-                                    {variant.stock > 0 ? 'カートに入れる' : '在庫なし'}
-                                </button>
-                                </Link>
-                            </td>
+                                <td className="border-b border-gray-300 p-2">
+                                    {variant.size.size_name}
+                                </td>
+                                <td className="border-b border-gray-300 p-2">
+                                    ¥{variant.price.toLocaleString()}
+                                </td>
+                                <td className="border-b border-gray-300 p-2">
+                                    {variant.stock > 0 ? (
+                                    <span className="text-green-600">在庫あり</span>
+                                    ) : (
+                                    <span className="text-red-600">在庫なし</span>
+                                    )}
+                                </td>
+                                <td className="border-b border-gray-300 p-2">
+                                    <Link href={'/cart'}>
+                                        <button
+                                            className={`px-4 py-2 rounded ${variant.stock > 0 ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-400 text-white cursor-not-allowed'}`}
+                                            onClick={() => variant.stock > 0 && addToCart(variant.id)}
+                                            disabled={variant.stock === 0}
+                                        >
+                                            {variant.stock > 0 ? 'カートに入れる' : '在庫なし'}
+                                        </button>
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                         </React.Fragment>

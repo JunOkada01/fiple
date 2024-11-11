@@ -10,6 +10,7 @@ import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
 import { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
+import Footer from '../components/Footer'
 import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
 import { motion } from "framer-motion";
 
@@ -17,7 +18,7 @@ import { motion } from "framer-motion";
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();     // ユーザーのURL（ルートパス）を取得
-  const isAuthPage = ['/accounts/login', '/accounts/signup'].includes(router.pathname);
+  const isAuthPage = ['/accounts/login', '/accounts/signup', '/footer/company','/footer/privacypolicy','/footer/ToU','/footer/tokushoho'].includes(router.pathname);
   // 現在のパスがログイン・新規登録画面かどうかを判定
 
   // ローディング状態管理用のステート
@@ -71,6 +72,7 @@ function App({ Component, pageProps }: AppProps) {
         )}
         <Component {...pageProps} />
       </main>
+      <Footer/>
     </>
   );
 }

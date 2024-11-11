@@ -9,6 +9,7 @@ interface CartItem {
     product: {
         id: number;
         product_origin: {
+            id: number;
             product_name: string;
             category: {
                 category_name: string;
@@ -160,18 +161,22 @@ const Cart: React.FC = () => {
                             <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4">
                                 <div className="w-full border-b border-gray-300 mx-4 flex items-center">
                                     {/* 商品画像 */}
-                                    <img   
-                                        alt={item.product.product_origin.product_name}  
-                                        src={`${item.product.images[0]?.image}`}
-                                        className="itemImage w-auto h-[150px] object-cover"   
-                                    />
+                                    <Link href={`/products/${item.product.product_origin.id}`}>
+                                        <img   
+                                            alt={item.product.product_origin.product_name}  
+                                            src={`${item.product.images[0]?.image}`}
+                                            className="itemImage w-auto h-[150px] object-cover"   
+                                        />
+                                    </Link>
 
                                     {/* 商品詳細 */}
                                     <div className="itemDetails flex-1 mx-4 space-y-1">
                                         {/* 商品名 */}
-                                        <p className="text-md font-semibold">  
-                                            {item.product.product_origin.product_name}  
-                                        </p>
+                                        <Link href={`/products/${item.product.product_origin.id}`}>
+                                            <p className="text-md font-semibold">  
+                                                {item.product.product_origin.product_name}  
+                                            </p>
+                                        </Link>
                                         {/* カテゴリ */}
                                         <p className="text-gray-500 text-sm">  
                                             カテゴリー: {item.product.product_origin.category.category_name} /   

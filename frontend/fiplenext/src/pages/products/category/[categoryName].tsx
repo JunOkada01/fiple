@@ -88,6 +88,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
                                 <ProductCard
                                     key={product.id}
                                     id={product.product_origin_id}
+                                    product_id={product.id}
                                     productName={product.product_name}
                                     categoryName={product.category.category_name}
                                     subcategoryName={product.subcategory.subcategory_name}

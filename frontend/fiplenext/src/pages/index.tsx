@@ -3,6 +3,9 @@ import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter
 import React, { useEffect, useState } from 'react';  
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
+import dynamic from 'next/dynamic';
+import styles from '../styles/Home.module.css'
+
 
 interface Product {
   id: number;
@@ -28,6 +31,11 @@ interface ProductListProps {
   products: Product[];
 }
 
+
+const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
+  ssr: false
+})
+
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/products/');
   const products = await res.json();
@@ -40,6 +48,8 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
 }
 
 export default function ProductList({ products }: ProductListProps) {
+  const [height, setHeight] = useState<number>(180);
+  const [weight, setWeight] = useState<number>(70);
   // カテゴリごとに商品をグループ化
   const categoriesMap: { [key: string]: Product[] } = {};
 
@@ -67,6 +77,7 @@ export default function ProductList({ products }: ProductListProps) {
                   <ProductCard 
                     key={product.id}
                     id={product.product_origin_id}
+                    product_id={product.id}
                     productName={product.product_name}
                     categoryName={product.category.category_name}
                     subcategoryName={product.subcategory.subcategory_name}
@@ -84,7 +95,14 @@ export default function ProductList({ products }: ProductListProps) {
             </Link>
           </div>
         ))}
-      </div>  
-    </div>  
+      </div>
+      {/* 
+        <div className={styles.mannequinArea} style={{ height: '300px', width: '100%' }}>
+              <MannequinModel height={height} weight={weight} />
+            </div>
+        {/* 右側のマネキンエリアとカート */}
+        {/*<VrFitting height={height} weight={weight} setHeight={setHeight} setWeight={setWeight} />*/}
+      
+    </div>
   );  
 };
