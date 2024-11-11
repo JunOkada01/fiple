@@ -9,6 +9,7 @@ interface FavoriteItem {
   product: {
     id: number;
     product_origin: {
+      id: number;
       product_name: string;
       category:{
         category_name: string;
@@ -82,7 +83,8 @@ const FavoriteList: React.FC = () => {
           favorites.map((favorite) => (
             <div key={favorite.id}>
               <ProductCard
-                id={favorite.product.id}
+                id={favorite.product.product_origin.id}
+                product_id={favorite.product.id}
                 productName=''
                 categoryName={favorite.product.product_origin.category.category_name}
                 subcategoryName={favorite.product.product_origin.subcategory.subcategory_name}

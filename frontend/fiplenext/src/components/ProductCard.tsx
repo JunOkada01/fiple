@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 interface ProductCardProps {
   id: number;
+  product_id: number;
   productName: string;
   categoryName: string;
   subcategoryName: string;
@@ -16,6 +17,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
+  product_id,
   productName,
   categoryName,
   subcategoryName,
@@ -41,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       });
       
       const favorite = response.data.find(
-        (fav: any) => fav.product.id === id
+        (fav: any) => fav.product.id === product_id
       );
       
       if (favorite) {
@@ -73,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         // お気に入り登録
         const response = await axios.post(
           'http://localhost:8000/api/favorites/add/',
-          { product_id: id },
+          { product_id: product_id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setIsFavorite(true);

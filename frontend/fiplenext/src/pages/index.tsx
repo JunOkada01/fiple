@@ -54,6 +54,7 @@ export default function ProductList({ products }: ProductListProps) {
             {products.map((product) => (
               <ProductCard 
                 id={product.product_origin_id}
+                product_id={product.id}
                 productName=''
                 categoryName={product.category.category_name}
                 subcategoryName={product.subcategory.subcategory_name}
