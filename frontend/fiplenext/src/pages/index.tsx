@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import React, { useState } from 'react';
 import ProductCard from '../components/ProductCard'; // ProductCardをインポート
+import FittingArea from '../components/VrFitting';
 
 
 interface Product {
@@ -29,6 +30,14 @@ interface ProductListProps {
   products: Product[];
 }
 
+interface FittingItem {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl?: string;
+}
+
+
 const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
     ssr: false
 })
@@ -47,6 +56,19 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
 export default function ProductList({ products }: ProductListProps) {
   const [height, setHeight] = useState<number>(180); // デフォルト身長
   const [weight, setWeight] = useState<number>(70); // デフォルト体重
+  const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
+
+  const removeItemFromFitting = (id: number) => {
+    setFittingItems(fittingItems.filter(item => item.id !== id));
+  };
+
+  const handleAddToCart = () => {
+    console.log('商品をカートに追加');
+  };
+
+  const handleAddToFavorites = () => {
+    console.log('商品をお気に入りに追加');
+  };
   return (
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* 身長と体重入力フォーム */}
@@ -94,6 +116,14 @@ export default function ProductList({ products }: ProductListProps) {
           </div>
         </div>
       </div>
+      <FittingArea
+          height={height}
+          weight={weight}
+          fittingItems={fittingItems}
+          onRemoveItem={removeItemFromFitting}
+          onAddToCart={handleAddToCart}
+          onAddToFavorites={handleAddToFavorites}
+        />
     </div>
     </div>
   );
