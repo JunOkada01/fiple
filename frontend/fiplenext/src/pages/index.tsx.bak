@@ -29,10 +29,6 @@ interface ProductListProps {
   products: Product[];
 }
 
-const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
-    ssr: false
-})
-
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/products/');
   const products = await res.json();
@@ -94,7 +90,6 @@ export default function ProductList({ products }: ProductListProps) {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

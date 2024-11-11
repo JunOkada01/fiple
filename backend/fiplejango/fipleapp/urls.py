@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 from . import views
 from .views import *
 from django.views.generic import TemplateView
@@ -7,6 +8,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
 )
+
+router = DefaultRouter()
+router.register(r'contacts',ContactViewSet)
+router.register(r'contact-categories',ContactCategoryViewSet)
 
 app_name = 'fipleapp'
 
@@ -71,4 +76,24 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    
+    #FAQ関連
+    path('faq-manager/', views.faq_manager, name='faq_manager'),
+    path('api/faqs/', views.faq_list, name='faq_list'),
+    path('create-question-category/', views.create_question_category, name='create_question_category'),
+    path('create-faq/', views.create_faq, name='create_faq'),
+    path('delete-question-category/<int:category_id>/', views.delete_question_category, name='delete_question_category'),
+    path('delete-faq/<int:faq_id>/', views.delete_faq, name='delete_faq'),
+    path('question-category-list/', views.question_category_list, name='question_category_list'),
+    path('faq-list/', views.faq_list_view, name='faq_list_view'),
+    path('edit-question-category/<int:category_id>/', views.edit_question_category, name='edit_question_category'),
+    path('edit-faq/<int:faq_id>/', views.edit_faq, name='edit_faq'),
+    
+    #Contact関連
+    path('api/', include(router.urls)),
+    path('contact-manager/', views.contact_manager, name='contact_manager'),
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
+    path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
+    path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
 ]

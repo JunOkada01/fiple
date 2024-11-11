@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}お問い合わせ詳細{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h4>お問い合わせ詳細</h4>
+    <p><strong>名前:</strong> {{ contact.name }}</p>
+    <p><strong>カテゴリ:</strong> {{ contact.category }}</p>
+    <p><strong>お問い合わせ内容:</strong> {{ contact.message }}</p>
+    <p><strong>送信日時:</strong> {{ contact.created_at }}</p>
+    <a href="{% url 'fipleapp:contact_list' %}">一覧に戻る</a>
+</body>
+</html>
+{% endblock %}

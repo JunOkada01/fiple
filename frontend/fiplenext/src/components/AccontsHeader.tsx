@@ -7,7 +7,7 @@ const AccountsHeader: React.FC = () => {
         {/* 認証関連ヘッダー部分 */}
         <header
             className="flex items-center justify-center border-b"
-            style={{ height: '140px' }} // 縦幅140pxを設定
+            style={{ height: '120px' }} // 縦幅を設定
         >
             <Link href="/">
             <Image

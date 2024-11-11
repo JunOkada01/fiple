@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}お問い合わせ内容の追加{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <h4>お問い合わせ内容の追加</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_name">お問い合わせ内容</label>
+                {{ form.name }}
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+        </form>
+        <br>
+        <a href="{% url 'fipleapp:contact_manager' %}">管理画面に戻る</a>
+    </div>
+</body>
+</html>
+{% endblock %}
