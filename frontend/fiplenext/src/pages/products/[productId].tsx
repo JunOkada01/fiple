@@ -225,9 +225,9 @@ const ProductDetail: React.FC = () => {
               </div>
             </div>
           </div>
+          {/* {productId && <ReviewList productId={Number(productId)} />} */}
+          <ReviewList productId={Number(productId)} />
         </div>
-        {/* {productId && <ReviewList productId={Number(productId)} />} */}
-        <ReviewList productId={Number(productId)} />
       </div>
     </div>
   );

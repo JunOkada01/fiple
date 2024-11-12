@@ -198,7 +198,7 @@ class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
     print("ここでproductIdです！！！！！！！！！！！！！！",product)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    subject_id = models.CharField(max_length=254)
+    subject = models.CharField(max_length=254)
     review_detail = models.CharField(max_length=255)
     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
     rating = models.IntegerField(choices=RATING_CHOICES, default=5)

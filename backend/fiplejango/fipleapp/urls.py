@@ -58,4 +58,6 @@ urlpatterns = [
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),#Review
+    # path('reviews/', ReviewListCreateView.as_view(), name='review-list-create'),
+    # path('reviews/average/<int:product_id>/', AverageRatingView.as_view(), name='average-rating'),
 ]

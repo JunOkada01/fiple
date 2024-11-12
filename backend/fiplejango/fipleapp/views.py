@@ -612,11 +612,38 @@ class PasswordResetConfirmView(APIView):
 #     serializer_class = ReviewSerializer
     
 # views.py
+# from rest_framework import generics
+# from .models import Review
+# from .serializers import ReviewSerializer
+# from rest_framework.response import Response
+# from rest_framework import status
+# # from django.db.models import Avg
+
+# # Review.objects.filter().aggregate(Avg('rating'))
+
+# class ReviewListCreateView(generics.ListCreateAPIView):
+#     serializer_class = ReviewSerializer
+    
+#     def get_queryset(self):
+#         queryset = Review.objects.all()
+#         product_id = self.request.query_params.get('productId', None)
+#         if product_id:
+#             # 修正: productId ではなく product_id を使用する
+#             queryset = queryset.filter(product_id=product_id)  # 修正部分
+#         return queryset
+    
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
 from rest_framework import generics
 from .models import Review
 from .serializers import ReviewSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Avg  # 追加
+from django.db.models import Count
 
 class ReviewListCreateView(generics.ListCreateAPIView):
     serializer_class = ReviewSerializer
@@ -631,5 +658,20 @@ class ReviewListCreateView(generics.ListCreateAPIView):
     
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        # rating_counts = queryset.values('rating').annotate(count=Count('rating')).order_by('-rating') 
+        # 平均評価を計算
+        product_id = self.request.query_params.get('productId', None)
+        average_rating = None
+        if product_id:
+            average_rating = queryset.aggregate(Avg('rating'))['rating__avg']
+            if average_rating is not None:
+                average_rating = round(average_rating, 1)  # 小数点1桁に丸める
+        
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # レスポンスに平均評価を含める
+        response_data = {
+            "average_rating": average_rating if average_rating is not None else 0,
+            "reviews": serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
