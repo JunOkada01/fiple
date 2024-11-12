@@ -234,7 +234,7 @@ const Cart: React.FC = () => {
                             </table>
                             
                             <div className="flex flex-col items-center mt-6">
-                                <Link href="/checkout">
+                                <Link href="/cart/checkout">
                                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
                                         レジに進む
                                     </button>

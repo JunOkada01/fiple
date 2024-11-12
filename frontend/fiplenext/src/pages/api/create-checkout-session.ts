@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      success_url: `${req.headers.origin}/success`,
+      success_url: `${req.headers.origin}/cart/complete`,
       cancel_url: `${req.headers.origin}/cancel`,
       metadata: {
         order_id: Date.now().toString(),
