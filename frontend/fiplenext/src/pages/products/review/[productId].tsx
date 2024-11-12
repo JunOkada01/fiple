@@ -1,7 +1,31 @@
-// pages/reviews/[productId].tsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+
+const RatingDistribution = ({ ratingCounts, totalReviews }) => {
+  return (
+    <div className="w-full max-w-md mb-6 mx-auto">
+      <h3 className="text-md font-medium mb-3 text-center">お客様の評価</h3>
+      {[5, 4, 3, 2, 1].map((rating) => {
+        const count = ratingCounts[rating] || 0;
+        const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+
+        return (
+          <div key={rating} className="flex items-center mb-1">
+            <span className="w-16 text-sm text-gray-900">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>
+            <div className="flex-1 h-4 bg-gray-200 rounded-full mx-2">
+              <div 
+                className="h-full bg-gray-900 rounded-full" 
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 interface Review {
     id: number;
@@ -11,23 +35,29 @@ interface Review {
     datetime: string;
 }
 
+export interface ProductDetailType {
+    product_name: string;
+}
+
 const ProductReviews = () => {
     const router = useRouter();
-    const { productId } = router.query;  // 動的パラメータを取得
+    const { productId } = router.query;
+    const [product, setProduct] = useState<ProductDetailType | null>(null);
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({});
 
     useEffect(() => {
         const fetchReviews = async () => {
-            if (!productId) return;  // productId がまだロードされていない場合は処理しない
+            if (!productId) return;
             try {
                 setLoading(true);
                 const response = await axios.get(`http://127.0.0.1:8000/api/reviews/?productId=${productId}`);
                 setReviews(response.data.reviews);
+                setRatingDistribution(response.data.rating_distribution || {});
             } catch (err) {
                 setError('レビューの取得に失敗しました');
-                console.error('Error details:', err);
             } finally {
                 setLoading(false);
             }
@@ -36,29 +66,51 @@ const ProductReviews = () => {
         fetchReviews();
     }, [productId]);
 
-    if (loading) return <p>読み込み中...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
+    useEffect(() => {
+        const fetchProduct = async () => {
+            if (!productId) return;
+            try {
+                setLoading(true);
+                const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
+                setProduct(response.data);
+            } catch (err) {
+                setError('商品情報の取得に失敗しました');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
+    }, [productId]);
+
+    if (loading) return <p className="text-center">読み込み中...</p>;
+    if (error) return <p className="text-center text-red-500">{error}</p>;
+    if (!product) return null;
 
     return (
-        <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">商品レビュー</h2>
-            
+        <div className="mt-4 p-4 bg-white shadow-sm rounded-md max-w-lg mx-auto">
+            <h1 className="text-xl font-semibold mb-2 text-center">{product.product_name}</h1>
+
+            <RatingDistribution 
+                ratingCounts={ratingDistribution}
+                totalReviews={reviews.length}
+            />
 
             {reviews.length > 0 ? (
-                <ul>
+                <ul className="space-y-3">
                     {reviews.map(review => (
-                        <li key={review.id} className="mb-4 border-b pb-2">
-                            <p><strong>ユーザー:</strong> {review.user}</p>
+                        <li key={review.id} className="border-b pb-2 text-sm">
+                            <p className="text-gray-800"><strong>ユーザー:</strong> {review.user}</p>
                             <p><strong>評価:</strong> {review.rating}☆</p>
-                            <p><strong>コメント:</strong> {review.review_detail}</p>
-                            <p className="text-sm text-gray-500">
-                                <strong>投稿日:</strong> {new Date(review.datetime).toLocaleString()}
+                            <p className="text-gray-700"><strong>コメント:</strong> {review.review_detail}</p>
+                            <p className="text-xs text-gray-500">
+                                <strong>投稿日:</strong> {new Date(review.datetime).toLocaleDateString()}
                             </p>
                         </li>
                     ))}
                 </ul>
             ) : (
-                <p>まだレビューがありません。</p>
+                <p className="text-sm text-gray-600 text-center">まだレビューがありません。</p>
             )}
         </div>
     );

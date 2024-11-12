@@ -604,39 +604,7 @@ class PasswordResetConfirmView(APIView):
                 {'error': '無効または期限切れのトークンです。'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-# -----------------------------Review表示です-------------------------------
-
-# 詳細表示・更新・削除用ビュー
-# class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-    
-# views.py
-# from rest_framework import generics
-# from .models import Review
-# from .serializers import ReviewSerializer
-# from rest_framework.response import Response
-# from rest_framework import status
-# # from django.db.models import Avg
-
-# # Review.objects.filter().aggregate(Avg('rating'))
-
-# class ReviewListCreateView(generics.ListCreateAPIView):
-#     serializer_class = ReviewSerializer
-    
-#     def get_queryset(self):
-#         queryset = Review.objects.all()
-#         product_id = self.request.query_params.get('productId', None)
-#         if product_id:
-#             # 修正: productId ではなく product_id を使用する
-#             queryset = queryset.filter(product_id=product_id)  # 修正部分
-#         return queryset
-    
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
+# -----------------------------Review表示です-------------------------
 from rest_framework import generics
 from .models import Review
 from .serializers import ReviewSerializer
@@ -657,21 +625,93 @@ class ReviewListCreateView(generics.ListCreateAPIView):
         return queryset
     
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        # rating_counts = queryset.values('rating').annotate(count=Count('rating')).order_by('-rating') 
-        # 平均評価を計算
+      queryset = self.get_queryset()
+      product_id = self.request.query_params.get('productId', None)
+      
+      if product_id:
+          # 評価ごとのカウントを取得
+          rating_counts = (
+              queryset
+              .values('rating')
+              .annotate(count=Count('rating'))
+              .order_by('-rating')
+          )
+          
+          # 評価カウントを辞書形式に変換
+          rating_distribution = {
+              item['rating']: item['count'] 
+              for item in rating_counts
+          }
+          
+          # 平均評価を計算
+          average_rating = queryset.aggregate(Avg('rating'))['rating__avg']
+          if average_rating is not None:
+              average_rating = round(average_rating, 1)
+          
+          serializer = self.get_serializer(queryset, many=True)
+          
+          response_data = {
+              "average_rating": average_rating if average_rating is not None else 0,
+              "rating_distribution": rating_distribution,
+              "reviews": serializer.data
+          }
+          return Response(response_data, status=status.HTTP_200_OK)
+from rest_framework import generics, status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from .models import Review, Product  # Productモデルをインポート
+from .serializers import ReviewSerializer, ProductSerializer  # 必要ならProduct用のシリアライザも
+
+class ReviewWriteView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        # 特定の商品のレビューのみを取得
+        queryset = Review.objects.all()
         product_id = self.request.query_params.get('productId', None)
-        average_rating = None
         if product_id:
-            average_rating = queryset.aggregate(Avg('rating'))['rating__avg']
-            if average_rating is not None:
-                average_rating = round(average_rating, 1)  # 小数点1桁に丸める
+            queryset = queryset.filter(product_id=product_id)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        # 商品IDを取得し、該当商品を取得
+        product_id = request.query_params.get('productId', None)
+        if not product_id:
+            return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
         
+        product = get_object_or_404(Product, id=product_id)  # 商品が存在しない場合は404エラーを返す
+        product_data = {
+            "name": product.name,
+            "image_url": product.image.url if product.image else None,  # 商品画像のURLを取得
+        }
+        
+        # 商品のレビューを取得してシリアライズ
+        queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
-        # レスポンスに平均評価を含める
+        # 商品情報とレビューをレスポンスデータに含める
         response_data = {
-            "average_rating": average_rating if average_rating is not None else 0,
-            "reviews": serializer.data
+            "product": product_data,
+            "reviews": serializer.data,
         }
         return Response(response_data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        # 新しいレビューを作成する
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # レスポンスには作成したレビューとステータスコードを返す
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # def reviewlist(self, request, *args, **kwargs):
+    # def get(self, request, *args, **kwargs):
+    #     try:
+    #         product = self.get_object()
+    #         serializer = self.get_serializer(product)
+    #         return Response(serializer.data)
+    #     except ProductOrigin.DoesNotExist:
+    #         return Response(
+    #             {"error": "商品が見つかりません"}, 
+    #             status=status.HTTP_404_NOT_FOUND
+    #         )

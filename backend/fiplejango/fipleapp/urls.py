@@ -60,4 +60,5 @@ urlpatterns = [
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),#Review
     # path('reviews/', ReviewListCreateView.as_view(), name='review-list-create'),
     # path('reviews/average/<int:product_id>/', AverageRatingView.as_view(), name='average-rating'),
+    path('reviews/', ReviewWriteView.as_view(), name='review-list-create'),
 ]

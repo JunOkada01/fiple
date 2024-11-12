@@ -104,11 +104,24 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = ['id', 'product_name', 'category', 'price', 'images', 'product_origin_id']
 
 
-# serializers.py
+# # serializers.py
+# from rest_framework import serializers
+# from .models import Review
+
+# class ReviewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Review
+#         fields = '__all__'
+
 from rest_framework import serializers
-from .models import Review
+from .models import Review, Product  # Productモデルもインポート
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name']  # 必要なフィールドを指定
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'user', 'review_detail', 'rating', 'datetime']
