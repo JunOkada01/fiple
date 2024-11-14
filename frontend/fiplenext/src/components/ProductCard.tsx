@@ -1,66 +1,128 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import axios from 'axios';
+import Link from 'next/link';
 
 interface ProductCardProps {
-    id: number;
-    categoryName: string;
-    price: number;
-    imageUrl: string;
+  id: number;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
+  price: number;
+  imageUrl: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, categoryName, price, imageUrl }) => {
-    // ボタンの状態を管理するステート
-    const [isTryingOn, setIsTryingOn] = useState(false);
-    const [isFavorited, setIsFavorited] = useState(false);
+const ProductCard: React.FC<ProductCardProps> = ({
+  id,
+  product_id,
+  productName,
+  categoryName,
+  subcategoryName,
+  price,
+  imageUrl,
+}) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteId, setFavoriteId] = useState<number | null>(null);
 
-    // 試着ボタンのトグル関数
-    const toggleTryingOn = () => setIsTryingOn((prev) => !prev);
-    
-    // お気に入りボタンのトグル関数
-    const toggleFavorited = () => setIsFavorited((prev) => !prev);
+  // コンポーネントマウント時にお気に入り状態を確認
+  useEffect(() => {
+    checkFavoriteStatus();
+  }, [id]);
 
-    return (
-        <div className="bg-white rounded-sm border border-[1px] p-0 w-full max-w-sm">
-            <Link href={`/products/${id}`}>
-                <div className="relative w-full aspect-[3/4]"> {/* アスペクト比3:4を維持 */}
-                  <Image src={imageUrl} alt="商品画像" className="w-full aspect-[3/4] object-cover shadow-md rounded-t-md" width={300}  height={200} />
-                    <div className="p-4">
-                      <div className="flex justify-between items-center">
-                          <p className="text-gray-500 text-sm">{categoryName}</p>
-                        </div>
-                        <p className="text-gray-900 text-xl mt-1">¥{price.toLocaleString()}</p>
-                        {/* ボタンエリア */}
-                      <div className="flex justify-end mt-2 space-x-[80px]"> {/* ボタン同士の間隔とパディングを追加 */}
-                          {/* 試着アイコンボタン */}
-                          <div 
-                              onClick={toggleTryingOn} 
-                              className={`cursor-pointer transition-all duration-150 ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'}`}
-                          >
-                              <FontAwesomeIcon 
-                                  icon={faShirt} 
-                                  className="text-md transition-all duration-150" 
-                              />
-                          </div>
+  // お気に入り状態の確認
+  const checkFavoriteStatus = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
 
-                          {/* お気に入りアイコンボタン */}
-                          <div 
-                              onClick={toggleFavorited}
-                              className={`cursor-pointer transition-all duration-150 ${isFavorited ? 'text-red-500' : 'text-red-300 hover:text-red-200'}`}
-                          >
-                              <FontAwesomeIcon 
-                                  icon={faHeart} 
-                                  className="text-md transition-all duration-150" 
-                              />
-                          </div>
-                      </div>
-                    </div>
-                </div>
-            </Link>
+    try {
+      const response = await axios.get('http://localhost:8000/api/favorites/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const favorite = response.data.find(
+        (fav: any) => fav.product.id === product_id
+      );
+      
+      if (favorite) {
+        setIsFavorite(true);
+        setFavoriteId(favorite.id);
+      }
+    } catch (error) {
+      console.error('お気に入り状態の確認に失敗しました', error);
+    }
+  };
+
+  // お気に入り登録・解除の処理
+  const toggleFavorite = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('ログインが必要です。');
+      return;
+    }
+
+    try {
+      if (isFavorite && favoriteId) {
+        // お気に入り解除
+        await axios.delete(`http://localhost:8000/api/favorites/delete/${favoriteId}/`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsFavorite(false);
+        setFavoriteId(null);
+      } else {
+        // お気に入り登録
+        const response = await axios.post(
+          'http://localhost:8000/api/favorites/add/',
+          { product_id: product_id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setIsFavorite(true);
+        setFavoriteId(response.data.id);
+      }
+    } catch (error) {
+      console.error('お気に入りの切り替えに失敗しました', error);
+      alert('操作に失敗しました。もう一度お試しください。');
+    }
+  };
+
+  return (
+    <div className="relative w-64 bg-white rounded-lg shadow">
+      <Link href={`/products/${id}`}>
+        <div className="w-full h-64 overflow-hidden rounded-t-lg">
+          <img
+            src={imageUrl}
+            alt={productName}
+            className="w-full h-full object-cover"
+          />
         </div>
-    );
+      </Link>
+      
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          toggleFavorite();
+        }}
+        className="absolute top-2 right-2 p-2 text-2xl transition-colors duration-200"
+      >
+        <FontAwesomeIcon
+          icon={isFavorite ? solidHeart : regularHeart}
+          className={`${
+            isFavorite 
+              ? 'text-red-500 animate-pulse' 
+              : 'text-gray-400 hover:text-red-500'
+          }`}
+        />
+      </button>
+
+      <div className="p-4">
+        <h3 className="text-sm font-medium text-gray-700">{categoryName}</h3>
+        <p className="text-xs text-gray-500">{subcategoryName}</p>
+        <p className="mt-2 text-lg font-bold">¥{price.toLocaleString()}</p>
+      </div>
+    </div>
+  );
 };
 
 export default ProductCard;

@@ -1,15 +1,43 @@
-/* ログイン済みでアカウントリンクを踏んだ場合はこの画面 */
-/* ログイン済みじゃない場合はログイン画面へ */
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
-import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
-import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
-import { faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faCreditCard, faClockRotateLeft, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Profile: React.FC = () => {
+    const router = useRouter();
+
+    // トークンの有効性をチェックし、未認証の場合ログインページにリダイレクト
+    useEffect(() => {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            router.push('/accounts/login');
+        } else {
+            axios.post('http://localhost:8000/api/token/verify/', {
+                token: localStorage.getItem('access_token')
+            }).catch(() => {
+                router.push('/accounts/login');
+            });
+        }
+    }, [router]);
+
+    // ログアウト関数
+    const logout = async () => {
+        try {
+            await axios.post('http://localhost:8000/logout/', {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            router.push('/accounts/logout');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
     return (
         <div className="container mx-auto flex flex-col items-center pt-10">
             {/* アカウントアイコンとタイトル部分 */}
@@ -50,7 +78,7 @@ const Profile: React.FC = () => {
 
                 {/* ログアウトボタン */}
                 <div className="mt-8 mb-3 flex justify-center">
-                    <button className="px-10 py-2 border rounded-md">ログアウト</button>
+                    <button className="px-10 py-2 border rounded-md" onClick={logout}>ログアウト</button>
                 </div>
             </div>
 

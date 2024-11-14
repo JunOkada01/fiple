@@ -1,16 +1,24 @@
 import { GetServerSideProps } from 'next';
-import ProductCard from '../components/ProductCard';
-import React, { useState } from 'react';
-import styles from '../styles/Home.module.css';
+
+import dynamic from 'next/dynamic';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
+import React, { useState } from 'react';
+import ProductCard from '../components/ProductCard'; // ProductCardをインポート
 import FittingArea from '../components/VrFitting';
+import styles from '../styles/Home.module.css';
+
 
 interface Product {
   id: number;
+  product_origin_id: number;
   category: {
     id: number;
     category_name: string;
   };
+  subcategory: {
+    id: number;
+    subcategory_name: string;
+  }
   price: number;
   images: {
     id: number;
@@ -21,13 +29,6 @@ interface Product {
 
 interface ProductListProps {
   products: Product[];
-}
-
-interface FittingItem {
-  id: number;
-  name: string;
-  price: number;
-  imageUrl?: string;
 }
 
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
@@ -42,8 +43,8 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
 }
 
 export default function ProductList({ products }: ProductListProps) {
-  const [height, setHeight] = useState<number>(180);
-  const [weight, setWeight] = useState<number>(70);
+  const [height, setHeight] = useState<number>(180); // デフォルト身長
+  const [weight, setWeight] = useState<number>(70); // デフォルト体重
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
 
   const removeItemFromFitting = (id: number) => {
@@ -57,7 +58,6 @@ export default function ProductList({ products }: ProductListProps) {
   const handleAddToFavorites = () => {
     console.log('商品をお気に入りに追加');
   };
-
   return (
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* 身長と体重入力フォーム */}
@@ -77,7 +77,7 @@ export default function ProductList({ products }: ProductListProps) {
           className="border px-2 py-1"
         />
       </div>
-
+    
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
 
@@ -103,8 +103,11 @@ export default function ProductList({ products }: ProductListProps) {
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
-                    id={product.id}
+                    id={product.product_origin_id}
+                    product_id={product.id}
+                    productName=''
                     categoryName={product.category.category_name}
+                    subcategoryName={product.subcategory.subcategory_name}
                     price={product.price}
                     imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`}
                   />
@@ -124,6 +127,8 @@ export default function ProductList({ products }: ProductListProps) {
           onAddToFavorites={handleAddToFavorites}
         />
       </div>
+      
+
     </div>
   );
 }

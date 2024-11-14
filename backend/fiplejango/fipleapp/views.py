@@ -23,6 +23,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models import Prefetch
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db import transaction
+from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import NotFound
 
 
 def data_view(request):
@@ -48,6 +57,158 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    serializer = AddToCartSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data['quantity']
+        
+        with transaction.atomic():
+            # 同じ商品がカートに既に存在するかチェック
+            cart_item = Cart.objects.filter(
+                user=request.user,
+                product=product
+            ).first()
+            
+            if cart_item:
+                # 既存のカートアイテムの数量を更新
+                new_quantity = cart_item.quantity + quantity
+                if new_quantity > product.stock:
+                    return Response(
+                        {"error": "在庫が不足しています"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                cart_item.quantity = new_quantity
+                cart_item.product_status = product.status
+                cart_item.save()
+            else:
+                # 新しいカートアイテムを作成
+                cart_item = Cart.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=quantity,
+                    product_status=product.status
+                )
+            
+            response_serializer = CartItemSerializer(cart_item)
+            return Response(
+                {
+                    "message": "商品をカートに追加しました",
+                    "cart_item": response_serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CartListView(generics.ListAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.filter(
+            user=self.request.user,
+        ).select_related(
+            'product',
+            'product__product_origin',
+            'product__product_origin__category',
+            'product__product_origin__subcategory',
+            'product__color',
+            'product__size'
+        )
+
+class CartUpdateView(generics.UpdateAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def patch(self, request, *args, **kwargs):
+        cart_item = self.get_object()
+        quantity = request.data.get('quantity', 1)
+        
+        if quantity <= 0:
+            return Response(
+                {"error": "数量は1以上である必要があります"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if quantity > cart_item.product.stock:
+            return Response(
+                {"error": "在庫が足りません"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        serializer = self.get_serializer(cart_item)
+        return Response(serializer.data)
+
+class CartDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+@api_view(['POST'])
+def add_to_favorite(request):
+    # ユーザーが認証されているか確認
+    if not request.user.is_authenticated:
+        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # 商品IDをリクエストデータから取得
+    product_id = request.data.get('product_id')
+    if not product_id:
+        return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # 商品を取得
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # すでにお気に入りに追加されている場合はエラー
+    if Favorite.objects.filter(user=request.user, product=product).exists():
+        return Response({"detail": "Product is already in your favorites."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 新しいお気に入りを作成
+    favorite = Favorite.objects.create(user=request.user, product=product)
+
+    # 成功したらシリアライズして返す
+    serializer = FavoriteSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class FavoriteListView(generics.ListAPIView):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # 現在認証されているユーザーのお気に入りを取得
+        return Favorite.objects.filter(user=self.request.user)
+    
+class FavoriteDeleteView(generics.DestroyAPIView):
+    queryset = Favorite.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # ユーザーが削除するお気に入りを取得
+        favorite = Favorite.objects.filter(id=self.kwargs['pk'], user=self.request.user).first()
+        if not favorite:
+            raise NotFound(detail="お気に入りが見つかりません")
+        return favorite
+
+    def delete(self, request, *args, **kwargs):
+        # 削除する
+        favorite = self.get_object()
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # アカウント関連-----------------------------------------------------------------------------------------
@@ -83,52 +244,31 @@ class RegisterView(APIView):
 
 
 
+class LoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
 
-
-class LoginView(APIView):
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            
+            # JWTトークンを生成
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                "message": "Login successful!",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }, status=status.HTTP_200_OK)
+            
+        return Response({"error": "メールアドレスかパスワードが間違っています"}, status=400)
         
-        try:
-            # メールアドレスでユーザーを検索
-            user = CustomUser.objects.get(email=email)
-            if user.check_password(password):
-                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                return Response({
-                    "message": "Login successful!",
-                    "user": {
-                        "email": user.email,
-                        "username": user.username
-                    }
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    "error": "パスワードが正しくありません。"
-                }, status=status.HTTP_400_BAD_REQUEST)
-        except CustomUser.DoesNotExist:
-            return Response({
-                "error": "このメールアドレスは登録されていません。"
-            }, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({
-                "error": "ログイン中にエラーが発生しました。"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-# class LoginView(APIView):
-#     def post(self, request):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-#         user = authenticate(request, username=username, password=password)
-
-#         if user is not None:
-#             backend = 'fipleapp.backends.UserBackend'
-#             login(request, user, backend=backend)  # ユーザーをログインさせる
-#             return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
-#         else:
-#             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)  # ユーザーをログアウトさせる
+        return Response({"message": "Logout successful!"}, status=status.HTTP_200_OK)
         
 
 
@@ -581,10 +721,7 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
-
-
-
-
+    
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -655,3 +792,173 @@ class PasswordResetConfirmView(APIView):
                 {'error': '無効または期限切れのトークンです。'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+def faq_list(request):
+    faqs = FAQ.objects.select_related('category').all()
+    data = [
+        {
+            'question': faq.question,
+            'answer': faq.answer,
+            'category': faq.category.name,
+        }
+        for faq in faqs
+    ]
+    return JsonResponse(data, safe=False)
+
+def create_question_category(request):
+    if request.method == 'POST':
+        form = QuestionCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'カテゴリが登録されました。')
+            return redirect('fipleapp:create_question_category')
+    else:
+        form = QuestionCategoryForm()
+    return render(request, 'faq/create_question_category.html', {'form': form})
+
+def create_faq(request):
+    if request.method == 'POST':
+        form = FAQForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'FAQが登録されました。')
+            return redirect('fipleapp:create_faq')
+    else:
+        form = FAQForm()
+    return render(request, 'faq/create_faq.html', {'form': form})
+
+# FAQカテゴリ削除ビュー
+def delete_question_category(request, category_id):
+    category = get_object_or_404(QuestionCategory, id=category_id)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'カテゴリが削除されました。')
+        return redirect('fipleapp:create_question_category')  # カテゴリ一覧ページにリダイレクト
+    return render(request, 'faq/delete_question_category.html', {'category': category})
+
+# FAQ削除ビュー
+def delete_faq(request, faq_id):
+    faq = get_object_or_404(FAQ, id=faq_id)
+    if request.method == 'POST':
+        faq.delete()
+        messages.success(request, 'FAQが削除されました。')
+        return redirect('fipleapp:create_faq')  # FAQ一覧ページにリダイレクト
+    return render(request, 'faq/delete_faq.html', {'faq': faq})
+
+# カテゴリ一覧表示ビュー
+def question_category_list(request):
+    categories = QuestionCategory.objects.all()
+    return render(request, 'faq/question_category_list.html', {'categories': categories})
+
+# FAQ一覧表示ビュー
+def faq_list_view(request):
+    faqs = FAQ.objects.all()
+    return render(request, 'faq/faq_list.html', {'faqs': faqs})
+
+#FAQカテゴリ編集ビュー
+def edit_question_category(request, category_id):
+    category = get_object_or_404(QuestionCategory, id=category_id)
+    if request.method == 'POST':
+        category.name = request.POST.get('name')
+        category.save()
+        messages.success(request, 'カテゴリが更新されました。')
+        return redirect('fipleapp:question_category_list')
+    return render(request, 'faq/edit_question_category.html', {'category': category})
+
+# FAQ編集ビュー
+def edit_faq(request, faq_id):
+    faq = get_object_or_404(FAQ, id=faq_id)
+    if request.method == 'POST':
+        faq.question = request.POST.get('question')
+        faq.answer = request.POST.get('answer')
+        faq.category_id = request.POST.get('category_id')
+        faq.save()
+        messages.success(request, 'FAQが更新されました。')
+        return redirect('fipleapp:faq_list')
+    categories = QuestionCategory.objects.all()
+    return render(request, 'faq/edit_faq.html', {'faq': faq, 'categories': categories})
+
+def faq_manager(request):
+    return render(request, 'faq/faq_manager.html')
+
+# views.py
+from rest_framework import viewsets
+from .models import Contact, ContactCategory
+from .serializers import ContactSerializer, ContactCategorySerializer
+
+class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ContactCategory.objects.all()
+    serializer_class = ContactCategorySerializer
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+
+#問い合わせ一覧表示
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Contact
+
+def contact_list(request):
+    contacts = Contact.objects.all().order_by('-created_at')
+    return render(request, 'contact/contact_list.html', {'contacts': contacts})
+
+def contact_detail(request, contact_id):
+    contact = get_object_or_404(Contact, id=contact_id)
+    return render(request, 'contact/contact_detail.html', {'contact': contact})
+
+# backend/app/views.py
+from django.shortcuts import render, redirect
+from .forms import ContactCategoryForm
+
+def add_contact_category(request):
+    if request.method == 'POST':
+        form = ContactCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'contact/contact_manager.html')  # 管理画面にリダイレクト
+    else:
+        form = ContactCategoryForm()
+    
+    return render(request, 'contact/add_contact_category.html', {'form': form})
+    
+def contact_manager(request):
+    return render(request, 'contact/contact_manager.html')
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Contact, ContactCategory
+
+@csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
+def submit_contact_form(request):
+    if request.method == 'POST':
+        try:
+            # FormDataは request.POST で受け取ることができます
+            name = request.POST.get('name')
+            category_name = request.POST.get('category')
+            message = request.POST.get('message')
+
+            # category_name でカテゴリを検索
+            category = ContactCategory.objects.filter(name=category_name).first()
+
+            # カテゴリが見つからない場合
+            if not category:
+                return JsonResponse({"error": "Invalid category"}, status=400)
+
+            # Contactモデルにデータを保存
+            contact = Contact.objects.create(
+                name=name,
+                category=category,
+                message=message
+            )
+
+            # 保存後、成功レスポンスを返す
+            return JsonResponse({"message": "Form submitted successfully", "id": contact.id}, status=201)
+
+        except Exception as e:
+            # 予期しないエラーが発生した場合
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # POST以外のリクエストメソッドの場合
+    return JsonResponse({"error": "Invalid request method"}, status=405)
