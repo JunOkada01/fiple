@@ -9,12 +9,12 @@ import Link from "next/link";
 import '@fortawesome/fontawesome-svg-core'
 import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
-// 使う場合はコメント化を解除してください↓
-// import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
-// import { motion } from "framer-motion";
+import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
+import { motion } from "framer-motion";
+//import Image from "next/image";
+//import Link from 'next/link'
 
- 
- 
+
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();     // ユーザーのURL（ルートパス）を取得
   //ここにfooterを追加してすみません↓
@@ -30,10 +30,10 @@ function App({ Component, pageProps }: AppProps) {
       </Head>
       {/* ログイン・神機登録画面ではAuthHeader、それ以外では通常のHeader */}
       {isAuthPage ? <AuthHeader /> : <Header />}
-      <main style={{ padding: '0' }}>
+      <main style={{ padding: '0', marginBottom: '2rem' }}> 
         <Component {...pageProps} />
       </main>
-      <Footer/>
+      <Footer/>	
     </>
   );
 }

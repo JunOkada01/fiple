@@ -169,31 +169,51 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
     
-# class Contact(models.Model):
-#     name = models.CharField(max_length=255)
-#     email = models.EmailField(max_length=255)
-#     phone = models.CharField(max_length=15, default='')
-#     details = models.CharField(max_length=1023, default='')
-#     def __str__(self):
-#         return self.name  # サイズ名を返す
+class Cart(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    product_status = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.product_origin.product_name}"
+    
+class Favorite(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.product_origin.product_name}"
+    
+class QuestionCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
 
+    def __str__(self):
+        return self.name
 
-# class Review(models.Model):
-#     productId = models.IntegerField(default=0)
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     subject_id = models.CharField(max_length=254)#ReviewのID
-#     review_detail = models.CharField(max_length=255)
-#     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]  # 1☆〜5☆
-#     rating = models.IntegerField(choices=RATING_CHOICES, default=5)
-#     datetime = models.DateTimeField(auto_now_add=True)
-#     def __str__(self):
-#       return f"Review by {self.user} on {self.productId}"
-# # <div>
-# #     {% for i in range review.rating %}
-# #         ★
-# #     {% endfor %}
-# # </div>
+class FAQ(models.Model):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+    category = models.ForeignKey(QuestionCategory, on_delete=models.CASCADE, related_name="faqs")
 
+    def __str__(self):
+        return self.question
+
+class ContactCategory(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(ContactCategory, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
     print("ここでproductIdです！！！！！！！！！！！！！！",product)
@@ -206,45 +226,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user} on {self.product}"
-
-# # models.py
-# from django.db import models
-# from django.core.validators import MinValueValidator, MaxValueValidator
-# from django.conf import settings
-
-# class Review(models.Model):
-#     product = models.ForeignKey(
-#         'Product',  # 既存の商品モデルを参照
-#         on_delete=models.CASCADE,
-#         related_name='reviews'
-#     )
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE,
-#         related_name='reviews'
-#     )
-#     rating = models.DecimalField(
-#         max_digits=3,
-#         decimal_places=1,
-#         validators=[
-#             MinValueValidator(0.0),
-#             MaxValueValidator(5.0)
-#         ]
-#     )
-#     comment = models.TextField()
-#     helpful_count = models.PositiveIntegerField(default=0)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         ordering = ['-created_at']
-#         # 1ユーザーにつき1商品に1つのレビューのみ許可
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=['user', 'product'],
-#                 name='unique_review_per_user_product'
-#             )
-#         ]
-
-#     def __str__(self):
-#         return f"Review by {self.user.username} for {self.product.product_name}"

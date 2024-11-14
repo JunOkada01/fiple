@@ -8,7 +8,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
 
@@ -16,21 +16,25 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:8000/login/', {
-                username,
+                email,
                 password,
             });
-            console.log(response.data);
+            const { access, refresh } = response.data;
+            localStorage.setItem('access_token', access);
+            localStorage.setItem('refresh_token', refresh);
+
+            console.log('ログインに成功しました！:', response.data);
             router.push('/'); // ホームページにリダイレクト
         } catch (error) {
             console.error(error);
-            alert('Login failed. Please check your credentials.');
+            alert('メールアドレスかパスワードが間違っています');
         }
     };
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
             {/* タイトル部分 */}
-            <h1 className="text-4xl mt-[100px] mb-5">LOGIN</h1>
+            <h1 className="text-4xl font-bold mt-[100px] mb-5">LOGIN</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" /> {/* 区切り線の幅をさらに広く */}
 
             <div className="flex w-full max-w-2xl justify-between items-stretch"> {/* 最大幅を調整 */}
@@ -46,9 +50,9 @@ const Login = () => {
                         <input
                             type="text"
                             className="mt-1 w-full p-2 text-m focus:outline-none"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder='メールだけど名前を入力してください'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder='メールアドレスを入力してください'
                             required
                         />
                     </div>
@@ -68,9 +72,12 @@ const Login = () => {
                     <button className="px-20 py-2 bg-black text-white hover:bg-gray-800">
                         ログイン
                     </button>
-                    <a href="password/forget" className="text-black underline text-center">
+                    <Link 
+                    href="/accounts/password/forget" 
+                    className="text-black underline text-center"
+                    >
                         パスワードを忘れた？
-                    </a>
+                    </Link>
                 </form>
 
                 {/* 区切り線 */}

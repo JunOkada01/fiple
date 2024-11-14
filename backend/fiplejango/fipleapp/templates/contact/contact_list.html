@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}お問い合わせ一覧{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h4>・お問い合わせ一覧</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>名前</th>
+                <th>カテゴリ</th>
+                <th>お問い合わせ内容</th>
+                <th>送信日時</th>
+                <th>詳細</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.category }}</td>
+                <td>{{ contact.message|truncatewords:10 }}</td>
+                <td>{{ contact.created_at }}</td>
+                <td><a href="{% url 'fipleapp:contact_detail' contact.id %}">詳細</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'fipleapp:contact_manager' %}">お問い合わせ管理ページへ</a>
+</body>
+</html>
+{% endblock %}
