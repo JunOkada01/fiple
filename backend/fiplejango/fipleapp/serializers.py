@@ -45,24 +45,11 @@ class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
         fields = ['id', 'size_name']
-        
-class ProductOriginSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    subcategory = SubCategorySerializer()
-
-    class Meta:
-        model = ProductOrigin
-        fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'tag_name']
-
-# class ProductImageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ProductImage
-#         fields = ['id', 'image', 'image_description']
 
 class ProductImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
@@ -70,11 +57,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'image_description']
-
-    def get_image(self, obj):
-        if obj.image:
-            return f"{obj.image.url}"
-        return None
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
@@ -93,7 +75,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     subcategory = SubCategorySerializer()
     tags = serializers.SerializerMethodField()
     variants = serializers.SerializerMethodField()
-    
 
     class Meta:
         model = ProductOrigin
@@ -114,7 +95,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         variants = Product.objects.filter(product_origin=obj)
         return ProductVariantSerializer(variants, many=True).data
 
-
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
     subcategory = SubCategorySerializer(source='product_origin.subcategory')
@@ -125,7 +105,14 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
-        
+
+class ProductOriginSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    subcategory = SubCategorySerializer()
+
+    class Meta:
+        model = ProductOrigin
+        fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
 
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
@@ -166,6 +153,8 @@ class CartListSerializer(serializers.ModelSerializer):
         """各カートアイテムの合計金額を計算"""
         return obj.product.price * obj.quantity
 
+
+
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer()  # 商品の詳細も含める
 
@@ -196,7 +185,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'user', 'product', 'images', 'created_at', 'updated_at']
-        
+
+
 class ContactCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactCategory

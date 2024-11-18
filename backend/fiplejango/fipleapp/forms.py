@@ -151,3 +151,39 @@ class ProductImageForm(forms.ModelForm):
             'image': '画像',
             'image_description': '画像説明',
         }
+
+class QuestionCategoryForm(forms.ModelForm):
+    class Meta:
+        model = QuestionCategory
+        fields = ['name']
+        labels = {
+            'name': 'カテゴリ名'
+        }
+
+class FAQForm(forms.ModelForm):
+    class Meta:
+        model = FAQ
+        fields = ['category', 'question', 'answer']
+        labels = {
+            'category': 'カテゴリ',
+            'question': '質問',
+            'answer': '回答',
+        }
+
+class ContactCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ContactCategory
+        fields = ['name']
+
+# class ContactForm(forms.Form):
+#     name = forms.CharField(max_length=100)
+#     category = forms.ChoiceField(choices=[('inquiry', 'お問い合わせ'), ('feedback', 'フィードバック')])
+#     message = forms.CharField(widget=forms.Textarea)
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, required=True)
+    category = forms.ChoiceField(
+        choices=[('inquiry', 'お問い合わせ'), ('feedback', 'フィードバック')],
+        required=True
+    )
+    message = forms.CharField(widget=forms.Textarea, required=True)

@@ -2,10 +2,9 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import Link from 'next/link';
+import Link from 'next/link';  
 
-const OrderConfirmation: React.FC = () => {  
-
+const OrderConfirmation: React.FC = () => {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [isClearing, setIsClearing] = useState(true);
