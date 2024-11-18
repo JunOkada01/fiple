@@ -14,11 +14,11 @@ const EditProfile: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
-            <h1 className="text-4xl mt-[100px] mb-5">EDIT PROFILE</h1>
+            <h1 className="text-4xl mt-[50px] mb-5">EDIT PROFILE</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-10" />
 
             <div className="flex flex-col items-center w-full max-w-lg">
-                <form className="w-full space-y-8" onSubmit={handleSubmit}>
+                <form className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="flex items-center mb-5">
                         <label className="text-left text-lg w-1/3">名前</label>
                         <input

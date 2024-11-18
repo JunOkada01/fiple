@@ -125,7 +125,14 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
-        
+
+class ProductOriginSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    subcategory = SubCategorySerializer()
+
+    class Meta:
+        model = ProductOrigin
+        fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
 
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
@@ -135,16 +142,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = [
-            'id',
-            'product_origin',
-            'color',
-            'size',
-            'price',
-            'stock',
-            'status',
-            'images'
-        ]
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     product_origin = ProductOriginSerializer()
+#     color = ColorSerializer()
+#     size = SizeSerializer()
+#     images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             'id',
+#             'product_origin',
+#             'color',
+#             'size',
+#             'price',
+#             'stock',
+#             'status',
+#             'images'
+#         ]
 
 class CartListSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
