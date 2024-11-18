@@ -1016,62 +1016,185 @@ class ReviewListCreateView(generics.ListCreateAPIView):
               "reviews": serializer.data
           }
           return Response(response_data, status=status.HTTP_200_OK)
+      
+
+# from rest_framework import generics, status
+# from rest_framework.response import Response
+# from rest_framework.permissions import IsAuthenticated
+# from django.shortcuts import get_object_or_404
+# from .models import Review, Product
+# from .serializers import ReviewSerializer
+
+# class ReviewWriteView(generics.CreateAPIView):
+#     serializer_class = ReviewSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def create(self, request, *args, **kwargs):
+#         # リクエストデータをコピー
+#         data = request.data.copy()
+        
+#         # 商品IDを取得
+#         product_id = data.get('product')
+#         if not product_id:
+#             return Response(
+#                 {"error": "商品IDが必要です"},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         # 商品の存在確認
+#         try:
+#             product = Product.objects.get(id=product_id)
+#         except Product.DoesNotExist:
+#             return Response(
+#                 {"error": "指定された商品が存在しません"},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+
+#         # 既存のレビューチェック
+#         if Review.objects.filter(product=product, user=request.user).exists():
+#             return Response(
+#                 {"error": "この商品には既にレビューを投稿しています"},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         # シリアライザにデータを渡す
+#         serializer = self.get_serializer(data=data)
+#         serializer.is_valid(raise_exception=True)
+        
+#         # レビューを保存
+#         serializer.save(user=request.user, product=product)
+        
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Review, Product  # Productモデルをインポート
-from .serializers import ReviewSerializer, ProductSerializer  # 必要ならProduct用のシリアライザも
+from .models import Review, Product
+from .serializers import ReviewSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class ReviewWriteView(generics.ListCreateAPIView):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]  # 認証済みユーザーのみアクセス可
 
     def get_queryset(self):
-        # 特定の商品のレビューのみを取得
         queryset = Review.objects.all()
         product_id = self.request.query_params.get('productId', None)
+        
         if product_id:
             queryset = queryset.filter(product_id=product_id)
         return queryset
 
-    def list(self, request, *args, **kwargs):
-        # 商品IDを取得し、該当商品を取得
-        product_id = request.query_params.get('productId', None)
-        if not product_id:
-            return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        product = get_object_or_404(Product, id=product_id)  # 商品が存在しない場合は404エラーを返す
-        product_data = {
-            "name": product.name,
-            "image_url": product.image.url if product.image else None,  # 商品画像のURLを取得
-        }
-        
-        # 商品のレビューを取得してシリアライズ
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-
-        # 商品情報とレビューをレスポンスデータに含める
-        response_data = {
-            "product": product_data,
-            "reviews": serializer.data,
-        }
-        return Response(response_data, status=status.HTTP_200_OK)
-
     def create(self, request, *args, **kwargs):
-        # 新しいレビューを作成する
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        # 商品IDとユーザー情報を取得
+        product_id = request.data.get("product")
+        print("Received product_id:", product_id)
+        if not user or user.is_anonymous:
+            return Response({"error": "認証が必要です"}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+
+        # 商品が存在するかを確認
+        product = get_object_or_404(Product, id=product_id)
         
-        # レスポンスには作成したレビューとステータスコードを返す
+        # 既にユーザーがレビューしているか確認
+        if Review.objects.filter(product=product, user=user).exists():
+            return Response(
+                {"error": "この商品には既にレビューを投稿しています"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 新しいレビューを作成
+        serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
+        if serializer.errors:
+          print("Serializer errors:", serializer.errors)
+          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save(user=user, product=product)  # ログインユーザーと商品を設定
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    # def reviewlist(self, request, *args, **kwargs):
-    # def get(self, request, *args, **kwargs):
-    #     try:
-    #         product = self.get_object()
-    #         serializer = self.get_serializer(product)
-    #         return Response(serializer.data)
-    #     except ProductOrigin.DoesNotExist:
-    #         return Response(
-    #             {"error": "商品が見つかりません"}, 
-    #             status=status.HTTP_404_NOT_FOUND
-    #         )
+    
+
+
+
+
+
+
+
+
+    # from rest_framework import generics, status
+# from rest_framework.response import Response
+# from django.shortcuts import get_object_or_404
+# from .models import Review, Product  # Productモデルをインポート
+# from .serializers import ReviewSerializer, ProductSerializer  # 必要ならProduct用のシリアライザも
+
+# class ReviewWriteView(generics.ListCreateAPIView):
+#     serializer_class = ReviewSerializer
+
+#     def get_queryset(self):
+#         # 特定の商品のレビューのみを取得
+#         queryset = Review.objects.all()
+#         product_id = self.request.query_params.get('productId', None)
+#         if product_id:
+#             queryset = queryset.filter(product_id=product_id)
+#         return queryset
+
+#     def list(self, request, *args, **kwargs):
+#         # 商品IDを取得し、該当商品を取得
+#         product_id = request.query_params.get('productId', None)
+#         if not product_id:
+#             return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+#         product = get_object_or_404(Product, id=product_id)  # 商品が存在しない場合は404エラーを返す
+#         product_data = {
+#             "name": product.name,
+#             "image_url": product.image.url if product.image else None,  # 商品画像のURLを取得
+#         }
+        
+#         # 商品のレビューを取得してシリアライズ
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True)
+
+#         # 商品情報とレビューをレスポンスデータに含める
+#         response_data = {
+#             "product": product_data,
+#             "reviews": serializer.data,
+#         }
+#         return Response(response_data, status=status.HTTP_200_OK)
+
+#     def create(self, request, *args, **kwargs):
+#         # 新しいレビューを作成する
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+        
+#         # レスポンスには作成したレビューとステータスコードを返す
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     # def reviewlist(self, request, *args, **kwargs):
+#     # def get(self, request, *args, **kwargs):
+#     #     try:
+#     #         product = self.get_object()
+#     #         serializer = self.get_serializer(product)
+#     #         return Response(serializer.data)
+#     #     except ProductOrigin.DoesNotExist:
+#     #         return Response(
+#     #             {"error": "商品が見つかりません"}, 
+#     #             status=status.HTTP_404_NOT_FOUND
+#     #         )
+
+from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import UserSerializer
+class UserProfileView(APIView):
+    @login_required
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)

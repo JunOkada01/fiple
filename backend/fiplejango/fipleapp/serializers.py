@@ -221,3 +221,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'review_detail', 'rating', 'datetime']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'hurigana', 'sex', 'phone', 'address']

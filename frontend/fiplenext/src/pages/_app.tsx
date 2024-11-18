@@ -20,7 +20,7 @@ function App({ Component, pageProps }: AppProps) {
   //ここにfooterを追加してすみません↓
   const isAuthPage = ['/accounts/login', '/accounts/signup','/footer/company','/footer/privacypolicy','/footer/ToU','/footer/tokushoho'].includes(router.pathname);
   // 現在のパスがログイン・新規登録画面かどうかを判定
-
+  
   return (
     <>
       <Head>

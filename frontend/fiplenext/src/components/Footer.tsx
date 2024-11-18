@@ -13,7 +13,7 @@ const Footer = () => {
     {
       title: 'Support',
       items: [
-        { label: 'お問い合わせ', href: 'footer/contact/contact' },
+        { label: 'お問い合わせ', href: 'footer/contact/ContactForm' },
         // { label: 'ご利用ガイド', href: '/guide' },
         { label: '特定商取引法', href: '/footer/tokushoho' },
       ]

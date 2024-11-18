@@ -96,6 +96,16 @@ const ProductReviews = () => {
                 totalReviews={reviews.length}
             />
 
+            {/* レビューを書くボタン */}
+            <div className="text-right mb-4">
+                <button 
+                    className="px-2 py-1 bg-gray-100 text-black rounded-md"
+                    onClick={() => router.push(`/products/review/writereview/${productId}`)}
+                >
+                    レビューを書く
+                </button>
+            </div>
+
             {reviews.length > 0 ? (
                 <ul className="space-y-3">
                     {reviews.map(review => (
