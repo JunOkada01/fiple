@@ -181,3 +181,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'user', 'product', 'images', 'created_at', 'updated_at']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+class ContactCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactCategory
+        fields = ['id', 'name']
+
+class ContactSerializer(serializers.ModelSerializer):
+    category = serializers.StringRelatedField()
+
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'category', 'message', 'created_at']

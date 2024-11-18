@@ -1,12 +1,17 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView
 )
+
+router = DefaultRouter()
+router.register(r'contacts',ContactViewSet)
+router.register(r'contact-categories',ContactCategoryViewSet)
 
 app_name = 'fipleapp'
 
@@ -76,4 +81,28 @@ urlpatterns = [
     path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
+    # パスワードリセット
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    # レビュー
+    #path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),#Review
+    #FAQ関連
+    path('faq-manager/', views.faq_manager, name='faq_manager'),
+    path('api/faqs/', views.faq_list, name='faq_list'),
+    path('create-question-category/', views.create_question_category, name='create_question_category'),
+    path('create-faq/', views.create_faq, name='create_faq'),
+    path('delete-question-category/<int:category_id>/', views.delete_question_category, name='delete_question_category'),
+    path('delete-faq/<int:faq_id>/', views.delete_faq, name='delete_faq'),
+    path('question-category-list/', views.question_category_list, name='question_category_list'),
+    path('faq-list/', views.faq_list_view, name='faq_list_view'),
+    path('edit-question-category/<int:category_id>/', views.edit_question_category, name='edit_question_category'),
+    path('edit-faq/<int:faq_id>/', views.edit_faq, name='edit_faq'),
+    
+    #Contact関連
+    path('api/', include(router.urls)),
+    path('contact-manager/', views.contact_manager, name='contact_manager'),
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
+    path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
+    path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
 ]

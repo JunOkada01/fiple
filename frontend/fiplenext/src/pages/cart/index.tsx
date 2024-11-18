@@ -255,11 +255,17 @@ const Cart: React.FC = () => {
                     </table>  
                     
                     <div className="flex flex-col space-y-4 items-center mt-6">  
-                        <Link href="/checkout">  
-                            <button className="w-full max-w-md px-20 py-1 text-black border-2 border-black hover:text-white hover:bg-black transition-all">  
-                                レジに進む  
-                            </button>  
-                        </Link>
+                    <Link href={cartItems.length === 0 ? "#" : "/cart/checkout"}>
+                        <button
+                            className={`w-full max-w-md px-20 py-1 border-2 font-bold transition-all
+                                ${cartItems.length === 0
+                                    ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
+                                    : 'text-black border-black hover:text-white hover:bg-black hover:shadow-lg'}`}
+                            disabled={cartItems.length === 0}
+                        >
+                            レジに進む
+                        </button>
+                    </Link>
                         <Link href="/">  
                             <span className="mt-4 text-black hover:text-gray-500 cursor-pointer">  
                                 ショッピングを続ける  

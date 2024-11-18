@@ -72,7 +72,7 @@ const Login = () => {
                     <button className="px-20 py-2 bg-black text-white hover:bg-gray-800">
                         ログイン
                     </button>
-                    <Link href="#" className="text-black underline text-center">
+                    <Link href="/accounts/password/forget" className="text-black underline text-center">
                         パスワードを忘れた？
                     </Link>
                 </form>

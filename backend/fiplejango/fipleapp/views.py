@@ -739,3 +739,245 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         favorite = self.get_object()
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+import jwt
+from datetime import datetime, timedelta
+
+User = get_user_model()
+
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {'error': 'メールアドレスは必須です。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = User.objects.filter(email=email).first()
+        if user:
+            # トークンの生成
+            token = jwt.encode({
+                'user_id': user.id,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, settings.SECRET_KEY, algorithm='HS256')
+
+            # リセットリンクの作成
+            reset_link = f'http://localhost:3000/accounts/password/reset/{token}'
+
+            # メール送信
+            send_mail(
+                '【サイト名】パスワードリセット',
+                f'以下のリンクからパスワードをリセットしてください：\n\n{reset_link}\n\nこのリンクは24時間有効です。',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+
+        # セキュリティのため、ユーザーが存在しない場合でも同じレスポンスを返す
+        return Response({'message': 'パスワードリセット手順をメールで送信しました。'})
+
+class PasswordResetConfirmView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        password = request.data.get('password')
+
+        if not token or not password:
+            return Response(
+                {'error': '無効なリクエストです。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # トークンの検証
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.get(id=payload['user_id'])
+
+            # パスワードの更新
+            user.set_password(password)
+            user.save()
+
+            return Response({'message': 'パスワードが正常に更新されました。'})
+
+        except (jwt.ExpiredSignatureError, jwt.DecodeError, User.DoesNotExist):
+            return Response(
+                {'error': '無効または期限切れのトークンです。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+def faq_list(request):
+    faqs = FAQ.objects.select_related('category').all()
+    data = [
+        {
+            'question': faq.question,
+            'answer': faq.answer,
+            'category': faq.category.name,
+        }
+        for faq in faqs
+    ]
+    return JsonResponse(data, safe=False)
+
+def create_question_category(request):
+    if request.method == 'POST':
+        form = QuestionCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'カテゴリが登録されました。')
+            return redirect('fipleapp:create_question_category')
+    else:
+        form = QuestionCategoryForm()
+    return render(request, 'faq/create_question_category.html', {'form': form})
+
+def create_faq(request):
+    if request.method == 'POST':
+        form = FAQForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'FAQが登録されました。')
+            return redirect('fipleapp:create_faq')
+    else:
+        form = FAQForm()
+    return render(request, 'faq/create_faq.html', {'form': form})
+
+# FAQカテゴリ削除ビュー
+def delete_question_category(request, category_id):
+    category = get_object_or_404(QuestionCategory, id=category_id)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'カテゴリが削除されました。')
+        return redirect('fipleapp:create_question_category')  # カテゴリ一覧ページにリダイレクト
+    return render(request, 'faq/delete_question_category.html', {'category': category})
+
+# FAQ削除ビュー
+def delete_faq(request, faq_id):
+    faq = get_object_or_404(FAQ, id=faq_id)
+    if request.method == 'POST':
+        faq.delete()
+        messages.success(request, 'FAQが削除されました。')
+        return redirect('fipleapp:create_faq')  # FAQ一覧ページにリダイレクト
+    return render(request, 'faq/delete_faq.html', {'faq': faq})
+
+# カテゴリ一覧表示ビュー
+def question_category_list(request):
+    categories = QuestionCategory.objects.all()
+    return render(request, 'faq/question_category_list.html', {'categories': categories})
+
+# FAQ一覧表示ビュー
+def faq_list_view(request):
+    faqs = FAQ.objects.all()
+    return render(request, 'faq/faq_list.html', {'faqs': faqs})
+
+#FAQカテゴリ編集ビュー
+def edit_question_category(request, category_id):
+    category = get_object_or_404(QuestionCategory, id=category_id)
+    if request.method == 'POST':
+        category.name = request.POST.get('name')
+        category.save()
+        messages.success(request, 'カテゴリが更新されました。')
+        return redirect('fipleapp:question_category_list')
+    return render(request, 'faq/edit_question_category.html', {'category': category})
+
+# FAQ編集ビュー
+def edit_faq(request, faq_id):
+    faq = get_object_or_404(FAQ, id=faq_id)
+    if request.method == 'POST':
+        faq.question = request.POST.get('question')
+        faq.answer = request.POST.get('answer')
+        faq.category_id = request.POST.get('category_id')
+        faq.save()
+        messages.success(request, 'FAQが更新されました。')
+        return redirect('fipleapp:faq_list')
+    categories = QuestionCategory.objects.all()
+    return render(request, 'faq/edit_faq.html', {'faq': faq, 'categories': categories})
+
+def faq_manager(request):
+    return render(request, 'faq/faq_manager.html')
+
+# views.py
+from rest_framework import viewsets
+from .models import Contact, ContactCategory
+from .serializers import ContactSerializer, ContactCategorySerializer
+
+class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ContactCategory.objects.all()
+    serializer_class = ContactCategorySerializer
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+
+#問い合わせ一覧表示
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Contact
+
+def contact_list(request):
+    contacts = Contact.objects.all().order_by('-created_at')
+    return render(request, 'contact/contact_list.html', {'contacts': contacts})
+
+def contact_detail(request, contact_id):
+    contact = get_object_or_404(Contact, id=contact_id)
+    return render(request, 'contact/contact_detail.html', {'contact': contact})
+
+# backend/app/views.py
+from django.shortcuts import render, redirect
+from .forms import ContactCategoryForm
+
+def add_contact_category(request):
+    if request.method == 'POST':
+        form = ContactCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'contact/contact_manager.html')  # 管理画面にリダイレクト
+    else:
+        form = ContactCategoryForm()
+    
+    return render(request, 'contact/add_contact_category.html', {'form': form})
+    
+def contact_manager(request):
+    return render(request, 'contact/contact_manager.html')
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Contact, ContactCategory
+
+@csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
+def submit_contact_form(request):
+    if request.method == 'POST':
+        try:
+            # FormDataは request.POST で受け取ることができます
+            name = request.POST.get('name')
+            category_name = request.POST.get('category')
+            message = request.POST.get('message')
+
+            # category_name でカテゴリを検索
+            category = ContactCategory.objects.filter(name=category_name).first()
+
+            # カテゴリが見つからない場合
+            if not category:
+                return JsonResponse({"error": "Invalid category"}, status=400)
+
+            # Contactモデルにデータを保存
+            contact = Contact.objects.create(
+                name=name,
+                category=category,
+                message=message
+            )
+
+            # 保存後、成功レスポンスを返す
+            return JsonResponse({"message": "Form submitted successfully", "id": contact.id}, status=201)
+
+        except Exception as e:
+            # 予期しないエラーが発生した場合
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # POST以外のリクエストメソッドの場合
+    return JsonResponse({"error": "Invalid request method"}, status=405)

@@ -18,7 +18,7 @@ const Navigation: React.FC = () => {
     }, []);
 
     return (
-        <nav className="flex justify-center items-center gap-7 py-5">
+        <nav className="flex justify-center items-center gap-7 py-5 border-b">
             <div className="relative max-w-[250px]">
                 <span className="absolute inset-y-0 left-0 pl-2 flex items-center">
                     <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
