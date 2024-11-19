@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
 )
+from django.views.generic import TemplateView
 
 router = DefaultRouter()
 router.register(r'contacts', ContactViewSet)
@@ -26,6 +27,11 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),
+    path('api/products/', APIProductListView.as_view(), name='api_product-list'),
+    path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
 
     # カテゴリー関連
     path('categories/', CategoryListView.as_view(), name='category_list'),
@@ -67,4 +73,8 @@ urlpatterns = [
     # パスワードリセット関連
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    
+    # レビュー関連
+    path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
+    path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
 ]

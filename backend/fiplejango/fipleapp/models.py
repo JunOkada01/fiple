@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -217,22 +218,6 @@ class Contact(models.Model):
     category = models.ForeignKey(ContactCategory, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
-# class Review(models.Model):
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
-#     print("ここでproductIdです！！！！！！！！！！！！！！",product)
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     subject = models.CharField(max_length=254)
-#     review_detail = models.CharField(max_length=255)
-#     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
-#     rating = models.IntegerField(choices=RATING_CHOICES, default=5)
-#     datetime = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"Review by {self.user} on {self.product}"
-
-from django.db import models
-from django.conf import settings
 
 class Review(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE)

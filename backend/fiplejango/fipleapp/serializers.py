@@ -199,21 +199,9 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = ['id', 'name', 'category', 'message', 'created_at']
 
-from rest_framework import serializers
-from .models import Review, Product  # Productモデルもインポート
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name']  # 必要なフィールドを指定
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['id', 'user', 'review_detail', 'rating', 'datetime']
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'hurigana', 'sex', 'phone', 'address']
+        fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime']
+        read_only_fields = ['user', 'datetime']  # userとdatetimeは読み取り専用

@@ -241,7 +241,7 @@ const ProductDetail: React.FC = () => {
                     </div>
                 </div>
                 {/* {productId && <ReviewList productId={Number(productId)} />} */}
-              <ReviewList productId={Number(productId)} />
+                <ReviewList productId={Number(productId)} />
                 </div>
             </div>
             </div>
