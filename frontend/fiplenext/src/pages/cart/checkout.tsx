@@ -1,4 +1,3 @@
-// checkout.tsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -25,10 +24,9 @@ interface PaymentMethod {
 }
 
 const PAYMENT_METHODS: PaymentMethod[] = [
-  { id: 'card', name: 'credit_card', label: 'クレジットカード' },
-  { id: 'paypay', name: 'paypay', label: 'PayPay' },
-  { id: 'apple_pay', name: 'apple_pay', label: 'Apple Pay' },
-  { id: 'conveni', name: 'conveni', label: 'コンビニ決済' }
+  { id: 'card', name: 'Card', label: 'クレジットカード' },
+  { id: 'paypay', name: 'Paypay', label: 'PayPay' },
+  { id: 'konbini', name: 'Konbini', label: 'コンビニ決済'},
 ];
 
 const CheckoutPage = () => {
@@ -36,9 +34,8 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>('card');
-  const router = useRouter();
   const [isFincodeLoaded, setIsFincodeLoaded] = useState(false);
-  const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null); 
+  const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
 
   // 税込価格を計算する関数（切り捨て）
   const calculateTotalWithTax = (items: CartItem[]) => {
@@ -55,6 +52,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     fetchCartItems();
     fetchUserInfo();
+    
     // fincodeの初期化
     const script = document.createElement('script');
     script.src = 'https://api.test.fincode.jp/v1/js/fincode.js';
@@ -62,6 +60,10 @@ const CheckoutPage = () => {
 
     script.onload = () => {
       setIsFincodeLoaded(true);
+      // カード決済フォームの初期化
+      if (window.Fincode) {
+        window.Fincode.init();
+      }
     };
 
     document.body.appendChild(script);
@@ -88,54 +90,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // const handleCheckout = async () => {
-  //   try {
-  //     const totalAmount = calculateTotalWithTax(cartItems);
-  //     const tax = Math.floor(totalAmount * 0.1); // 消費税計算
-      
-  //     // 決済データの作成
-  //     const paymentData = {
-  //       pay_type: selectedPayment,
-  //       amount: (totalAmount - tax).toString(), // 税抜き金額
-  //       tax: tax.toString(), // 消費税
-  //       order_description: `商品${cartItems.length}点のご注文`, // PayPayアプリでの表示用
-  //       items: cartItems.map(item => ({
-  //         name: item.product.product_origin.product_name,
-  //         quantity: item.quantity,
-  //         price: Math.floor(item.product.price * 1.1).toString()
-  //       }))
-  //     };
-
-  //     // Step 2: 決済登録APIの呼び出し
-  //     const registrationResponse = await axios.post('/api/fincode/register-payment', paymentData, {
-  //       headers: {
-  //         Authorization: `Bearer ${localStorage.getItem('access_token')}`
-  //       }
-  //     });
-
-  //     const { payment_id } = registrationResponse.data;
-
-  //     // Step 3: 決済実行APIの呼び出し
-  //     const executionResponse = await axios.post('/api/fincode/execute-payment', {
-  //       payment_id,
-  //       redirect_url: `${window.location.origin}/payment/complete`, // 完了後のリダイレクトURL
-  //     });
-
-  //     // Step 4: PayPayの支払いURLへリダイレクト
-  //     const { code_url } = executionResponse.data;
-  //     if (code_url) {
-  //       window.location.href = code_url;
-  //     } else {
-  //       throw new Error('PayPayの支払いURLが取得できませんでした');
-  //     }
-  //   } catch (error: any) {
-  //     console.error('Checkout error:', error);
-  //     setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
-  //   }
-
-
-  // } 
-
   const fetchUserInfo = async () => {  
     try {  
       const response = await axios.get('http://localhost:8000/api/user/', {  
@@ -143,37 +97,80 @@ const CheckoutPage = () => {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`  
         }  
       });  
-      setUserInfo(response.data); // ユーザー情報をステートに保存  
+      setUserInfo(response.data);
     } catch (error) {  
       console.error('ユーザー情報の取得に失敗しました:', error);  
       setError('ユーザー情報の取得に失敗しました');  
     }  
-  };  
+  };
 
-  const handleCheckout = async () => {
+  const handleCardPayment = async () => {
     try {
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1); // 消費税計算
+      const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
       
-      // PayPay決済セッションの作成
       const sessionData = {
         transaction: {
-          pay_type: ['Paypay'], // PayPayのみ許可
-          amount: (totalAmount - tax).toString(), // 税抜き金額
+          pay_type: ['Card'],
+          amount: (totalAmount - tax).toString(),
           tax: tax.toString(),
-          order_id: `ORDER_${Date.now()}`, // ユニークな注文ID
+          order_id: orderId,
         },
-        paypay: {
-          job_code: 'AUTH', // 仮売上として処理
-          order_description: `商品${cartItems.length}点のご注文`, // PayPayアプリでの表示用
+        card: {
+          job_code: 'AUTH',
+          tds_type: '2',
+          tds2_type: '2',
+          // td_tenant_name: 's_***********-ab123',
+          // tds2_ch_acc_change: '20240101',
+          // tds2_ch_acc_date: '20220101',
+          // tds2_ch_acc_pw_change: '20230101',
+          // tds2_nb_purchase_account: '9999',
+          // tds2_payment_acc_age: '20231231',
+          // tds2_provision_attempts_day: '999',
+          // tds2_ship_address_usage: '20230930',
+          // tds2_ship_name_ind: '01',
+          // tds2_suspicious_acc_activity: '01',
+          // tds2_txn_activity_day: '999',
+          // tds2_txn_activity_year: '999',
+          // tds2_three_ds_req_auth_method: '01',
+          // tds2_three_ds_req_auth_timestamp: new Date().toISOString().replace(/[-:]/g, '').slice(0, 12),
+          // tds2_email: userInfo?.email || '',
+          // tds2_addr_match: 'Y',
+          // 配送先住所情報（実際の値に置き換える必要があります）
+          // tds2_bill_addr_country: '392',
+          // tds2_bill_addr_state: '13',
+          // tds2_bill_addr_city: '渋谷区',
+          // tds2_bill_addr_line_1: '道玄坂1-14-6',
+          // tds2_bill_addr_line_2: 'ヒューマックス渋谷ビル',
+          // tds2_bill_addr_line_3: '7F',
+          // tds2_bill_addr_post_code: '150-0043',
+          // tds2_ship_addr_country: '392',
+          // tds2_ship_addr_state: '13',
+          // tds2_ship_addr_city: '渋谷区',
+          // tds2_ship_addr_line_1: '道玄坂1-14-6',
+          // tds2_ship_addr_line_2: 'ヒューマックス渋谷ビル',
+          // tds2_ship_addr_line_3: '7F',
+          // tds2_ship_addr_post_code: '150-0043',
+          // tds2_ship_ind: '01',
+          // tds2_delivery_email_address: userInfo?.email || '',
+          // tds2_home_phone_cc: '81',
+          // tds2_home_phone_no: '312345678',
+          // tds2_mobile_phone_cc: '81',
+          // tds2_mobile_phone_no: '9012345678',
+          // tds2_work_phone_cc: '81',
+          // tds2_work_phone_no: '312345678',
+          // tds2_delivery_timeframe: '01',
+          // tds2_gift_card_curr: '3'
         },
         success_url: `${window.location.origin}/cart/complete`,
         cancel_url: `${window.location.origin}/cart/cancel`,
-        // メール通知の設定
-        guide_mail_send_flag: "1",
-        receiver_mail: userInfo?.email, // 実際の顧客メールアドレスを設定
-        mail_customer_name: userInfo?.username, // 実際の顧客名を設定
-        thanks_mail_send_flag: "1"
+        shop_service_name: 'テスト店',
+        guide_mail_send_flag: '1',
+        receiver_mail: userInfo?.email || '',
+        mail_customer_name: userInfo?.username || '',
+        thanks_mail_send_flag: '1',
+        shop_mail_template_id: null
       };
 
       // セッション作成APIの呼び出し
@@ -186,7 +183,6 @@ const CheckoutPage = () => {
       const { link_url } = response.data;
 
       if (link_url) {
-        // PayPay決済ページへリダイレクト
         window.location.href = link_url;
       } else {
         throw new Error('決済URLの取得に失敗しました');
@@ -196,7 +192,101 @@ const CheckoutPage = () => {
       setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
     }
   };
-  
+
+  const handlePayPayPayment = async () => {
+    try {
+      const totalAmount = calculateTotalWithTax(cartItems);
+      const tax = Math.floor(totalAmount * 0.1);
+      
+      const sessionData = {
+        transaction: {
+          pay_type: ['Paypay'],
+          amount: (totalAmount - tax).toString(),
+          tax: tax.toString(),
+          order_id: `ORDER_${Date.now()}`,
+        },
+        paypay: {
+          job_code: 'AUTH',
+          order_description: `商品${cartItems.length}点のご注文`,
+        },
+        success_url: `${window.location.origin}/cart/complete`,
+        cancel_url: `${window.location.origin}/cart/cancel`,
+        guide_mail_send_flag: "1",
+        receiver_mail: userInfo?.email,
+        mail_customer_name: userInfo?.username,
+        thanks_mail_send_flag: "1"
+      };
+
+      const response = await axios.post('/api/fincode/create-session', sessionData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+
+      const { link_url } = response.data;
+      if (link_url) {
+        window.location.href = link_url;
+      } else {
+        throw new Error('決済URLの取得に失敗しました');
+      }
+    } catch (error: any) {
+      console.error('PayPay payment error:', error);
+      setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (selectedPayment === 'card') {
+      await handleCardPayment();
+    } else if (selectedPayment === 'paypay') {
+      await handlePayPayPayment();
+    } else if (selectedPayment === 'konbini') {
+      await handleKonbiniPayment();
+    }
+  };
+
+  const handleKonbiniPayment = async () => {
+    try {
+      const totalAmount = calculateTotalWithTax(cartItems);
+      const tax = Math.floor(totalAmount * 0.1);
+      
+      const sessionData = {
+        transaction: {
+          pay_type: ['Konbini'],
+          amount: (totalAmount - tax).toString(),
+          tax: tax.toString(),
+          order_id: `ORDER_${Date.now()}`,
+        },
+        konbini: {
+          payment_term_day: "3",
+          konbini_reception_mail_send_flag: "1"
+        },
+        success_url: `${window.location.origin}/cart/complete`,
+        cancel_url: `${window.location.origin}/cart/cancel`,
+        guide_mail_send_flag: "1",
+        receiver_mail: userInfo?.email,
+        mail_customer_name: userInfo?.username,
+        thanks_mail_send_flag: "1"
+      };
+
+      const response = await axios.post('/api/fincode/create-session', sessionData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+
+      const { link_url } = response.data;
+      if (link_url) {
+        window.location.href = link_url;
+      } else {
+        throw new Error('決済URLの取得に失敗しました');
+      }
+    } catch (error: any) {
+      console.error('Konbini payment error:', error);
+      setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -211,44 +301,48 @@ const CheckoutPage = () => {
 
   return (
     <div className="container mx-auto max-w-screen-xl px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">注文内容の確認</h1>
       
+      {/* 商品一覧部分は変更なし */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">注文商品</h2>
-        {cartItems.map((item, index) => (
-          <div key={index} className="flex justify-between py-2 border-b">
-            <img 
-              alt={item.product.product_origin.product_name}
-              src={`${item.product.images[0]?.image}`}
-              className="w-24 h-24 object-cover mr-4"
-            />
-            <div>
-              <p className="font-medium">{item.product.product_origin.product_name}</p>
-              <p className="text-gray-600">数量: {item.quantity}</p>
-            </div>
-            <div className="text-right">
-              <p className="font-medium">¥{(item.product.price * item.quantity).toLocaleString()}</p>
-              <p className="text-sm text-gray-600">
-                (税込 ¥{(calculateItemPriceWithTax(item.product.price) * item.quantity).toLocaleString()})
-              </p>
-            </div>
-          </div>
-        ))}
+        <h1 className="text-3xl text-center my-8">注文内容の確認</h1>
         
-        <div className="mt-4 pt-4 border-t">
-          <div className="flex justify-between mb-2">
-            <span>小計</span>
-            <span>¥{subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span>消費税（10%）</span>
-            <span>¥{(totalWithTax - subtotal).toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between font-bold text-lg">
-            <span>合計（税込）</span>
-            <span>¥{totalWithTax.toLocaleString()}</span>
-          </div>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+            {cartItems.map((item, index) => (
+            <div key={index} className="flex justify-between py-2 border-b">
+                <img 
+                    alt={item.product.product_origin.product_name}
+                    src={`${item.product.images[0]?.image}`}
+                    className="itemImage w-24 h-24 object-cover mr-4"
+                />
+                <div>
+                <p className="font-medium">{item.product.product_origin.product_name}</p>
+                <p className="text-gray-600">数量: {item.quantity}</p>
+                </div>
+                <div className="text-right">
+                <p className="font-medium">¥{(item.product.price * item.quantity).toLocaleString()}</p>
+                <p className="text-sm text-gray-600">
+                    (税込 ¥{(calculateItemPriceWithTax(item.product.price) * item.quantity).toLocaleString()})
+                </p>
+                </div>
+            </div>
+            ))}
+            
+            <div className="mt-4 pt-4 border-t">
+                <div className="flex justify-between mb-2">
+                    <span>小計</span>
+                    <span>¥{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                    <span>消費税（10%）</span>
+                    <span>¥{(totalWithTax - subtotal).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                    <span>合計（税込）</span>
+                    <span>¥{totalWithTax.toLocaleString()}</span>
+                </div>
+            </div>
         </div>
+
       </div>
 
       {/* 決済方法選択 */}
@@ -269,6 +363,7 @@ const CheckoutPage = () => {
             </label>
           ))}
         </div>
+
       </div>
 
       <div className="text-center">
