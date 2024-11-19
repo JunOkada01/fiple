@@ -39,10 +39,10 @@ admin.site.register(ProductTag)
 admin.site.register(ProductImage)
 admin.site.register(Cart)
 admin.site.register(Favorite)
-admin.site.register(PaymentMethod)
-admin.site.register(DeliveryAddress)
-admin.site.register(Purchase)
-admin.site.register(PurchaseItem)
+# admin.site.register(PaymentMethod)
+# admin.site.register(DeliveryAddress)
+# admin.site.register(Purchase)
+# admin.site.register(PurchaseItem)
 
 
 

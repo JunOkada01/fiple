@@ -109,6 +109,8 @@ class CartListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        username = self.request.user.username  
+        email = self.request.user.email  
         return Cart.objects.filter(
             user=self.request.user,
         ).select_related(
@@ -209,6 +211,15 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class UserView(viewsets.ViewSet):  
+    permission_classes = [IsAuthenticated]  
+
+    def list(self, request):  
+        user = request.user  
+        return Response({  
+            'username': user.username,  
+            'email': user.email  
+        })  
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

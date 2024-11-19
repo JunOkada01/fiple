@@ -215,42 +215,42 @@ class Contact(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     
-class PaymentMethod(models.Model):
-    method_name = models.CharField(max_length=100)  # 支払い方法名
-    details = models.TextField(blank=True, null=True)  # 詳細
+# class PaymentMethod(models.Model):
+#     method_name = models.CharField(max_length=100)  # 支払い方法名
+#     details = models.TextField(blank=True, null=True)  # 詳細
 
-    def __str__(self):
-        return self.method_name
+#     def __str__(self):
+#         return self.method_name
 
-class DeliveryAddress(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
-    address = models.CharField(max_length=255)  # 配達先
+# class DeliveryAddress(models.Model):
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
+#     address = models.CharField(max_length=255)  # 配達先
 
-    def __str__(self):
-        return f"{self.user.username} - {self.address}"
+#     def __str__(self):
+#         return f"{self.user.username} - {self.address}"
 
-class Purchase(models.Model):
-    SHIPPING_CHOICES = [
-        ('配送エラー', '配送エラー'),
-        ('配送中', '配送中'),
-        ('配送済み', '配送済み'),
-    ]
+# class Purchase(models.Model):
+#     SHIPPING_CHOICES = [
+#         ('配送エラー', '配送エラー'),
+#         ('配送中', '配送中'),
+#         ('配送済み', '配送済み'),
+#     ]
     
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
-    purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
-    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True)  # 支払い方法ID
-    delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE)  # 配送先ID
-    shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
+#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
+#     purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
+#     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True)  # 支払い方法ID
+#     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE)  # 配送先ID
+#     shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
 
-    def __str__(self):
-        return f"{self.id} - {self.user.username}"
+#     def __str__(self):
+#         return f"{self.id} - {self.user.username}"
 
-class PurchaseItem(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)  # 購入ID
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
-    quantity = models.PositiveIntegerField()  # 数量
-    amount = models.DecimalField(max_digits=10, decimal_places=2)  # 金額
+# class PurchaseItem(models.Model):
+#     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)  # 購入ID
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
+#     quantity = models.PositiveIntegerField()  # 数量
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)  # 金額
 
-    def __str__(self):
-        return f"{self.id} - {self.purchase.id}"
+#     def __str__(self):
+#         return f"{self.id} - {self.purchase.id}"

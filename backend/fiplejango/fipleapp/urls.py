@@ -96,4 +96,6 @@ urlpatterns = [
     path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
+    
+    path('api/user/', UserView.as_view({'get': 'list'}), name='user_view'),
 ]
