@@ -35,11 +35,13 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
-            <h1 className="text-4xl font-bold mb-8">新しいパスワードの設定</h1>
-            <div className="w-full max-w-md">
+        <div className="flex flex-col items-center justify-center bg-white p-4">
+            <h1 className="text-4xl mt-[50px] mb-8">NEW PASSWORD</h1>
+            <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" />
+
+            <div className="flex flex-col items-center w-full max-w-lg">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
+                    <div className='flex items-center mb-4'>
                         <label className="block text-sm mb-2">
                             新しいパスワード
                             <input

@@ -86,21 +86,25 @@ export default function ProductList({ products }: ProductListProps) {
       {/* 身長と体重入力フォーム */}
       <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">
         <div className="flex items-center">
-          <label className="mr-4">身長 (cm):</label>
+          <label className="text-sm font-medium mr-4">身長 (cm)</label>
           <input
             type="number"
             value={height}
             onChange={(e) => setHeight(Number(e.target.value))}
-            className="border px-2 py-1"
+            className="border rounded-lg px-2 py-1 text-center shadow-sm"
+            min="50"
+            max="300"
           />
         </div>
         <div className="flex items-center">
-          <label className="mx-4">体重 (kg):</label>
+          <label className="text-sm font-medium mx-4">体重 (kg)</label>
           <input
             type="number"
             value={weight}
             onChange={(e) => setWeight(Number(e.target.value))}
-            className="border px-2 py-1"
+            className="border rounded-lg px-2 py-1 text-center shadow-sm"
+            min="20"
+            max="300"
           />
         </div>
       </div>
@@ -114,7 +118,7 @@ export default function ProductList({ products }: ProductListProps) {
             {/* 商品カードのスクロールリスト（レスポンシブ対応） */}
             <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">
               <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
-                {categoriesMap[categoryName].map(product => (
+                {categoriesMap[categoryName].slice(0, 20).map(product => (
                   <ProductCard 
                     key={product.id}
                     id={product.product_origin_id}

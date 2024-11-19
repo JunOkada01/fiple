@@ -81,11 +81,10 @@ urlpatterns = [
     path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
-    # パスワードリセット
+    # パスワード
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    # レビュー
-    #path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),#Review
     #FAQ関連
     path('faq-manager/', views.faq_manager, name='faq_manager'),
     path('api/faqs/', views.faq_list, name='faq_list'),

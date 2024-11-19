@@ -3,6 +3,7 @@ from datetime import timezone
 import json
 
 # Djangoインポート
+from django.core.mail import EmailMessage
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -752,6 +753,47 @@ from datetime import datetime, timedelta
 
 User = get_user_model()
 
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
+    authentication_classes = [JWTAuthentication]  # JWT認証
+
+    def post(self, request):
+        # リクエストデータを取得
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # バリデーション: 全てのフィールドが入力されているか確認
+        if not current_password or not new_password or not confirm_password:
+            return Response(
+                {"error": "全てのフィールドを入力してください。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # バリデーション: 新しいパスワードと確認用パスワードが一致しているか確認
+        if new_password != confirm_password:
+            return Response(
+                {"error": "新しいパスワードが一致しません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 現在のパスワードが正しいか確認
+        user = request.user
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "現在のパスワードが正しくありません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 新しいパスワードを設定
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "パスワードが正常に変更されました。"},
+            status=status.HTTP_200_OK
+        )
+
 class PasswordResetRequestView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -772,15 +814,49 @@ class PasswordResetRequestView(APIView):
             # リセットリンクの作成
             reset_link = f'http://localhost:3000/accounts/password/reset/{token}'
 
-            # メール送信
-            send_mail(
-                '【サイト名】パスワードリセット',
-                f'以下のリンクからパスワードをリセットしてください：\n\n{reset_link}\n\nこのリンクは24時間有効です。',
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            # ユーザー名取得（ディフォルト空）
+            user_name = user.get_full_name() or "お客様"
 
+            # HTMLメール内容
+            html_content = f'''
+                <html>
+                    <body style=" margin: 0; padding: 0;">
+                        <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px;">
+                            <div style="text-align: center; padding: 20px;">
+                                <h1 style="font-size: 1rem;">パスワードリセットのご案内</h1>
+                                <hr>
+                            </div>
+                            <div style="text-align: center; padding: 20px;">
+                                <p>{user_name} 様</p>
+                                <p>いつも【サイト名】をご利用いただきありがとうございます!</p>
+                                <p>パスワードリセットのリクエストを承りました。以下のリンクをクリックして、パスワードを再設定してください。</p>
+                                <button style="">
+                                    <p><a href="{reset_link}">▶ パスワードの再設定はこちら</a></p>
+                                </button>
+                                <p>※このリンクは、発行から24時間のみ有効です。<br>
+                                    ※もし本メールに心当たりがない場合は、お手数ですが本メールを破棄してください。</p>
+                            </div>
+                            <div style="text-align: center; padding: 20px;">
+                                <p>━━━━━━━━━━━━━━━<br>
+                                【サイト名】サポートチーム<br>
+                                URL: <a href="https://www.example.com" style="color: #007bff; text-decoration: none;">https://www.example.com</a><br>
+                                メール: support@example.com<br>
+                                ━━━━━━━━━━━━━━━</p>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            '''
+
+            # メール送信
+            email_message = EmailMessage(
+                subject='【サイト名】パスワードリセットのご案内',
+                body=html_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+            email_message.content_subtype = "html"  # HTML形式で送信
+            email_message.send(fail_silently=False)
         # セキュリティのため、ユーザーが存在しない場合でも同じレスポンスを返す
         return Response({'message': 'パスワードリセット手順をメールで送信しました。'})
 

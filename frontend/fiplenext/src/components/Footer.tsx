@@ -14,16 +14,17 @@ const Footer = () => {
         {
             title: 'Support',
             items: [
-                { label: 'お問い合わせ', href: '/contact/contact' },
+                { label: 'お問い合わせ', href: '/contact/' },
+                { label: 'よくある質問', href: '#' },
                 { label: '特定商取引法', href: '/footer/tokushoho' },
             ]
         },
         {
             title: 'Size Guide',
             items: [
-                { label: 'MENS', href: '/size-guide/mens' },
-                { label: 'LADIES', href: '/size-guide/ladies' },
-                { label: 'KIDS', href: '/size-guide/kids' },
+                { label: 'MENS', href: '#' },
+                { label: 'LADIES', href: '#' },
+                { label: 'KIDS', href: '#' },
             ]
         },
     ];
