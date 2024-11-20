@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // Regularスタイルのアイコンをインポート
-import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faBell, faUser } from '@fortawesome/free-regular-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 // Cartアイコンはsolid版を使用
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';

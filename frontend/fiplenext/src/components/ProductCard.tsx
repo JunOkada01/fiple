@@ -16,12 +16,13 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl }) => {
+    /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
     const toggleTryingOn = () => setIsTryingOn((prev) => !prev);
-
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteId, setFavoriteId] = useState<number | null>(null);
+    /* 通知 */
     const [notification, setNotification] = useState<string | null>(null);
 
     // コンポーネントマウント時にお気に入り状態を確認

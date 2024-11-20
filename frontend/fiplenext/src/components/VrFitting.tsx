@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faVest } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faHeart, faVest, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faWindowClose } from '@fortawesome/free-regular-svg-icons';
 
 const MannequinModel = dynamic(() => import('./MannequinModel'), {
   ssr: false,
@@ -24,6 +25,8 @@ interface FittingItem {
   id: number;
   name: string;
   price: number;
+  category: string;
+  subcategory: string;
   imageUrl?: string;
 }
 
@@ -68,17 +71,18 @@ const FittingArea: React.FC<FittingAreaProps> = ({
         onClick={toggleFittingArea}
         className={`flex justify-center items-center cursor-pointer rounded-full p-4 my-4 mx-auto w-[50px] h-[50px] fixed bottom-10 right-10 z-50 
           bg-white border border-black shadow-lg transition-all duration-300 
-          ${isOpen ? 'scale-0' : 'scale-100'} 
           hover:scale-110 hover:shadow-xl hover:border-black`}
       >
         <span className="text-2xl">
-          <FontAwesomeIcon icon={faVest} className="fa-shake" />
+          <FontAwesomeIcon icon={isOpen ? faClose : faVest}
+          className={`transition-all duration-300 ${isOpen ? '' : 'fa-shake'}`}
+        />
         </span>
       </div>
 
       {/* 試着エリアが開いたときだけ表示（アニメーション付き） */}
       <div
-        className={`transition-all duration-300 ease-in-out fixed top-20 right-5 bg-white border border-black shadow-md w-[250px] ${isOpen ? 'h-auto' : 'h-0 overflow-hidden'} z-40
+        className={`transition-all duration-500 ease-in-out fixed top-20 right-5 bg-white border border-black shadow-md w-[250px] ${isOpen ? 'h-auto' : 'h-0 overflow-hidden'} z-40
           ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
       >
         {/* マネキンエリア */}
