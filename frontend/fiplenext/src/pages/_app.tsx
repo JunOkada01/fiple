@@ -73,6 +73,7 @@ function App({ Component, pageProps }: AppProps) {
         )}
         <Component {...pageProps} />
       </main>
+      <Footer/>
     </>
   );
 }

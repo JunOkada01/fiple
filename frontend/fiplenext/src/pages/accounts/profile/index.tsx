@@ -71,10 +71,7 @@ const Profile: React.FC = () => {
     }
 
     // birthの年、月、日を分割
-    // 生年月日が表示できなくてエラーが出てたので、消しました。後ほど修正します。この文章が消えてなかったら教えてください。
-    // const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
-    const [birthYear, birthMonth, birthDay] = (user?.birth || "").split('-') || ["", "", ""];
-
+    const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
 
     return (
         <div className="container mx-auto flex flex-col items-center pt-10">

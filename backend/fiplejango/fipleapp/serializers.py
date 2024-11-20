@@ -58,6 +58,11 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image', 'image_description']
 
+    def get_image(self, obj):
+        if obj.image:
+            return f"{obj.image.url}"
+        return None
+
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
     size = SizeSerializer()
@@ -122,16 +127,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = [
-            'id',
-            'product_origin',
-            'color',
-            'size',
-            'price',
-            'stock',
-            'status',
-            'images'
-        ]
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     product_origin = ProductOriginSerializer()
+#     color = ColorSerializer()
+#     size = SizeSerializer()
+#     images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             'id',
+#             'product_origin',
+#             'color',
+#             'size',
+#             'price',
+#             'stock',
+#             'status',
+#             'images'
+#         ]
 
 class CartListSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
@@ -152,8 +168,6 @@ class CartListSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         """各カートアイテムの合計金額を計算"""
         return obj.product.price * obj.quantity
-
-
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer()  # 商品の詳細も含める

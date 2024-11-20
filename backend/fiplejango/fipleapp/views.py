@@ -37,31 +37,39 @@ from django.views.generic import (
     DeleteView,
 )
 
-# Django Rest Framework
-from rest_framework import (
-    generics,
-    status,
-    viewsets,
-)
-from rest_framework.decorators import (
-    action,
-    api_view,
-    permission_classes,
-)
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-)
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.exceptions import NotFound
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
-
-# Local Application
+# DRFインポート
+from rest_framework import generics, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
 from .serializers import *
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from .forms import *
+from .serializers import ProductListSerializer
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.db.models import Prefetch
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db import transaction
+from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import NotFound
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Contact, ContactCategory
 
 
 
@@ -88,6 +96,159 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    serializer = AddToCartSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data['quantity']
+        
+        with transaction.atomic():
+            # 同じ商品がカートに既に存在するかチェック
+            cart_item = Cart.objects.filter(
+                user=request.user,
+                product=product
+            ).first()
+            
+            if cart_item:
+                # 既存のカートアイテムの数量を更新
+                new_quantity = cart_item.quantity + quantity
+                if new_quantity > product.stock:
+                    return Response(
+                        {"error": "在庫が不足しています"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                cart_item.quantity = new_quantity
+                cart_item.product_status = product.status
+                cart_item.save()
+            else:
+                # 新しいカートアイテムを作成
+                cart_item = Cart.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=quantity,
+                    product_status=product.status
+                )
+            
+            response_serializer = CartItemSerializer(cart_item)
+            return Response(
+                {
+                    "message": "商品をカートに追加しました",
+                    "cart_item": response_serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CartListView(generics.ListAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.filter(
+            user=self.request.user,
+        ).select_related(
+            'product',
+            'product__product_origin',
+            'product__product_origin__category',
+            'product__product_origin__subcategory',
+            'product__color',
+            'product__size'
+        )
+
+class CartUpdateView(generics.UpdateAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def patch(self, request, *args, **kwargs):
+        cart_item = self.get_object()
+        quantity = request.data.get('quantity', 1)
+        
+        if quantity <= 0:
+            return Response(
+                {"error": "数量は1以上である必要があります"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if quantity > cart_item.product.stock:
+            return Response(
+                {"error": "在庫が足りません"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        serializer = self.get_serializer(cart_item)
+        return Response(serializer.data)
+
+class CartDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+@api_view(['POST'])
+def add_to_favorite(request):
+    # ユーザーが認証されているか確認
+    if not request.user.is_authenticated:
+        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # 商品IDをリクエストデータから取得
+    product_id = request.data.get('product_id')
+    if not product_id:
+        return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # 商品を取得
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # すでにお気に入りに追加されている場合はエラー
+    if Favorite.objects.filter(user=request.user, product=product).exists():
+        return Response({"detail": "Product is already in your favorites."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 新しいお気に入りを作成
+    favorite = Favorite.objects.create(user=request.user, product=product)
+
+    # 成功したらシリアライズして返す
+    serializer = FavoriteSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class FavoriteListView(generics.ListAPIView):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # 現在認証されているユーザーのお気に入りを取得
+        return Favorite.objects.filter(user=self.request.user)
+    
+class FavoriteDeleteView(generics.DestroyAPIView):
+    queryset = Favorite.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # ユーザーが削除するお気に入りを取得
+        favorite = Favorite.objects.filter(id=self.kwargs['pk'], user=self.request.user).first()
+        if not favorite:
+            raise NotFound(detail="お気に入りが見つかりません")
+        return favorite
+
+    def delete(self, request, *args, **kwargs):
+        # 削除する
+        favorite = self.get_object()
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class ProductByCategoryView(APIView):
     def get(self, request, category_name):
         try:
@@ -110,6 +271,8 @@ class ProductByCategoryView(APIView):
                 {"error": "カテゴリが見つかりません"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
 
 # アカウント関連-----------------------------------------------------------------------------------------
 
@@ -636,160 +799,8 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def add_to_cart(request):
-    serializer = AddToCartSerializer(data=request.data)
     
-    if serializer.is_valid():
-        product = serializer.validated_data['product']
-        quantity = serializer.validated_data['quantity']
-        
-        with transaction.atomic():
-            # 同じ商品がカートに既に存在するかチェック
-            cart_item = Cart.objects.filter(
-                user=request.user,
-                product=product
-            ).first()
-            
-            if cart_item:
-                # 既存のカートアイテムの数量を更新
-                new_quantity = cart_item.quantity + quantity
-                if new_quantity > product.stock:
-                    return Response(
-                        {"error": "在庫が不足しています"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                cart_item.quantity = new_quantity
-                cart_item.product_status = product.status
-                cart_item.save()
-            else:
-                # 新しいカートアイテムを作成
-                cart_item = Cart.objects.create(
-                    user=request.user,
-                    product=product,
-                    quantity=quantity,
-                    product_status=product.status
-                )
-            
-            response_serializer = CartItemSerializer(cart_item)
-            return Response(
-                {
-                    "message": "商品をカートに追加しました",
-                    "cart_item": response_serializer.data
-                },
-                status=status.HTTP_201_CREATED
-            )
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class CartListView(generics.ListAPIView):
-    serializer_class = CartListSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Cart.objects.filter(
-            user=self.request.user,
-        ).select_related(
-            'product',
-            'product__product_origin',
-            'product__product_origin__category',
-            'product__product_origin__subcategory',
-            'product__color',
-            'product__size'
-        )
-
-class CartUpdateView(generics.UpdateAPIView):
-    serializer_class = CartListSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
-    
-    def patch(self, request, *args, **kwargs):
-        cart_item = self.get_object()
-        quantity = request.data.get('quantity', 1)
-        
-        if quantity <= 0:
-            return Response(
-                {"error": "数量は1以上である必要があります"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        if quantity > cart_item.product.stock:
-            return Response(
-                {"error": "在庫が足りません"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        cart_item.quantity = quantity
-        cart_item.save()
-        
-        serializer = self.get_serializer(cart_item)
-        return Response(serializer.data)
-
-class CartDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
-    
-@api_view(['POST'])
-def add_to_favorite(request):
-    # ユーザーが認証されているか確認
-    if not request.user.is_authenticated:
-        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    # 商品IDをリクエストデータから取得
-    product_id = request.data.get('product_id')
-    if not product_id:
-        return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        # 商品を取得
-        product = Product.objects.get(id=product_id)
-    except Product.DoesNotExist:
-        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
-    
-    # すでにお気に入りに追加されている場合はエラー
-    if Favorite.objects.filter(user=request.user, product=product).exists():
-        return Response({"detail": "Product is already in your favorites."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # 新しいお気に入りを作成
-    favorite = Favorite.objects.create(user=request.user, product=product)
-
-    # 成功したらシリアライズして返す
-    serializer = FavoriteSerializer(favorite)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-class FavoriteListView(generics.ListAPIView):
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        # 現在認証されているユーザーのお気に入りを取得
-        return Favorite.objects.filter(user=self.request.user)
-
-class FavoriteDeleteView(generics.DestroyAPIView):
-    queryset = Favorite.objects.all()
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        # ユーザーが削除するお気に入りを取得
-        favorite = Favorite.objects.filter(id=self.kwargs['pk'], user=self.request.user).first()
-        if not favorite:
-            raise NotFound(detail="お気に入りが見つかりません")
-        return favorite
-
-    def delete(self, request, *args, **kwargs):
-        # 削除する
-        favorite = self.get_object()
-        favorite.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -992,12 +1003,6 @@ def add_contact_category(request):
     
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
-
 @csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
 def submit_contact_form(request):
     if request.method == 'POST':
@@ -1030,8 +1035,159 @@ def submit_contact_form(request):
 
     # POST以外のリクエストメソッドの場合
     return JsonResponse({"error": "Invalid request method"}, status=405)
-    
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    serializer = AddToCartSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data['quantity']
+        
+        with transaction.atomic():
+            # 同じ商品がカートに既に存在するかチェック
+            cart_item = Cart.objects.filter(
+                user=request.user,
+                product=product
+            ).first()
+            
+            if cart_item:
+                # 既存のカートアイテムの数量を更新
+                new_quantity = cart_item.quantity + quantity
+                if new_quantity > product.stock:
+                    return Response(
+                        {"error": "在庫が不足しています"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                cart_item.quantity = new_quantity
+                cart_item.product_status = product.status
+                cart_item.save()
+            else:
+                # 新しいカートアイテムを作成
+                cart_item = Cart.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=quantity,
+                    product_status=product.status
+                )
+            
+            response_serializer = CartItemSerializer(cart_item)
+            return Response(
+                {
+                    "message": "商品をカートに追加しました",
+                    "cart_item": response_serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CartListView(generics.ListAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.filter(
+            user=self.request.user,
+        ).select_related(
+            'product',
+            'product__product_origin',
+            'product__product_origin__category',
+            'product__product_origin__subcategory',
+            'product__color',
+            'product__size'
+        )
+
+class CartUpdateView(generics.UpdateAPIView):
+    serializer_class = CartListSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def patch(self, request, *args, **kwargs):
+        cart_item = self.get_object()
+        quantity = request.data.get('quantity', 1)
+        
+        if quantity <= 0:
+            return Response(
+                {"error": "数量は1以上である必要があります"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if quantity > cart_item.product.stock:
+            return Response(
+                {"error": "在庫が足りません"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        serializer = self.get_serializer(cart_item)
+        return Response(serializer.data)
+
+class CartDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+@api_view(['POST'])
+def add_to_favorite(request):
+    # ユーザーが認証されているか確認
+    if not request.user.is_authenticated:
+        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # 商品IDをリクエストデータから取得
+    product_id = request.data.get('product_id')
+    if not product_id:
+        return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # 商品を取得
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # すでにお気に入りに追加されている場合はエラー
+    if Favorite.objects.filter(user=request.user, product=product).exists():
+        return Response({"detail": "Product is already in your favorites."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 新しいお気に入りを作成
+    favorite = Favorite.objects.create(user=request.user, product=product)
+
+    # 成功したらシリアライズして返す
+    serializer = FavoriteSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class FavoriteListView(generics.ListAPIView):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # 現在認証されているユーザーのお気に入りを取得
+        return Favorite.objects.filter(user=self.request.user)
+
+class FavoriteDeleteView(generics.DestroyAPIView):
+    queryset = Favorite.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # ユーザーが削除するお気に入りを取得
+        favorite = Favorite.objects.filter(id=self.kwargs['pk'], user=self.request.user).first()
+        if not favorite:
+            raise NotFound(detail="お気に入りが見つかりません")
+        return favorite
+
+    def delete(self, request, *args, **kwargs):
+        # 削除する
+        favorite = self.get_object()
+        favorite.delete()
 
 # -----------------------------Review表示です-------------------------
 class ReviewListCreateView(generics.ListCreateAPIView):
