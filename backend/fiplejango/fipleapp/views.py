@@ -71,7 +71,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Contact, ContactCategory
 
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
@@ -810,7 +810,6 @@ from django.conf import settings
 import jwt
 from datetime import datetime, timedelta
 
-User = get_user_model()
 
 class PasswordResetRequestView(APIView):
     def post(self, request):
@@ -1283,3 +1282,46 @@ class ReviewWriteView(generics.ListCreateAPIView):
         # レビューを保存
         serializer.save(user=user, product=product)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+User = get_user_model()
+
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
+    authentication_classes = [JWTAuthentication]  # JWT認証
+
+    def post(self, request):
+        # リクエストデータを取得
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # バリデーション: 全てのフィールドが入力されているか確認
+        if not current_password or not new_password or not confirm_password:
+            return Response(
+                {"error": "全てのフィールドを入力してください。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # バリデーション: 新しいパスワードと確認用パスワードが一致しているか確認
+        if new_password != confirm_password:
+            return Response(
+                {"error": "新しいパスワードが一致しません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 現在のパスワードが正しいか確認
+        user = request.user
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "現在のパスワードが正しくありません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 新しいパスワードを設定
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "パスワードが正常に変更されました。"},
+            status=status.HTTP_200_OK
+        )

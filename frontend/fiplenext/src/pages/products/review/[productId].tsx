@@ -28,11 +28,12 @@ const RatingDistribution = ({ ratingCounts, totalReviews }) => {
 };
 
 interface Review {
-    id: number;
-    user: string;
-    review_detail: string;
-    rating: number;
-    datetime: string;
+  id: number;
+  user: string;
+  subject: string;
+  review_detail: string;
+  rating: number;
+  datetime: string;
 }
 
 export interface ProductDetailType {
@@ -110,8 +111,8 @@ const ProductReviews = () => {
                 <ul className="space-y-3">
                     {reviews.map(review => (
                         <li key={review.id} className="border-b pb-2 text-sm">
-                            <p className="text-gray-800"><strong>ユーザー:</strong> {review.user}</p>
                             <p><strong>評価:</strong> {review.rating}☆</p>
+                            <p className="text-gray-800"><strong>タイトル:</strong> {review.subject}</p>
                             <p className="text-gray-700"><strong>コメント:</strong> {review.review_detail}</p>
                             <p className="text-xs text-gray-500">
                                 <strong>投稿日:</strong> {new Date(review.datetime).toLocaleDateString()}

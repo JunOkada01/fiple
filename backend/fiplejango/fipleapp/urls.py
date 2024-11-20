@@ -64,6 +64,7 @@ urlpatterns = [
     path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),

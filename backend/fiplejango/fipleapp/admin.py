@@ -28,13 +28,17 @@ class ContactCategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product','rating','user','subject','review_detail',)
+
+
 
 admin.site.register(AdminUser)
 admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(Product)
 admin.site.register(ProductImage)
-admin.site.register(Review)
 admin.site.register(ProductOrigin)
 admin.site.register(Size)
 admin.site.register(Color)
