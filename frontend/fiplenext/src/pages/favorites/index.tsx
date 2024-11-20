@@ -75,12 +75,13 @@ interface FavoriteItem {
 
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
-            <h1 className="text-3xl font-bold text-center my-8">YOUR LIKED ITEMS</h1>
+            <h1 className="text-3xl text-center my-8">YOUR LIKED ITEMS</h1>
+            <p className='text-center'>お気に入りのアイテムをたくさん追加しましょう！</p>
 
             <div className="flex flex-col items-center">
                 <div className="grid grid-cols-5 gap-4">
                     {favorites.length === 0 ? (
-                    <p>お気に入りに商品がありません。</p>
+                    <p className='text-gray-400'>お気に入りに商品がありません</p>
                     ) : (
                     favorites.map((favorite) => (
                         <div key={favorite.id}>

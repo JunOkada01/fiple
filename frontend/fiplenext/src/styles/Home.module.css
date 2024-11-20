@@ -1,62 +1,15 @@
-/* マネキンエリアのスタイル */
-/* .mannequinArea {
-    width: 100%;
-    height: 20rem; 
-    background-color: #e5e7eb; 
-    margin-bottom: 1rem; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-} */
+    /* 横幅の調整: マネキンとカートエリアを少し小さく */
+    /* .sideSection {}
+        /* position: sticky; /* スクロールしてもついてくるようにする */
+        /* top: 100px; /* スクロール時にページ上部からの位置を0にする */
+        /* margin-top: -200px; /*  */
+        /* display: flex; /*  */
+        /* flex-direction: column; /*  */
+        /* justify-content: flex-start; /*  */
+        /* 背景色を追加することで内容が見やすくなる */
+        /* background-color: #ffffff; /* 必要に応じて */
+        /* z-index: 10; /* 他のコンテンツの上に表示されるようにする */
 
+    /* .mannequinArea {} */
 
-.mannequinArea {
-    height: 300px;
-    width: 100%;
-    background-color: #f9f9f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-
-/* カートエリアのスタイル */
-.cartArea {
-    width: 100%;
-    background-color: #f3f4f6; /* gray-100 */
-    padding: 1rem; /* p-4 */
-    max-height: 20rem; /* カートエリアも縦長に */
-    overflow-y: auto; /* 縦スクロール可能にする */
-}
-
-.cartTitle {
-    font-size: 1.125rem; /* text-lg */
-    font-weight: bold; /* font-bold */
-    margin-bottom: 1rem; /* mb-4 */
-}
-
-.cartItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem; /* mb-2 */
-}
-
-.removeButton {
-    color: #ef4444; /* text-red-500 */
-}
-
-/* 横幅の調整: マネキンとカートエリアを少し小さく */
-.sideSection {
-    width: 20%; /* 横幅を20%に設定 */
-    position: sticky; /* スクロールしてもついてくるようにする */
-    top: 100px; /* スクロール時にページ上部からの位置を0にする */
-    margin-top: -200px;
-    height: 150vh; /* 画面全体の高さに合わせる */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    /* 背景色を追加することで内容が見やすくなる */
-    background-color: #ffffff; /* 必要に応じて */
-    z-index: 10; /* 他のコンテンツの上に表示されるようにする */
-}
+    /* .removeButton {} */

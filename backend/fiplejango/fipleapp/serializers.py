@@ -214,7 +214,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'user', 'product', 'images', 'created_at', 'updated_at']
-        
+
 class ContactCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactCategory
@@ -226,3 +226,8 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'name', 'category', 'message', 'created_at']
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name']  # 必要なフィールドを指定

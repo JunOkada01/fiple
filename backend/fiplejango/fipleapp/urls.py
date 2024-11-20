@@ -1,8 +1,10 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -78,13 +80,10 @@ urlpatterns = [
     path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
-    
-    path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
-
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    
+    # パスワード
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     #FAQ関連
     path('faq-manager/', views.faq_manager, name='faq_manager'),
     path('api/faqs/', views.faq_list, name='faq_list'),
