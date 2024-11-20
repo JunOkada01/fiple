@@ -13,6 +13,7 @@ const Category: React.FC = () => {
             
             {/* 商品カードを5つずつ横に並べるグリッド */}  
             <div className="grid grid-cols-4 gap-6 max-w-[700px]">  
+            {/* <ProductCard />  
             <ProductCard />  
             <ProductCard />  
             <ProductCard />  
@@ -26,8 +27,7 @@ const Category: React.FC = () => {
             <ProductCard />  
             <ProductCard />  
             <ProductCard />  
-            <ProductCard />  
-            <ProductCard />  
+            <ProductCard />   */}
             </div>  
         </div>  
         </div>  
