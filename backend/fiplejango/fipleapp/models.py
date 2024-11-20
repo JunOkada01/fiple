@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
+from django.core.exceptions import ValidationError
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -214,20 +215,21 @@ class Contact(models.Model):
     category = models.ForeignKey(ContactCategory, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+class DeliveryAddress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
+    postal_code = models.CharField(max_length=10, default='')  # 郵便番号
+    address = models.CharField(max_length=255)  # 配達先
+
+    def __str__(self):
+        return f"{self.user.username} - {self.address}"
+
+    def save(self, *args, **kwargs):
+        # ユーザーがすでに3つの住所を持っているかをチェック
+        if DeliveryAddress.objects.filter(user=self.user).count() >= 3:
+            raise ValidationError("ユーザーは最大3つの住所しか登録できません。")
+        super().save(*args, **kwargs)
     
-# class PaymentMethod(models.Model):
-#     method_name = models.CharField(max_length=100)  # 支払い方法名
-#     details = models.TextField(blank=True, null=True)  # 詳細
-
-#     def __str__(self):
-#         return self.method_name
-
-# class DeliveryAddress(models.Model):
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
-#     address = models.CharField(max_length=255)  # 配達先
-
-#     def __str__(self):
-#         return f"{self.user.username} - {self.address}"
 
 # class Purchase(models.Model):
 #     SHIPPING_CHOICES = [
@@ -239,8 +241,8 @@ class Contact(models.Model):
 #     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
 #     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
 #     purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
-#     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True)  # 支払い方法ID
-#     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE)  # 配送先ID
+#     payment_method = models.CharField(max_length=255)
+#     delivery_address = models.ForeignKey()  # 配送先ID
 #     shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
 
 #     def __str__(self):

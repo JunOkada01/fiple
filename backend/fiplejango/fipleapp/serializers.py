@@ -193,3 +193,48 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'name', 'category', 'message', 'created_at']
+        
+
+class DeliveryAddressSerializer(serializers.ModelSerializer):
+    postal_code = serializers.CharField(write_only=True)
+    prefecture = serializers.CharField(write_only=True)
+    city = serializers.CharField(write_only=True)
+    street = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = DeliveryAddress
+        fields = ['id', 'address', 'postal_code', 'prefecture', 'city', 'street']
+        read_only_fields = ['address']
+
+    def create(self, validated_data):
+        # 住所フィールドを結合
+        address = f"{validated_data.pop('prefecture')} {validated_data.pop('city')} {validated_data.pop('street')}"
+        postal_code = validated_data.pop('postal_code')
+        
+        return DeliveryAddress.objects.create(
+            user=self.context['request'].user,
+            postal_code=postal_code,
+            address=address
+        )
+        
+    def update(self, instance, validated_data):
+        instance.address = f"{validated_data.get('prefecture')} {validated_data.get('city')} {validated_data.get('street')}"
+        instance.postal_code = validated_data.get('postal_code', instance.postal_code)
+        instance.save()
+        return instance
+        
+    def to_representation(self, instance):
+        # DBから読み取った住所を分解して返す
+        # 簡易的な実装なので、実際の要件に応じて調整が必要かもしれません
+        parts = instance.address.split(' ', 2)
+        prefecture = parts[0] if len(parts) > 0 else ''
+        city = parts[1] if len(parts) > 1 else ''
+        street = parts[2] if len(parts) > 2 else ''
+        
+        return {
+            'id': instance.id,
+            'postal_code': instance.postal_code,  # DBに保存していないので空文字を返す
+            'prefecture': prefecture,
+            'city': city,
+            'street': street,
+        }

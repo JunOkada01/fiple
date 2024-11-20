@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 import json
+import requests
 from rest_framework import generics
 from .models import *
 from .serializers import *
@@ -36,6 +37,8 @@ from rest_framework.exceptions import NotFound
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
 
+# フロントエンド商品関連------------------------------------------------------------------------------------------------
+
 class APIProductListView(APIView):
     def get(self, request):
         products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
@@ -57,6 +60,7 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
             
+# フロントエンドカート関連--------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_to_cart(request):
@@ -157,6 +161,7 @@ class CartDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
     
+# フロントエンドお気に入り機能関連----------------------------------------------------------------------------------------------
 @api_view(['POST'])
 def add_to_favorite(request):
     # ユーザーが認証されているか確認
@@ -211,6 +216,7 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# フロントエンドユーザ情報取得--------------------------------------------------------------------------------
 class UserView(viewsets.ViewSet):  
     permission_classes = [IsAuthenticated]  
 
@@ -219,7 +225,62 @@ class UserView(viewsets.ViewSet):
         return Response({  
             'username': user.username,  
             'email': user.email  
-        })  
+        })
+
+class DeliveryAddressViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DeliveryAddressSerializer
+    
+    def get_queryset(self):
+        return DeliveryAddress.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    def list(self, request):
+        # まずユーザーの主住所を取得
+        main_address = {
+            'id': 'main',
+            'postal_code': request.user.postal_code,
+            'prefecture': '',
+            'city': '',
+            'street': request.user.address,
+            'is_main': True
+        }
+        
+        # 配送先住所を取得
+        delivery_addresses = self.get_queryset()
+        serializer = self.get_serializer(delivery_addresses, many=True)
+        
+        # 結合して返す
+        return Response([main_address] + serializer.data)
+
+    @action(detail=False, methods=['POST'])
+    def lookup_address(self, request):
+        postal_code = request.data.get('postal_code', '')
+        # ハイフンを削除
+        postal_code = postal_code.replace('-', '')
+        
+        try:
+            # Zipcloud APIを呼び出し
+            response = requests.get(f'https://zipcloud.ibsnet.co.jp/api/search?zipcode={postal_code}')
+            data = response.json()
+            
+            if data['status'] == 200 and data['results']:
+                result = data['results'][0]
+                return Response({
+                    'prefecture': result['address1'],
+                    'city': result['address2'],
+                    'street': result['address3']
+                })
+            return Response({'error': '住所が見つかりませんでした'}, status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response({'error': '住所検索に失敗しました'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

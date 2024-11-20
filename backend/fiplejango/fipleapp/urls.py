@@ -12,6 +12,7 @@ from rest_framework_simplejwt.views import (
 router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
 router.register(r'contact-categories',ContactCategoryViewSet)
+router.register(r'delivery-addresses', DeliveryAddressViewSet, basename='delivery-address')
 
 app_name = 'fipleapp'
 
@@ -98,4 +99,6 @@ urlpatterns = [
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
     
     path('api/user/', UserView.as_view({'get': 'list'}), name='user_view'),
+    
+    path('api/', include(router.urls)),
 ]

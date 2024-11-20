@@ -26,7 +26,8 @@ interface PaymentMethod {
 const PAYMENT_METHODS: PaymentMethod[] = [
   { id: 'card', name: 'Card', label: 'クレジットカード' },
   { id: 'paypay', name: 'Paypay', label: 'PayPay' },
-  { id: 'konbini', name: 'Konbini', label: 'コンビニ決済'},
+  { id: 'konbini', name: 'Konbini', label: 'コンビニ決済' },
+  { id: 'genkin', name:'genkin', label:'現金引換え' },
 ];
 
 const CheckoutPage = () => {
