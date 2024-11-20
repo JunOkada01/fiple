@@ -18,7 +18,7 @@ const Header: React.FC = () => {
                 </Link>
             </header>
             {/* ナビゲーション部分 */}
-            <Navigation />
+            
         </>
     );
 };

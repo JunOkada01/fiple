@@ -47,6 +47,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 def data_view(request):
@@ -1488,3 +1489,46 @@ def submit_contact_form(request):
 
     # POST以外のリクエストメソッドの場合
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+# 検索機能
+from rest_framework import generics
+from rest_framework.response import Response
+from django.db.models import Q
+from .models import Product, ProductOrigin
+from .serializers import ProductSerializer
+
+class ProductSearchView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '')
+        if not query:
+            return Product.objects.none()
+
+        # ProductOriginに関連する検索条件
+        origin_conditions = Q(product_origin__product_name__icontains=query) | \
+                          Q(product_origin__gender__icontains=query) | \
+                          Q(product_origin__description__icontains=query) | \
+                          Q(product_origin__category__category_name__icontains=query) | \
+                          Q(product_origin__subcategory__subcategory_name__icontains=query)
+
+        # Product自体の属性に関する検索条件
+        product_conditions = Q(color__color_name__icontains=query) | \
+                           Q(size__size_name__icontains=query) | \
+                           Q(status__icontains=query)
+
+        # 価格での検索（数値の場合）
+        try:
+            price = int(query)
+            product_conditions |= Q(price=price)
+        except ValueError:
+            pass
+
+        return Product.objects.filter(
+            origin_conditions | product_conditions
+        ).select_related(
+            'product_origin',
+            'color',
+            'size'
+        ).distinct()
