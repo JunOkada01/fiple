@@ -12,9 +12,6 @@
 
     /* .mannequinArea {} */
 
-<<<<<<< HEAD
-    /* .removeButton {} */
-=======
 .mannequinArea {
     height: 300px;
     width: 100%;
@@ -65,4 +62,3 @@
     background-color: #ffffff; /* 必要に応じて */
     z-index: 10; /* 他のコンテンツの上に表示されるようにする */
 }
->>>>>>> origin/fiple11/20
