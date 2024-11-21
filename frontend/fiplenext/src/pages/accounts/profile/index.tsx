@@ -123,7 +123,7 @@ const Profile: React.FC = () => {
                             <p>※セキュリティのため非表示です</p>
                         </div>
                         <div className="w-auto text-right">
-                            <Link href={'/accounts/profile/change_password'}>
+                            <Link href={'/accounts/password/change_password'}>
                                 <button className="text-blue-500">変更</button>
                             </Link>
                         </div>

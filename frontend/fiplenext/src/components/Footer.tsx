@@ -22,9 +22,9 @@ const Footer = () => {
         {
             title: 'Size Guide',
             items: [
-                { label: 'MENS', href: '/size-guide/mens' },
-                { label: 'LADIES', href: '/size-guide/ladies' },
-                { label: 'KIDS', href: '/size-guide/kids' },
+                { label: 'MENS', href: '#' },
+                { label: 'LADIES', href: '#' },
+                { label: 'KIDS', href: '#' },
             ]
         },
     ];

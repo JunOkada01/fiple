@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import styles from '../../styles/ContactForm.module.css';
+import styles from './ContactForm.module.css';
 
 interface ContactFormProps {
   name: string;

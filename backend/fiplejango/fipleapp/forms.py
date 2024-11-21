@@ -152,6 +152,7 @@ class ProductImageForm(forms.ModelForm):
             'image_description': '画像説明',
         }
 
+# FAQフォーム
 class QuestionCategoryForm(forms.ModelForm):
     class Meta:
         model = QuestionCategory
@@ -170,15 +171,11 @@ class FAQForm(forms.ModelForm):
             'answer': '回答',
         }
 
+# 問い合わせフォーム
 class ContactCategoryForm(forms.ModelForm):
     class Meta:
         model = ContactCategory
         fields = ['name']
-
-# class ContactForm(forms.Form):
-#     name = forms.CharField(max_length=100)
-#     category = forms.ChoiceField(choices=[('inquiry', 'お問い合わせ'), ('feedback', 'フィードバック')])
-#     message = forms.CharField(widget=forms.Textarea)
 
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, required=True)
