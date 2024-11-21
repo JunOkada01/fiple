@@ -233,8 +233,34 @@ class DeliveryAddressSerializer(serializers.ModelSerializer):
         
         return {
             'id': instance.id,
-            'postal_code': instance.postal_code,  # DBに保存していないので空文字を返す
+            'postal_code': instance.postal_code, 
             'prefecture': prefecture,
             'city': city,
             'street': street,
         }
+        
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_image = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['product_name', 'quantity', 'unit_price', 'product_image']
+        
+    def get_product_image(self, obj):
+        product_images = obj.product.productimage_set.all()
+        if product_images.exists():
+            return product_images.first().image.url
+        return None
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'total_amount', 'tax_amount', 'order_date', 
+            'status', 'payment_method', 'delivery_address', 
+            'items'
+        ]

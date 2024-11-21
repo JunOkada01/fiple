@@ -8,7 +8,7 @@ import requests
 from rest_framework import generics
 from .models import *
 from .serializers import *
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -32,6 +32,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
+from rest_framework.pagination import PageNumberPagination
 
 
 def data_view(request):
@@ -280,7 +281,68 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
         except:
             return Response({'error': '住所検索に失敗しました'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# 注文関連---------------------------------------------------------------------------------------------------------------
+class CompletePaymentView(APIView):
+    """
+    決済完了後に注文履歴を保存するView
+    """
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                # カート内の商品を取得
+                cart_items = Cart.objects.filter(user=request.user)
+                
+                if not cart_items:
+                    return Response({"error": "カートが空です"}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 注文情報を作成
+                order = Order.objects.create(
+                    user=request.user,
+                    total_amount=request.data.get('total_amount'),
+                    tax_amount=request.data.get('tax_amount'),
+                    payment_method=request.data.get('payment_method'),
+                    delivery_address=request.data.get('delivery_address'),
+                )
+                
+                # 注文アイテムを作成
+                order_items = []
+                for cart_item in cart_items:
+                    order_item = OrderItem(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        unit_price=cart_item.product.price
+                    )
+                    order_items.append(order_item)
+                
+                OrderItem.objects.bulk_create(order_items)
+                
+                # カートをクリア
+                # cart_items.delete()
+                
+                return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 10  # 1ページに10件
+    page_size_query_param = 'page_size'  # クライアントがページサイズを変更できるようにする
+    max_page_size = 100  # ページサイズの最大値
+        
+class OrderViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    注文履歴を取得するためのViewSet
+    """
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
+
+
+    def get_queryset(self):
+        # ログインユーザーの注文のみ取得
+        return Order.objects.filter(user=self.request.user).order_by('-order_date')
 
 # アカウント関連-----------------------------------------------------------------------------------------
 

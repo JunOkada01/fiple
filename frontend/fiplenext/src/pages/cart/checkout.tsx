@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import DeliveryAddressSelect from './delivery_address_select';
 
 interface CartItem {
   product: {
@@ -23,6 +24,15 @@ interface PaymentMethod {
   label: string;
 }
 
+interface DeliveryAddress {
+  id: string;
+  postal_code: string;
+  prefecture: string;
+  city: string;
+  street: string;
+  is_main: boolean;
+}
+
 const PAYMENT_METHODS: PaymentMethod[] = [
   { id: 'card', name: 'Card', label: 'クレジットカード' },
   { id: 'paypay', name: 'Paypay', label: 'PayPay' },
@@ -37,6 +47,9 @@ const CheckoutPage = () => {
   const [selectedPayment, setSelectedPayment] = useState<string>('card');
   const [isFincodeLoaded, setIsFincodeLoaded] = useState(false);
   const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [selectedAddress, setSelectedAddress] = useState<DeliveryAddress | null>(null);
+  const router = useRouter();
 
   // 税込価格を計算する関数（切り捨て）
   const calculateTotalWithTax = (items: CartItem[]) => {
@@ -76,6 +89,8 @@ const CheckoutPage = () => {
     };
   }, []);
 
+  
+
   const fetchCartItems = async () => {
     try {
       const response = await axios.get('http://localhost:8000/api/cart/', {
@@ -110,7 +125,7 @@ const CheckoutPage = () => {
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1); // 消費税計算
       const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
-      
+
       const sessionData = {
         transaction: {
           pay_type: ['Card'],
@@ -236,16 +251,6 @@ const CheckoutPage = () => {
     }
   };
 
-  const handleCheckout = async () => {
-    if (selectedPayment === 'card') {
-      await handleCardPayment();
-    } else if (selectedPayment === 'paypay') {
-      await handlePayPayPayment();
-    } else if (selectedPayment === 'konbini') {
-      await handleKonbiniPayment();
-    }
-  };
-
   const handleKonbiniPayment = async () => {
     try {
       const totalAmount = calculateTotalWithTax(cartItems);
@@ -285,6 +290,50 @@ const CheckoutPage = () => {
     } catch (error: any) {
       console.error('Konbini payment error:', error);
       setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
+    }
+  };
+
+  const handleAddressSelect = (addressId: string, addressDetails: DeliveryAddress) => {
+    setSelectedAddressId(addressId);
+    setSelectedAddress(addressDetails);
+  };
+
+  const handleCheckout = async () => {
+    try {
+
+      if (!selectedAddressId) {
+        setError('配送先を選択してください');
+        return;
+      }
+
+      if (selectedPayment === 'card') {
+        await handleCardPayment();
+      } else if (selectedPayment === 'paypay') {
+        await handlePayPayPayment();
+      } else if (selectedPayment === 'konbini') {
+        await handleKonbiniPayment();
+      } else if (selectedPayment === 'genkin') {
+        console.log('現金引換え')
+      }
+      
+      const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
+
+      // After successful payment, save the order
+      await axios.post('http://localhost:8000/api/complete-payment/', {
+        total_amount: totalWithTax,
+        tax_amount: totalWithTax - subtotal,
+        payment_method: selectedPayment,
+        delivery_address: deliveryAddress
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+    
+    } catch (error) {
+      console.error('Checkout process failed', error);
+      setError('注文処理に失敗しました');
+      console.log(totalWithTax, totalWithTax - subtotal, selectedPayment, `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`);
     }
   };
 
@@ -345,6 +394,12 @@ const CheckoutPage = () => {
         </div>
 
       </div>
+
+<DeliveryAddressSelect 
+      onAddressSelect={(addressId: string, addressDetails: DeliveryAddress) => {
+        handleAddressSelect(addressId, addressDetails);
+      }} 
+    />
 
       {/* 決済方法選択 */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">

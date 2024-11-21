@@ -13,6 +13,7 @@ router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
 router.register(r'contact-categories',ContactCategoryViewSet)
 router.register(r'delivery-addresses', DeliveryAddressViewSet, basename='delivery-address')
+router.register(r'orders', OrderViewSet, basename='order')
 
 app_name = 'fipleapp'
 
@@ -100,5 +101,10 @@ urlpatterns = [
     
     path('api/user/', UserView.as_view({'get': 'list'}), name='user_view'),
     
+    # 配達先関連
+    path('api/', include(router.urls)),
+    
+    # 注文関連
+    path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
 ]

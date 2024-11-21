@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
                         <span className="text-[12px] mt-2 text-center">クレジット<br />カード変更</span>
                     </div>
                 </Link>
-                <Link href={'#'}>
+                <Link href={'/accounts/profile/history'}>
                     <div className="flex flex-col items-center justify-center p-5 border rounded-lg h-32 w-32 hover:shadow-lg transition-transform transform hover:scale-105">
                         <FontAwesomeIcon icon={faClockRotateLeft} className='text-[36px]' />
                         <span className="text-[12px] mt-2 text-center">注文履歴</span>

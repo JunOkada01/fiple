@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -242,7 +243,7 @@ class DeliveryAddress(models.Model):
 #     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
 #     purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
 #     payment_method = models.CharField(max_length=255)
-#     delivery_address = models.ForeignKey()  # 配送先ID
+#     delivery_address = models.CharField(max_length=255)  # 配送先
 #     shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
 
 #     def __str__(self):
@@ -256,3 +257,48 @@ class DeliveryAddress(models.Model):
 
 #     def __str__(self):
 #         return f"{self.id} - {self.purchase.id}"
+
+    """
+    注文情報を管理するモデル
+    """
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('注文受付', '注文受付'),
+        ('支払い完了', '支払い完了'),
+        ('発送済み', '発送済み'),
+        ('配達完了', '配達完了'),
+        ('キャンセル', 'キャンセル')
+    ]
+
+    PAYMENT_METHODS = [
+        ('card', 'クレジットカード'),
+        ('paypay', 'PayPay'),
+        ('konbini', 'コンビニ決済'),
+        ('genkin', '現金引換え')
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    order_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='支払い完了')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    delivery_address = models.TextField()
+    
+    def __str__(self):
+        return f"Order {self.id} - {self.user.username}"
+
+    """
+    注文された個別の商品情報を管理するモデル
+    """
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def get_total_price(self):
+        return self.quantity * self.unit_price
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity} 個"

@@ -8,7 +8,7 @@ const PaymentCancelPage = () => {
     // キャンセル時の処理
     const handleCancel = async () => {
       // 必要に応じてキャンセル処理を実行
-      router.push('/checkout?status=canceled');
+      router.push('/cart');
     };
 
     handleCancel();
@@ -17,7 +17,7 @@ const PaymentCancelPage = () => {
   return (
     <div className="text-center p-8">
       <h1 className="text-2xl font-bold mb-4">決済がキャンセルされました</h1>
-      <p>チェックアウトページに戻ります...</p>
+      <p>カートページに戻ります...</p>
     </div>
   );
 };
