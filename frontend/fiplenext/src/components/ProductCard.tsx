@@ -17,13 +17,84 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl }) => {
+    /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
-    const toggleTryingOn = () => setIsTryingOn((prev) => !prev);
-
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteId, setFavoriteId] = useState<number | null>(null);
+    /* 通知 */
     const [notification, setNotification] = useState<string | null>(null);
+
+    // 試着中の商品リストをセッションストレージから取得・保存
+    const updateSessionFittingItems = (items: any[]) => {
+        sessionStorage.setItem("fittingItems", JSON.stringify(items));
+    };
+    const getSessionFittingItems = (): any[] => {
+        const items = sessionStorage.getItem("fittingItems");
+        return items ? JSON.parse(items) : [];
+    };
+    // 試着ボタンを切り替え
+    const toggleTryingOn = () => {
+        const currentItems = getSessionFittingItems();
+
+        if (isTryingOn) {
+            // 試着リストから削除
+            const updatedItems = currentItems.filter((item) => item.id !== id);
+            updateSessionFittingItems(updatedItems);
+            setIsTryingOn(false);
+        } else {
+            // 試着リストに追加
+            const newItem = {
+                id,
+                name: productName,
+                price,
+                category: categoryName,
+                subcategory: subcategoryName,
+                imageUrl,
+            };
+
+            // 同じカテゴリの商品が試着中か確認
+            const existingIndex = currentItems.findIndex(item => item.category === newItem.category);
+
+            if (isTryingOn) {
+                // 試着リストから削除
+                const updatedItems = currentItems.filter((item) => item.id !== id);
+                updateSessionFittingItems(updatedItems);
+                setIsTryingOn(false);
+            } else {
+                if (existingIndex !== -1) {
+                    // 同じカテゴリが存在する場合は上書きで置き換える
+                    const updatedItems = [...currentItems];
+                    updatedItems[existingIndex] = newItem;
+                    updateSessionFittingItems(updatedItems);
+                    setNotification(`${newItem.category}の試着中商品を更新しました`);
+                } else {
+                    // 新しいアイテムを追加
+                    updateSessionFittingItems([...currentItems, newItem]);
+                    setNotification('試着しました');
+                }
+                setIsTryingOn(true);
+            }
+        // 通知を非表示にする
+        setTimeout(() => setNotification(null), 3000);
+        }
+    };
+    // コンポーネントマウント時に現在の試着状態を確認
+    useEffect(() => {
+        const currentItems = getSessionFittingItems();
+        setIsTryingOn(currentItems.some((item) => item.id === id));
+    }, [id]);
+    // 試着中リストが変更されるたびに更新
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const currentItems = getSessionFittingItems();
+            // 試着中リストが変更された場合に状態を更新
+            setIsTryingOn(currentItems.some((item) => item.id === id));
+        }, 500); // 500msごとに更新をチェック（状況に応じて調整）
+
+        // クリーンアップ
+        return () => clearInterval(intervalId);
+    }, [id]);
 
     // コンポーネントマウント時にお気に入り状態を確認
     useEffect(() => {
