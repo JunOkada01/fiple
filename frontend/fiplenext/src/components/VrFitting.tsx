@@ -42,7 +42,6 @@ interface FittingAreaProps {
 const FittingArea: React.FC<FittingAreaProps> = ({
   height,
   weight,
-  fittingItems,
   onRemoveItem,
   onAddToCart,
   onAddToFavorites
@@ -50,6 +49,20 @@ const FittingArea: React.FC<FittingAreaProps> = ({
   const [isFavorite, setIsFavorite] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  // 試着中商品
+  const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
+  const loadFittingItems = () => {
+    const items = sessionStorage.getItem("fittingItems");
+    setFittingItems(items ? JSON.parse(items) : []);
+  };
+  const removeFittingItem = (id: number) => {
+    const updatedItems = fittingItems.filter((item) => item.id !== id);
+    sessionStorage.setItem("fittingItems", JSON.stringify(updatedItems));
+    setFittingItems(updatedItems);
+  };
+  useEffect(() => {
+    loadFittingItems();
+  }, []);
 
   const toggleFavorite = () => setIsFavorite((prev) => !prev);
   const toggleFittingArea = () => setIsOpen(!isOpen);
@@ -111,37 +124,38 @@ const FittingArea: React.FC<FittingAreaProps> = ({
         </div>
 
         {/* 試着中アイテムエリア */}
-        <div className="p-4">
-          <h2 className="text-lg mb-4">試着中の商品</h2>
-          {fittingItems.length > 0 ? (
-            <ul className="space-y-3">
-              {fittingItems.map(item => (
-                <li key={item.id} className="flex items-center justify-between p-2 border rounded">
-                  <div className="flex items-center space-x-2">
-                    {item.imageUrl && (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    )}
-                    <span className="font-medium">{item.name}</span>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
-                    <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => onRemoveItem(item.id)}
-                    >
-                      削除
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 text-center">試着中の商品はありません</p>
-          )}
+        <div>
+          <h2 className="text-md mx-2 my-2">試着中の商品</h2>
+            {fittingItems.length > 0 ? (
+                <ul className="space-y-3 mb2">
+                    {fittingItems.map((item) => (
+                        <li key={item.id} className="flex items-center justify-between border rounded">
+                            <div className="flex items-center space-x-2">
+                                {item.imageUrl && (
+                                    <img
+                                        src={item.imageUrl}
+                                        alt={item.name}
+                                        className="w-20 h-20 object-cover"
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                )}
+                                <span className="text-[12px]">{item.name}</span>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
+                                <button
+                                    className="text-black-500 hover:text-black-700"
+                                    onClick={() => removeFittingItem(item.id)}
+                                >
+                                  <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
+                                </button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-gray-500 text-center mb-2">試着中の商品はありません</p>
+            )}
         </div>
       </div>
     </div>

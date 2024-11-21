@@ -137,16 +137,16 @@ export default function ProductList({ products }: ProductListProps) {
   
             {/* カテゴリごとの「もっと見る」リンク */}
             <Link
-            href={`/products/category/${encodeURIComponent(categoryName)}`}
-            className="text-center"
-          >
-            <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
-              <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
-              <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
-                VIEW MORE
-              </span>
-            </button>
-          </Link>
+              href={`/products/category/${encodeURIComponent(categoryName)}`}
+              className="text-center"
+            >
+              <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
+                <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
+                <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
+                  VIEW MORE
+                </span>
+              </button>
+            </Link>
 
           </div>
         ))}
