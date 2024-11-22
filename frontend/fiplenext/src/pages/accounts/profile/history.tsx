@@ -17,43 +17,43 @@ interface Order {
   }[];
 }
 
-interface PaginatedResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Order[];
+interface ApiResponse {
+  results?: Order[];
 }
 
 const OrderHistoryPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchOrderHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/orders/?page=${currentPage}`, {
+        const response = await axios.get<ApiResponse>('http://localhost:8000/api/orders/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`
           }
         });
-        setOrders(response.data.results);
-        setTotalPages(Math.ceil(response.data.count / 10)); // 1ページあたり10件の仮定
-        setLoading(false);
+
+        if (response.data && Array.isArray(response.data.results)) {
+          setOrders(response.data.results);
+        } else if (Array.isArray(response.data)) {
+          // If the API returns an array directly
+          setOrders(response.data);
+        } else {
+          console.error('Unexpected API response structure:', response.data);
+          setError('予期しないAPIレスポンス構造です');
+        }
       } catch (err) {
+        console.error('Error fetching order history:', err);
         setError('注文履歴の取得に失敗しました');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchOrderHistory();
-  }, [currentPage]);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
+  }, []);
 
   if (loading) {
     return <div className="text-center p-4">注文履歴を読み込んでいます...</div>;
@@ -109,39 +109,9 @@ const OrderHistoryPage: React.FC = () => {
           </div>
         ))
       )}
-
-      {/* ページネーション部分 */}
-      <div className="flex justify-center items-center space-x-4 mt-6">
-        <button 
-          onClick={() => handlePageChange(currentPage - 1)} 
-          disabled={currentPage === 1}
-          className={`px-4 py-2 border rounded ${
-            currentPage === 1 
-              ? 'bg-gray-200 cursor-not-allowed' 
-              : 'bg-white hover:bg-gray-100'
-          }`}
-        >
-          前のページ
-        </button>
-
-        <span className="text-gray-700">
-          {currentPage} / {totalPages}
-        </span>
-
-        <button 
-          onClick={() => handlePageChange(currentPage + 1)} 
-          disabled={currentPage === totalPages}
-          className={`px-4 py-2 border rounded ${
-            currentPage === totalPages 
-              ? 'bg-gray-200 cursor-not-allowed' 
-              : 'bg-white hover:bg-gray-100'
-          }`}
-        >
-          次のページ
-        </button>
-      </div>
     </div>
   );
 };
 
 export default OrderHistoryPage;
+

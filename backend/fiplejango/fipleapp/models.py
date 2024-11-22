@@ -301,4 +301,4 @@ class OrderItem(models.Model):
         return self.quantity * self.unit_price
 
     def __str__(self):
-        return f"{self.product.name} - {self.quantity} 個"
+        return f"{self.product.product_origin.product_name} - {self.quantity} 個"

@@ -49,6 +49,10 @@ const Cart: React.FC = () => {
                     Authorization: `Bearer ${token || localStorage.getItem('access_token')}`
                 }
             });
+
+            console.log(response.data)
+            console.log(Array.isArray(response.data.results)); 
+            
             setCartItems(response.data);
             setError(null);
         } catch (error) {

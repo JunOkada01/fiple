@@ -38,6 +38,11 @@ from rest_framework.pagination import PageNumberPagination
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
 
+# class CustomPageNumberPagination(PageNumberPagination):
+#     page_size = 10  # 1ページに10件
+#     page_size_query_param = 'page_size'  # クライアントがページサイズを変更できるようにする
+#     max_page_size = 100  # ページサイズの最大値
+
 # フロントエンド商品関連------------------------------------------------------------------------------------------------
 
 class APIProductListView(APIView):
@@ -118,7 +123,7 @@ class CartListView(generics.ListAPIView):
         email = self.request.user.email  
         return Cart.objects.filter(
             user=self.request.user,
-        ).select_related(
+        ).order_by('-created_at').select_related(
             'product',
             'product__product_origin',
             'product__product_origin__category',
@@ -325,11 +330,6 @@ class CompletePaymentView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-class CustomPageNumberPagination(PageNumberPagination):
-    page_size = 10  # 1ページに10件
-    page_size_query_param = 'page_size'  # クライアントがページサイズを変更できるようにする
-    max_page_size = 100  # ページサイズの最大値
         
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -337,7 +337,6 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     """
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = CustomPageNumberPagination
 
 
     def get_queryset(self):
