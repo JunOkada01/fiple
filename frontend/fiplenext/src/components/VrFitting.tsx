@@ -24,10 +24,11 @@ const LoadingWave = () => (
 
 interface FittingItem {
   id: number;
-  name: string;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
   price: number;
-  category: string;
-  subcategory: string;
   imageUrl?: string;
 }
 
@@ -41,12 +42,13 @@ interface FittingAreaProps {
 }
 
 const FittingArea: React.FC<FittingAreaProps> = ({
-  height,
-  weight,
   onRemoveItem,
   onAddToCart,
   onAddToFavorites
 }) => {
+  const [height, setHeight] = useState<number>(180);
+  const [weight, setWeight] = useState<number>(70);
+
   const [isFavorite, setIsFavorite] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,8 +98,8 @@ const FittingArea: React.FC<FittingAreaProps> = ({
       <Draggable>
         <div
           onClick={toggleFittingArea}
-          className={`flex justify-center items-center cursor-pointer rounded-full p-4 my-4 mx-auto w-[50px] h-[50px] fixed bottom-10 right-10 z-50
-            bg-white border border-black shadow-lg transition-all duration-300
+          className={`flex justify-center items-center cursor-pointer rounded-full p-4 my-4 mx-auto w-[50px] h-[50px] fixed bottom-10 right-10 z-50 
+            bg-white border border-black shadow-lg transition-all duration-300 
             hover:scale-110 hover:shadow-xl hover:border-black`}
         >
           <span className="text-2xl">
@@ -113,6 +115,32 @@ const FittingArea: React.FC<FittingAreaProps> = ({
         className={`transition-all duration-500 ease-in-out fixed top-20 right-5 bg-white border border-black shadow-md w-[250px] ${isOpen ? 'h-auto' : 'h-0 overflow-hidden'} z-40
           ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
       >
+        {/* 身長と体重入力フォーム */}
+        <div className="flex flex-col sm:flex-row justify-center items-center">
+          <div className="flex items-center">
+            <label className="text-sm font-medium mr-4">身長 (cm)</label>
+            <input
+              type="number"
+              value={height}
+              onChange={(e) => setHeight(Number(e.target.value))}
+              className="border rounded-lg px-2 py-1 text-center shadow-sm"
+              min="50"
+              max="300"
+            />
+          </div>
+          <div className="flex items-center">
+            <label className="text-sm font-medium mx-4">体重 (kg)</label>
+            <input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(Number(e.target.value))}
+              className="border rounded-lg px-2 py-1 text-center shadow-sm"
+              min="20"
+              max="300"
+            />
+          </div>
+        </div>
+
         {/* マネキンエリア */}
         <div style={{ height: '300px', width: '100%' }}>
           {isLoading ? (
@@ -143,40 +171,40 @@ const FittingArea: React.FC<FittingAreaProps> = ({
         {/* 試着中アイテムエリア */}
         <div className="max-h-60 overflow-y-auto">
           <h2 className="text-md mx-2 my-2">試着中の商品</h2>
-          {fittingItems.length > 0 ? (
-            <ul className="space-y-0">
-              {fittingItems.map((item) => (
-                <li key={item.id} className="flex items-center justify-between border-t brder-b">
-                  <div className="flex items-center space-x-1">
-                    {item.imageUrl && (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        width={80} // 高さと幅を指定
-                        height={106} // アスペクト比が3/4に近い場合
-                        className="m-1 aspect-[3/4]"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    )}
-                    <div className='flex flex-col'>
-                      <span className="text-[12px]">{item.name}</span>
-                      <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <button
-                      className="text-black-500 hover:text-black-700"
-                      onClick={() => removeFittingItem(item.id)}
-                    >
-                      <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 text-center mb-2">試着中の商品はありません</p>
-          )}
+            {fittingItems.length > 0 ? (
+                <ul className="space-y-0">
+                    {fittingItems.map((item) => (
+                        <li key={item.id} className="flex items-center justify-between border-t brder-b">
+                            <div className="flex items-center space-x-1">
+                            {item.imageUrl && (
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.productName}
+                                width={80} // 高さと幅を指定
+                                height={106} // アスペクト比が3/4に近い場合
+                                className="m-1 aspect-[3/4]"
+                                style={{ objectFit: 'cover' }}
+                              />
+                            )}
+                              <div className='flex flex-col'>
+                                <span className="text-[12px]">{item.productName}</span>
+                                <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <button
+                                  className="text-black-500 hover:text-black-700"
+                                  onClick={() => removeFittingItem(item.id)}
+                              >
+                                <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
+                              </button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-gray-500 text-center mb-2">試着中の商品はありません</p>
+            )}
         </div>
       </div>
     </div>

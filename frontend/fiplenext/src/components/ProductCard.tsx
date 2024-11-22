@@ -39,26 +39,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
 
         if (isTryingOn) {
             // 試着リストから削除
-            const updatedItems = currentItems.filter((item) => item.id !== id);
+            const updatedItems = currentItems.filter((item) => item.product_id !== product_id);
             updateSessionFittingItems(updatedItems);
             setIsTryingOn(false);
         } else {
             // 試着リストに追加
             const newItem = {
                 id,
-                name: productName,
+                product_id,
+                productName,
                 price,
-                category: categoryName,
-                subcategory: subcategoryName,
+                categoryName,
+                subcategoryName,
                 imageUrl,
             };
-
             // 同じカテゴリの商品が試着中か確認
-            const existingIndex = currentItems.findIndex(item => item.category === newItem.category);
-
+            const existingIndex = currentItems.findIndex(item => item.categoryName === newItem.categoryName);
             if (isTryingOn) {
-                // 試着リストから削除
-                const updatedItems = currentItems.filter((item) => item.id !== id);
+                // 同じカテゴリ商品の場合、試着リストから削除
+                const updatedItems = currentItems.filter((item) => item.product_id !== product_id);
                 updateSessionFittingItems(updatedItems);
                 setIsTryingOn(false);
             } else {
@@ -67,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                     const updatedItems = [...currentItems];
                     updatedItems[existingIndex] = newItem;
                     updateSessionFittingItems(updatedItems);
-                    setNotification(`${newItem.category}の試着中商品を更新しました`);
+                    setNotification(`${newItem.categoryName}の試着中商品を更新しました`);
                 } else {
                     // 新しいアイテムを追加
                     updateSessionFittingItems([...currentItems, newItem]);
@@ -82,14 +81,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
     // コンポーネントマウント時に現在の試着状態を確認
     useEffect(() => {
         const currentItems = getSessionFittingItems();
-        setIsTryingOn(currentItems.some((item) => item.id === id));
+        setIsTryingOn(currentItems.some((item) => item.product_id === product_id));
     }, [id]);
     // 試着中リストが変更されるたびに更新
     useEffect(() => {
         const intervalId = setInterval(() => {
             const currentItems = getSessionFittingItems();
             // 試着中リストが変更された場合に状態を更新
-            setIsTryingOn(currentItems.some((item) => item.id === id));
+            setIsTryingOn(currentItems.some((item) => item.product_id === product_id));
         }, 500); // 500msごとに更新をチェック（状況に応じて調整）
 
         // クリーンアップ

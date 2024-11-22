@@ -47,10 +47,11 @@ interface ProductListProps {
 
 interface FittingItem {
   id: number;
-  name: string;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
   price: number;
-  category: string;
-  subcategory: string;
   imageUrl?: string;
 }
 
@@ -81,8 +82,8 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
 
-  const removeItemFromFitting = (id: number) => {
-    setFittingItems(fittingItems.filter(item => item.id !== id));
+  const removeItemFromFitting = (product_id: number) => {
+    setFittingItems(fittingItems.filter(item => item.product_id !== product_id));
   };
 
   const handleAddToCart = () => {
@@ -146,32 +147,6 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
-      
-      {/* 身長と体重入力フォーム */}
-      <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex items-center">
-          <label className="text-sm font-medium mr-4">身長 (cm)</label>
-          <input
-            type="number"
-            value={height}
-            onChange={(e) => setHeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="50"
-            max="300"
-          />
-        </div>
-        <div className="flex items-center">
-          <label className="text-sm font-medium mx-4">体重 (kg)</label>
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="20"
-            max="300"
-          />
-        </div>
-      </div>
   
       {/* その他のコンテンツ */}
       <div className="flex justify-center items-center flex-col">  
