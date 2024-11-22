@@ -47,10 +47,11 @@ interface CategoryPageProps {
 
 interface FittingItem {
     id: number;
-    name: string;
+    product_id: number;
+    productName: string;
+    categoryName: string;
+    subcategoryName: string;
     price: number;
-    category: string;
-    subcategory: string;
     imageUrl?: string;
 }
 
@@ -81,8 +82,8 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
 
 // カテゴリページコンポーネントの定義
 const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) => {
-    const [height, setHeight] = useState<number>(180);
-    const [weight, setWeight] = useState<number>(70);
+    const [height] = useState<number>(180);
+    const [weight] = useState<number>(70);
     const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
 
     const removeItemFromFitting = (id: number) => {
@@ -100,32 +101,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
             <AllMensLadiesKidsFilter />
-
-            {/* 身長と体重入力フォーム */}
-            <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">
-                <div className="flex items-center">
-                <label className="text-sm font-medium mr-4">身長 (cm)</label>
-                <input
-                    type="number"
-                    value={height}
-                    onChange={(e) => setHeight(Number(e.target.value))}
-                    className="border rounded-lg px-2 py-1 text-center shadow-sm"
-                    min="50"
-                    max="300"
-                />
-                </div>
-                <div className="flex items-center">
-                <label className="text-sm font-medium mx-4">体重 (kg)</label>
-                <input
-                    type="number"
-                    value={weight}
-                    onChange={(e) => setWeight(Number(e.target.value))}
-                    className="border rounded-lg px-2 py-1 text-center shadow-sm"
-                    min="20"
-                    max="300"
-                />
-                </div>
-            </div>
 
             {/* 商品リスト */}
             <div className="flex justify-center items-center flex-col">

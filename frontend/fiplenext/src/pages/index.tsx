@@ -34,10 +34,11 @@ interface ProductListProps {
 
 interface FittingItem {
   id: number;
-  name: string;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
   price: number;
-  category: string;
-  subcategory: string;
   imageUrl?: string;
 }
 
@@ -53,12 +54,12 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
 }
 
 export default function ProductList({ products }: ProductListProps) {
-  const [height, setHeight] = useState<number>(180);
-  const [weight, setWeight] = useState<number>(70);
+  const [height] = useState<number>(180);
+  const [weight] = useState<number>(70);
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
 
-  const removeItemFromFitting = (id: number) => {
-    setFittingItems(fittingItems.filter(item => item.id !== id));
+  const removeItemFromFitting = (product_id: number) => {
+    setFittingItems(fittingItems.filter(item => item.product_id !== product_id));
   };
 
   const handleAddToCart = () => {
@@ -84,32 +85,6 @@ export default function ProductList({ products }: ProductListProps) {
     <div className="container mx-auto max-w-screen-xl px-4">  
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
-      
-      {/* 身長と体重入力フォーム */}
-      <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex items-center">
-          <label className="text-sm font-medium mr-4">身長 (cm)</label>
-          <input
-            type="number"
-            value={height}
-            onChange={(e) => setHeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="50"
-            max="300"
-          />
-        </div>
-        <div className="flex items-center">
-          <label className="text-sm font-medium mx-4">体重 (kg)</label>
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="20"
-            max="300"
-          />
-        </div>
-      </div>
   
       {/* その他のコンテンツ */}
       <div className="flex justify-center items-center flex-col">  
@@ -136,18 +111,17 @@ export default function ProductList({ products }: ProductListProps) {
             </div>
   
             {/* カテゴリごとの「もっと見る」リンク */}
-            <Link
-              href={`/products/category/${encodeURIComponent(categoryName)}`}
-              className="text-center"
-            >
-              <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
-                <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
-                <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
-                  VIEW MORE
-                </span>
-              </button>
-            </Link>
-
+            <div className="text-center m-4">
+              <Link
+                href={`/products/category/${encodeURIComponent(categoryName)}`}>
+                <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
+                  <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
+                  <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
+                    VIEW MORE
+                  </span>
+                </button>
+              </Link>
+            </div>
           </div>
         ))}
         
