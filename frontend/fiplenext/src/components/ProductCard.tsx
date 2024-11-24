@@ -130,28 +130,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         }
 
         try {
-        if (isFavorite && favoriteId) {
-            // お気に入り解除
-            await axios.delete(`http://localhost:8000/api/favorites/delete/${favoriteId}/`, {
-            headers: { Authorization: `Bearer ${token}` }
-            });
-            setIsFavorite(false);
-            setFavoriteId(null);
-            setNotification('お気に入りから削除しました');
-        } else {
-            // お気に入り登録
-            const response = await axios.post(
-            'http://localhost:8000/api/favorites/add/',
-            { product_id: product_id},
-            { headers: { Authorization: `Bearer ${token}` } }
-            );
-            setIsFavorite(true);
-            setFavoriteId(response.data.id);
-            setNotification('お気に入りに追加しました');
-        }
-        // 通知を非表示にする
-        setTimeout(() => setNotification(null), 3000);
-        } catch (error) {
+            if (isFavorite && favoriteId) {
+                // お気に入り解除
+                await axios.delete(`http://localhost:8000/api/favorites/delete/${favoriteId}/`, {
+                headers: { Authorization: `Bearer ${token}` }
+                });
+                setIsFavorite(false);
+                setFavoriteId(null);
+                setNotification('お気に入りから削除しました');
+            } else {
+                // お気に入り登録
+                const response = await axios.post(
+                'http://localhost:8000/api/favorites/add/',
+                { product_id: product_id},
+                { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setIsFavorite(true);
+                setFavoriteId(response.data.id);
+                setNotification('お気に入りに追加しました');
+            }
+            // 通知を非表示にする
+            setTimeout(() => setNotification(null), 3000);
+            } catch (error) {
         console.error('お気に入りの切り替えに失敗しました', error);
         alert('操作に失敗しました。もう一度お試しください。');
         }

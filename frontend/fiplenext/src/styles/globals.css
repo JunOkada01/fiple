@@ -166,3 +166,26 @@ body {
   align-items: center;
   z-index: 50;
 }
+
+/* - - - - 試着中商品リストスクロールバー - - - - */
+
+/* スクロールバー全体 */
+.items-scrollbar::-webkit-scrollbar {
+  width: 6px;  /* 横幅を狭く設定 */
+}
+
+/* スクロールバーのトラック部分（背景） */
+.items-scrollbar::-webkit-scrollbar-track {
+  background: transparent;  /* 背景を透明に設定 */
+}
+
+/* スクロールバーのつまみ部分 */
+.items-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c9c9c9;  /* つまみ部分の色 */
+  border-radius: 20px;  /* つまみの角を丸く */
+}
+
+/* スクロールバーのつまみ部分がホバーした時の色 */
+.items-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #555;  /* ホバー時の色 */
+}

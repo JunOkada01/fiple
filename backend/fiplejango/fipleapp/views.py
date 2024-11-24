@@ -1,36 +1,40 @@
 # Python標準ライブラリ
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 import json
+import jwt
 
-# Djangoインポート
-from django.core.mail import EmailMessage
+# Djangoのインポート
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import EmailMessage, send_mail
 from django.db import transaction
 from django.db.models import Prefetch
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
-# DRFインポート
+# DRF (Django Rest Framework) のインポート
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import NotFound
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.exceptions import NotFound
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# プロジェクト内インポート
+# プロジェクト内のモジュール
 from .models import *
 from .serializers import *
 from .forms import *
+# ユーザーモデルの取得
+User = get_user_model()
 
 
 
@@ -742,17 +746,6 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
-
-User = get_user_model()
-
 class PasswordChangeView(APIView):
     permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
     authentication_classes = [JWTAuthentication]  # JWT認証
@@ -976,11 +969,6 @@ def edit_faq(request, faq_id):
 def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
-# views.py
-from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
-
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -989,11 +977,6 @@ class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
-#問い合わせ一覧表示
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
-
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
     return render(request, 'contact/contact_list.html', {'contacts': contacts})
@@ -1001,10 +984,6 @@ def contact_list(request):
 def contact_detail(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
     return render(request, 'contact/contact_detail.html', {'contact': contact})
-
-# backend/app/views.py
-from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1019,11 +998,6 @@ def add_contact_category(request):
     
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
 
 @csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
 def submit_contact_form(request):

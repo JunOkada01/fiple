@@ -53,6 +53,7 @@ const ProductDetail: React.FC = () => {
     const [product, setProduct] = useState<ProductDetailType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedColor, setSelectedColor] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null); // メッセージの状態
 
@@ -65,6 +66,7 @@ const ProductDetail: React.FC = () => {
                 setProduct(response.data);
                 if (response.data.variants[0]?.images[0]) {
                 setSelectedImage(response.data.variants[0].images[0].image);
+                setSelectedColor(response.data.variants[0].color.color_name);
                 }
             } catch (err) {
                 setError('商品情報の取得に失敗しました');
@@ -80,15 +82,18 @@ const ProductDetail: React.FC = () => {
     if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
     if (!product) return null;
     
-    // 商品バリエーションをカラーでグループ化
     const groupedVariants = product.variants.reduce((acc, variant) => {
-    const colorName = variant.color.color_name;
+        const colorName = variant.color.color_name;
         if (!acc[colorName]) {
             acc[colorName] = [];
         }
         acc[colorName].push(variant);
         return acc;
     }, {} as Record<string, typeof product.variants>);
+    
+    const selectedVariants = selectedColor
+        ? groupedVariants[selectedColor]
+        : product.variants;
 
     // 商品をカートに追加する関数
     const addToCart = async (productId: number) => {
@@ -121,12 +126,33 @@ const ProductDetail: React.FC = () => {
                     <div className="border overflow-hidden">
                         {selectedImage && (
                         <img 
-                            className="w-auto h-[400px]"
+                            className="w-full h-auto aspect-[3/4]"
                             src={`http://127.0.0.1:8000${selectedImage}`}
                             alt={product.product_name}
+                            style={{ objectFit: 'cover' }}
                         />
                         )}
                     </div>
+
+                    {/* カラー選択ボタン（画像の下に移動） */}
+                    <div className="flex gap-2 mt-4">
+                        {Object.keys(groupedVariants).map(colorName => (
+                        <button
+                            key={colorName}
+                            className={`px-2 py-1 rounded ${selectedColor === colorName ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+                            onClick={() => {
+                            setSelectedColor(colorName);
+                            const firstImage = groupedVariants[colorName][0]?.images[0];
+                            if (firstImage) {
+                                setSelectedImage(`http://127.0.0.1:8000/${firstImage.image}`);
+                            }
+                            }}
+                        >
+                            {colorName}
+                        </button>
+                        ))}
+                    </div>
+
                     {/* サムネイル画像一覧 */}
                     <div className="grid grid-cols-4 gap-2 mt-4">
                         {product.variants.flatMap(variant => 
@@ -142,23 +168,23 @@ const ProductDetail: React.FC = () => {
                             </div>
                         ))
                         )}
-                </div>
-                {/* 商品説明 */}
-                <div className="mt-4">
-                    <h3 className="text-lg font-semibold">商品説明</h3>
-                    <p className="mt-2 text-gray-600">{product.description}</p>
-                </div>
-                {/* タグ */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                    {product.tags.map(tag => (
-                    <span 
-                        key={tag.id}
-                        className="bg-gray-100 px-3 py-1 rounded-full text-sm hover:bg-gray-200"
-                    >
-                        {tag.tag_name}
-                    </span>
-                    ))}
-                </div>
+                    </div>
+                    {/* 商品説明 */}
+                    <div className="mt-4">
+                        <h3 className="text-lg font-semibold">商品説明</h3>
+                        <p className="mt-2 text-gray-600">{product.description}</p>
+                    </div>
+                    {/* タグ */}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        {product.tags.map(tag => (
+                        <span 
+                            key={tag.id}
+                            className="bg-gray-100 px-3 py-1 rounded-full text-sm hover:bg-gray-200"
+                        >
+                            {tag.tag_name}
+                        </span>
+                        ))}
+                    </div>
                 </div>
         
                 {/* 右側: 商品情報テーブル */}
