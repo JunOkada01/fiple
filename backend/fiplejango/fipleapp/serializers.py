@@ -100,16 +100,33 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         variants = Product.objects.filter(product_origin=obj)
         return ProductVariantSerializer(variants, many=True).data
 
+# class ProductListSerializer(serializers.ModelSerializer):
+#     category = CategorySerializer(source='product_origin.category')
+#     subcategory = SubCategorySerializer(source='product_origin.subcategory')
+#     images = ProductImageSerializer(source='productimage_set', many=True)
+#     product_name = serializers.CharField(source='product_origin.product_name')
+#     product_origin_id = serializers.IntegerField(source='product_origin.id')
+
+#     class Meta:
+#         model = Product
+#         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
     subcategory = SubCategorySerializer(source='product_origin.subcategory')
     images = ProductImageSerializer(source='productimage_set', many=True)
     product_name = serializers.CharField(source='product_origin.product_name')
     product_origin_id = serializers.IntegerField(source='product_origin.id')
+    product_tags = serializers.SerializerMethodField()  # 追加
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 
+                 'images', 'product_origin_id', 'product_tags']  # product_tags追加
+    
+    def get_product_tags(self, obj):
+        # product_originに関連付けられたタグを取得
+        product_tags = ProductTag.objects.filter(product_origin=obj.product_origin)
+        return ProductTagSerializer(product_tags, many=True).data
 
 class ProductOriginSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -127,7 +144,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_tags', 'product_origin_id']
+
+class ProductTagSerializer(serializers.ModelSerializer):
+    tag = TagSerializer()
+    
+    class Meta:
+        model = ProductTag
+        fields = ['id', 'tag', 'created_at', 'updated_at']
         
 
 # class ProductSerializer(serializers.ModelSerializer):
@@ -211,11 +235,6 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'name', 'category', 'message', 'created_at']
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name']  # 必要なフィールドを指定
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:

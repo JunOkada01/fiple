@@ -12,32 +12,25 @@ interface Tag {
   tag_name: string;
 }
 
-interface ProductTag {
+interface Category {
   id: number;
-  tag: Tag;
-  created_at: string;
-  updated_at: string;
+  category_name: string;
+}
+
+interface SubCategory {
+  id: number;
+  subcategory_name: string;
 }
 
 interface Product {
   id: number;
   product_name: string;
   product_origin_id: number;
-  category: {
-    id: number;
-    category_name: string;
-  };
-  subcategory: {
-    id: number;
-    subcategory_name: string;
-  };
+  category: Category;
+  subcategory: SubCategory;
   price: number;
-  product_tags: ProductTag[]; // 追加
-  images: {
-    id: number;
-    image: string;
-    image_description: string;
-  }[];
+  images: Array<{ image: string }>;
+  product_tags?: Array<{ tag: Tag }>;
 }
 
 interface ProductListProps {
@@ -100,7 +93,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     const query = searchQuery.toLowerCase();
     const filtered = initialProducts.filter(product => {
       // タグでの検索を追加
-      const hasMatchingTag = product.product_tags?.some(productTag => 
+      const hasMatchingTag = product.product_tags?.some(productTag =>
         productTag.tag.tag_name.toLowerCase().includes(query)
       );
 
@@ -195,7 +188,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                       tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
                     />
                   ))}
-                </div>
+                </div> 
               </div>
 
               {/* カテゴリごとの「もっと見る」リンク */}

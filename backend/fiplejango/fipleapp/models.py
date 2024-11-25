@@ -145,7 +145,7 @@ class Tag(models.Model):
     
     def __str__(self):
         return self.tag_name
-    
+     
 class ProductTag(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID（ProductOriginモデルへの外部キー）

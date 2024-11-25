@@ -57,6 +57,7 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
+
       if (!productId) return;
       try {
         setLoading(true);

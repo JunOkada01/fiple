@@ -1513,7 +1513,7 @@ def submit_contact_form(request):
 from rest_framework import generics
 from rest_framework.response import Response
 from django.db.models import Q
-from .models import Product, ProductOrigin
+from .models import Product, ProductOrigin,ProductTag
 from .serializers import ProductSerializer
 
 class ProductSearchView(generics.ListAPIView):
@@ -1526,15 +1526,18 @@ class ProductSearchView(generics.ListAPIView):
 
         # ProductOriginに関連する検索条件
         origin_conditions = Q(product_origin__product_name__icontains=query) | \
-                          Q(product_origin__gender__icontains=query) | \
-                          Q(product_origin__description__icontains=query) | \
-                          Q(product_origin__category__category_name__icontains=query) | \
-                          Q(product_origin__subcategory__subcategory_name__icontains=query)
+                            Q(product_origin__gender__icontains=query) | \
+                            Q(product_origin__description__icontains=query) | \
+                            Q(product_origin__category__category_name__icontains=query) | \
+                            Q(product_origin__subcategory__subcategory_name__icontains=query)
 
         # Product自体の属性に関する検索条件
         product_conditions = Q(color__color_name__icontains=query) | \
-                           Q(size__size_name__icontains=query) | \
-                           Q(status__icontains=query)
+                             Q(size__size_name__icontains=query) | \
+                             Q(status__icontains=query)
+
+        # タグ関連の検索条件
+        tag_conditions = Q(product_tag__tag__tag_name__icontains=query)
 
         # 価格での検索（数値の場合）
         try:
@@ -1543,12 +1546,15 @@ class ProductSearchView(generics.ListAPIView):
         except ValueError:
             pass
 
+        # 条件をまとめて検索
         return Product.objects.filter(
-            origin_conditions | product_conditions
+            origin_conditions | product_conditions | tag_conditions
         ).select_related(
             'product_origin',
             'color',
             'size'
+        ).prefetch_related(
+            'product_tag__tag'
         ).distinct()
     
 
