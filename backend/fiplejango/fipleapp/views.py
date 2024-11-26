@@ -289,44 +289,10 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
             return Response({'error': '住所検索に失敗しました'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # 注文関連---------------------------------------------------------------------------------------------------------------
-class PaymentSessionView(APIView):
-    def post(self, request):
-        try:
-            session_id = str(uuid.uuid4())
-            order_id = f"ORDER_{int(time.time())}"
-            
-            session = PaymentSession.objects.create(
-                user=request.user,
-                session_id=session_id,
-                order_id=order_id,
-                total_amount=request.data.get('total_amount'),
-                tax_amount=request.data.get('tax_amount'),
-                payment_method=request.data.get('payment_method'),
-                delivery_address=request.data.get('delivery_address')
-            )
-            
-            print(session.user, session.session_id, session.order_id)
-            
-            return Response({
-                'sessionId': session_id,
-                'orderId': order_id,
-                'status': 'pending'
-            })
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 class CompletePaymentView(APIView):
     def post(self, request):
-        session_id = request.data.get('sessionId')
-        print(f'セッションID: {session_id}')
         try:
             with transaction.atomic():
-                # セッションの取得と状態確認
-                payment_session = PaymentSession.objects.select_for_update().get(
-                    session_id=session_id,
-                    user=request.user,
-                    status='pending'
-                )
                 
                 # カート内の商品を取得
                 cart_items = Cart.objects.filter(user=request.user)
@@ -337,10 +303,10 @@ class CompletePaymentView(APIView):
                 # 注文情報を作成
                 order = Order.objects.create(
                     user=request.user,
-                    total_amount=payment_session.total_amount,
-                    tax_amount=payment_session.tax_amount,
-                    payment_method=payment_session.payment_method,
-                    delivery_address=payment_session.delivery_address,
+                    total_amount=request.data.get('total_amount'),
+                    tax_amount=request.data.get('tax_amount'),
+                    payment_method=request.data.get('payment_method'),
+                    delivery_address=request.data.get('delivery_address'),
                 )
                 
                 # 注文アイテムを作成
@@ -356,17 +322,11 @@ class CompletePaymentView(APIView):
                 
                 OrderItem.objects.bulk_create(order_items)
                 
-                # セッションのステータスを更新
-                payment_session.status = 'completed'
-                payment_session.save()
-                
                 # カートをクリア
                 cart_items.delete()
                 
                 return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
         
-        except PaymentSession.DoesNotExist:
-            return Response({"error": "無効な決済セッションです"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         

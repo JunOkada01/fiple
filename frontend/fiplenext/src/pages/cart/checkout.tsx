@@ -33,15 +33,6 @@ interface DeliveryAddress {
   is_main: boolean;
 }
 
-interface PaymentSession {
-  sessionId: string;
-  orderId: string;
-  status: '支払い保留中' | '支払い完了' | 'キャンセル';
-  amount: number;
-  paymentMethod: string;
-  deliveryAddress: string;
-}
-
 const PAYMENT_METHODS: PaymentMethod[] = [
   { id: 'card', name: 'Card', label: 'クレジットカード' },
   { id: 'paypay', name: 'Paypay', label: 'PayPay' },
@@ -58,7 +49,6 @@ const CheckoutPage = () => {
   const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [selectedAddress, setSelectedAddress] = useState<DeliveryAddress | null>(null);
-  const [paymentSession, setPaymentSession] = useState<PaymentSession | null>(null);
   const router = useRouter();
 
   // 税込価格を計算する関数（切り捨て）
@@ -130,45 +120,18 @@ const CheckoutPage = () => {
     }  
   };
 
-  const createPaymentSession = async () => {
-    try {
-      const response = await axios.post('http://localhost:8000/api/payment-sessions/', {
-        total_amount: totalWithTax,
-        tax_amount: totalWithTax - subtotal,
-        payment_method: selectedPayment,
-        delivery_address: `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-      
-      console.log('支払いセッション作成結果:', response.data);
-      
-      // セッション情報をステートに保存
-      setPaymentSession(response.data);
-      
-      return response.data;
-    } catch (error) {
-      console.error('Payment session creation failed:', error);
-      throw error;
-    }
-  };
-
   const handleCardPayment = async () => {
     try {
-      const session = await createPaymentSession();
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1); // 消費税計算
-      // const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
+      const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
 
       const sessionData = {
-        sessionId: session.sessionId,
         transaction: {
           pay_type: ['Card'],
           amount: (totalAmount - tax).toString(),
           tax: tax.toString(),
-          order_id: session.orderId,
+          order_id: orderId,
         },
         card: {
           job_code: 'AUTH',
@@ -216,7 +179,7 @@ const CheckoutPage = () => {
           // tds2_delivery_timeframe: '01',
           // tds2_gift_card_curr: '3'
         },
-        success_url: `${window.location.origin}/cart/complete?sessionId=${session.sessionId}`,
+        success_url: `${window.location.origin}/cart/complete?orderId=${orderId}`,
         cancel_url: `${window.location.origin}/cart/cancel`,
         shop_service_name: 'テスト店',
         guide_mail_send_flag: '1',
@@ -234,6 +197,16 @@ const CheckoutPage = () => {
       });
 
       if (response.data.link_url) {
+        const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
+
+        localStorage.setItem('orderDetails', JSON.stringify({
+          orderId: orderId,
+          total_amount: totalWithTax,
+          tax_amount: totalWithTax - subtotal,
+          payment_method: selectedPayment,
+          delivery_address: deliveryAddress
+        }));
+        
         window.location.href = response.data.link_url;
       }
 
@@ -245,23 +218,22 @@ const CheckoutPage = () => {
 
   const handlePayPayPayment = async () => {
     try {
-      const session = await createPaymentSession();
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1);
+      const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
       
       const sessionData = {
-        sessionId: session.sessionId,
         transaction: {
           pay_type: ['Paypay'],
           amount: (totalAmount - tax).toString(),
           tax: tax.toString(),
-          order_id: session.orderId,
+          order_id: orderId,
         },
         paypay: {
           job_code: 'AUTH',
           order_description: `商品${cartItems.length}点のご注文`,
         },
-        success_url: `${window.location.origin}/cart/complete?sessionId=${session.sessionId}`,
+        success_url: `${window.location.origin}/cart/complete?orderId=${orderId}`,
         cancel_url: `${window.location.origin}/cart/cancel`,
         guide_mail_send_flag: "1",
         receiver_mail: userInfo?.email,
@@ -276,6 +248,16 @@ const CheckoutPage = () => {
       });
 
       if (response.data.link_url) {
+        const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
+
+        localStorage.setItem('orderDetails', JSON.stringify({
+          orderId: orderId,
+          total_amount: totalWithTax,
+          tax_amount: totalWithTax - subtotal,
+          payment_method: selectedPayment,
+          delivery_address: deliveryAddress
+        }));
+
         window.location.href = response.data.link_url;
       }else {
         throw new Error('決済URLの取得に失敗しました');
@@ -289,23 +271,22 @@ const CheckoutPage = () => {
 
   const handleKonbiniPayment = async () => {
     try {
-      const session = await createPaymentSession();
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1);
+      const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
       
       const sessionData = {
-        session: session.sessionId,
         transaction: {
           pay_type: ['Konbini'],
           amount: (totalAmount - tax).toString(),
           tax: tax.toString(),
-          order_id: session.orderId,
+          order_id: orderId,
         },
         konbini: {
           payment_term_day: "3",
           konbini_reception_mail_send_flag: "1"
         },
-        success_url: `${window.location.origin}/cart/complete?sessionId=${session.sessionId}`,
+        success_url: `${window.location.origin}/cart/complete?orderId=${orderId}`,
         cancel_url: `${window.location.origin}/cart/cancel`,
         guide_mail_send_flag: "1",
         receiver_mail: userInfo?.email,
@@ -320,6 +301,16 @@ const CheckoutPage = () => {
       });
 
       if (response.data.link_url) {
+        const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
+
+        localStorage.setItem('orderDetails', JSON.stringify({
+          orderId: orderId,
+          total_amount: totalWithTax,
+          tax_amount: totalWithTax - subtotal,
+          payment_method: selectedPayment,
+          delivery_address: deliveryAddress
+        }));
+
         window.location.href = response.data.link_url;
       } else {
         throw new Error('決済URLの取得に失敗しました');
@@ -335,12 +326,18 @@ const CheckoutPage = () => {
     setSelectedAddress(addressDetails);
   };
 
-  const completeOrder = async (sessionId: string) => {
+  const completeOrder = async (orderId: string) => {
     try {
-      console.log('注文完了したセッションID:', sessionId);
+      console.log('注文ID:', orderId);
+      
+      const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
       
       const response = await axios.post('http://localhost:8000/api/complete-payment/', {
-        sessionId: sessionId
+        orderId: orderId,
+        total_amount: totalWithTax,
+        tax_amount: totalWithTax - subtotal,
+        payment_method: selectedPayment,
+        delivery_address: deliveryAddress
       }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
@@ -369,8 +366,8 @@ const CheckoutPage = () => {
       } else if (selectedPayment === 'konbini') {
         await handleKonbiniPayment();
       } else if (selectedPayment === 'genkin') {
-        const session = await createPaymentSession();
-        await completeOrder(session.sessionId);
+        const orderId = `ORDER_${Date.now()}`; // ユニークな注文ID生成
+        await completeOrder(orderId);
         router.push('/cart/complete');
       }
       

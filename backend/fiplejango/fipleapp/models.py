@@ -311,21 +311,3 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
     
-
-class PaymentSession(models.Model):
-    SESSION_STATUS = (
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
-    )
-    
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    session_id = models.UUIDField(unique=True)
-    order_id = models.CharField(max_length=100, unique=True)
-    status = models.CharField(max_length=20, choices=SESSION_STATUS, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=50)
-    delivery_address = models.TextField()
