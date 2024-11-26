@@ -42,7 +42,7 @@ class ColorSerializer(serializers.ModelSerializer):
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
-        fields = ['id', 'size_name']
+        fields = ['id', 'size_name', 'order']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -100,7 +100,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id',]
 
 class ProductOriginSerializer(serializers.ModelSerializer):
     category = CategorySerializer()

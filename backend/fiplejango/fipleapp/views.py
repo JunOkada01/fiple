@@ -1,5 +1,6 @@
 # Python標準ライブラリ
 from datetime import datetime, timedelta, timezone
+from django.db.models import *
 import json
 import jwt
 

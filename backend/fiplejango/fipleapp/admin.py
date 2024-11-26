@@ -30,7 +30,12 @@ admin.site.register(AdminUser)
 admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(Color)
-admin.site.register(Size)
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('size_name', 'order', 'created_at', 'updated_at', 'admin_user')
+    ordering = ('order',)
+    list_editable = ('order',)  # リスト画面で「order」を直接編集可能にする
+
 admin.site.register(ProductOrigin)
 admin.site.register(Product)
 admin.site.register(Tag)
