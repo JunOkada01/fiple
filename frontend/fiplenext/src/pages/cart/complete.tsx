@@ -11,48 +11,30 @@ const OrderConfirmation: React.FC = () => {
     const [isClearing, setIsClearing] = useState(true);
 
     useEffect(() => {
-        const clearCart = async () => {
-        try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-            throw new Error('認証情報が見つかりません');
-            }
-
-            // カート内の全商品を取得
-            const cartResponse = await axios.get('http://localhost:8000/api/cart/', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-            });
-
-            // 各商品を順番に削除
-            for (const item of cartResponse.data) {
-            await axios.delete(`http://localhost:8000/api/cart/${item.id}/delete/`, {
+        const { sessionId } = router.query;
+    
+        const completeOrder = async () => {
+          if (sessionId) {
+            try {
+              const response = await axios.post('http://localhost:8000/api/complete-payment/', {
+                sessionId: sessionId
+              }, {
                 headers: {
-                Authorization: `Bearer ${token}`
+                  Authorization: `Bearer ${localStorage.getItem('access_token')}`
                 }
-            });
+              });
+    
+              console.log('注文完了:', response.data);
+              // 注文完了のロジック（画面表示など）
+            } catch (error) {
+              console.error('注文完了処理に失敗:', error);
+              // エラーハンドリング
             }
-
-            setIsClearing(false);
-        } catch (error: any) {
-            console.error('Failed to clear cart:', error);
-            setError('カートのクリアに失敗しました。');
-            setIsClearing(false);
-        }
+          }
         };
-
-        clearCart();
-    }, []);
-
-    if (isClearing) {
-        return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-            <p className="text-gray-600">決済情報を処理中...</p>
-        </div>
-        );
-    }
+    
+        completeOrder();
+      }, [router.query]);
 
     return (  
         <div className="confirmation-container mx-auto max-w-screen-md px-4 py-8">  

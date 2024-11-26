@@ -138,6 +138,14 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.color.color_name} - {self.size.size_name}"
     
+class PriceHistory(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID（Productモデルへの外部キー）
+    price = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.product.product_origin.product_name} - {self.price}"
+    
 class Tag(models.Model):
     tag_name = models.CharField(max_length=255)
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
@@ -302,3 +310,22 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
+    
+
+class PaymentSession(models.Model):
+    SESSION_STATUS = (
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    )
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    session_id = models.UUIDField(unique=True)
+    order_id = models.CharField(max_length=100, unique=True)
+    status = models.CharField(max_length=20, choices=SESSION_STATUS, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=50)
+    delivery_address = models.TextField()

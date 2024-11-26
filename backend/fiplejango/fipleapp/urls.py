@@ -107,4 +107,5 @@ urlpatterns = [
     # 注文関連
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
+    path('api/payment-sessions/', PaymentSessionView.as_view(), name='payment-sessions'),
 ]

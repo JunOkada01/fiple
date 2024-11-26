@@ -1,4 +1,5 @@
 from datetime import timezone
+import uuid
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -33,6 +34,7 @@ from django.db import transaction
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
+import time
 
 
 def data_view(request):
@@ -287,13 +289,45 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
             return Response({'error': '住所検索に失敗しました'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # 注文関連---------------------------------------------------------------------------------------------------------------
-class CompletePaymentView(APIView):
-    """
-    決済完了後に注文履歴を保存するView
-    """
+class PaymentSessionView(APIView):
     def post(self, request):
         try:
+            session_id = str(uuid.uuid4())
+            order_id = f"ORDER_{int(time.time())}"
+            
+            session = PaymentSession.objects.create(
+                user=request.user,
+                session_id=session_id,
+                order_id=order_id,
+                total_amount=request.data.get('total_amount'),
+                tax_amount=request.data.get('tax_amount'),
+                payment_method=request.data.get('payment_method'),
+                delivery_address=request.data.get('delivery_address')
+            )
+            
+            print(session.user, session.session_id, session.order_id)
+            
+            return Response({
+                'sessionId': session_id,
+                'orderId': order_id,
+                'status': 'pending'
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CompletePaymentView(APIView):
+    def post(self, request):
+        session_id = request.data.get('sessionId')
+        print(f'セッションID: {session_id}')
+        try:
             with transaction.atomic():
+                # セッションの取得と状態確認
+                payment_session = PaymentSession.objects.select_for_update().get(
+                    session_id=session_id,
+                    user=request.user,
+                    status='pending'
+                )
+                
                 # カート内の商品を取得
                 cart_items = Cart.objects.filter(user=request.user)
                 
@@ -303,10 +337,10 @@ class CompletePaymentView(APIView):
                 # 注文情報を作成
                 order = Order.objects.create(
                     user=request.user,
-                    total_amount=request.data.get('total_amount'),
-                    tax_amount=request.data.get('tax_amount'),
-                    payment_method=request.data.get('payment_method'),
-                    delivery_address=request.data.get('delivery_address'),
+                    total_amount=payment_session.total_amount,
+                    tax_amount=payment_session.tax_amount,
+                    payment_method=payment_session.payment_method,
+                    delivery_address=payment_session.delivery_address,
                 )
                 
                 # 注文アイテムを作成
@@ -322,14 +356,19 @@ class CompletePaymentView(APIView):
                 
                 OrderItem.objects.bulk_create(order_items)
                 
+                # セッションのステータスを更新
+                payment_session.status = 'completed'
+                payment_session.save()
+                
                 # カートをクリア
-                # cart_items.delete()
+                cart_items.delete()
                 
                 return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
         
+        except PaymentSession.DoesNotExist:
+            return Response({"error": "無効な決済セッションです"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -681,10 +720,20 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     form_class = ProductForm
     template_name = 'product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
-
+    
     def form_valid(self, form):
-        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
-        return super().form_valid(form)
+        with transaction.atomic():  # トランザクションを開始
+            # 商品を保存してから価格履歴を登録
+            form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+            response = super().form_valid(form)  # 商品を保存
+
+            # PriceHistory に登録
+            PriceHistory.objects.create(
+                product=form.instance,
+                price=form.cleaned_data['price']  # フォームから取得した価格を利用
+            )
+            
+        return response
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'fipleapp:admin_login'
@@ -696,6 +745,19 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+    def form_valid(self, form):
+        with transaction.atomic():  # トランザクションを開始
+            # 商品情報を更新
+            response = super().form_valid(form)
+
+            # PriceHistory に新しい価格を登録
+            PriceHistory.objects.create(
+                product=self.object,  # 更新された Product インスタンス
+                price=form.cleaned_data['price']  # フォームの価格フィールドを利用
+            )
+
+        return response
     
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
