@@ -165,12 +165,46 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         </div>
       </div>
 
-      {/* 価格範囲スライダー */}
+      {/* 価格範囲スライダーと入力フォーム */}
       <div className="mb-8 text-center">
-        <p className="text-lg font-semibold">
-          価格範囲: ¥{priceRange[0].toLocaleString()} ～ ¥{priceRange[1].toLocaleString()}
-        </p>
+        {/* 金額入力フォーム */}
+        <div className="flex justify-center items-center mt-4 space-x-4">
+          <div className="flex items-center">
+            {/* <label className="text-sm font-medium mr-2">最低価格 (¥)</label> */}
+            <input
+              type="number"
+              value={priceRange[0]}
+              onChange={(e) => {
+                const newMin = Math.max(0, Math.min(Number(e.target.value), priceRange[1]));
+                setPriceRange([newMin, priceRange[1]]);
+              }}
+              className="border rounded-lg px-2 py-1 text-center shadow-sm w-24"
+              min="0"
+              max={priceRange[1]}
+            />
+            <div>円</div>
+          </div>
+          <div>～</div>
+          <div className="flex items-center">
+            {/* <label className="text-sm font-medium mr-2">最高価格 (¥)</label> */}
+            <input
+              type="number"
+              value={priceRange[1]}
+              onChange={(e) => {
+                const newMax = Math.min(100000, Math.max(Number(e.target.value), priceRange[0]));
+                setPriceRange([priceRange[0], newMax]);
+              }}
+              className="border rounded-lg px-2 py-1 text-center shadow-sm w-24"
+              min={priceRange[0]}
+              max="100000"
+            />
+            {/* <label className="text-sm font-medium mr-2">円</label> */}
+            <div>円</div>
+          </div>
+        </div>
+        
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+          {/* 価格範囲スライダー */}
           <ReactSlider
             className="custom-slider"
             thumbClassName="custom-thumb"
@@ -182,6 +216,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
             onChange={(values: [number, number]) => setPriceRange(values)}
           />
         </div>
+
       </div>
 
       {/* 商品表示エリア */}
