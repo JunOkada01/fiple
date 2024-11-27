@@ -1439,7 +1439,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
-#問い合わせ一覧表示
+#問い合わせ一覧表示ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Contact
@@ -1648,6 +1648,8 @@ class ReviewWriteView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 User = get_user_model()
+
+# パスワード変更ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
 class PasswordChangeView(APIView):
     permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可

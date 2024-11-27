@@ -220,6 +220,12 @@ class Contact(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Review(models.Model):
+    fit_CHOICES = [
+        ('大きすぎた', '大きすぎた'),
+        ('ちょうどいい', 'ちょうどいい'),
+        ('ぱつぱつ', 'ぱつぱつ'),
+    ]
+
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     subject = models.CharField(max_length=254)
@@ -227,6 +233,7 @@ class Review(models.Model):
     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
     rating = models.IntegerField(choices=RATING_CHOICES, default=5)
     datetime = models.DateTimeField(auto_now_add=True)
+    fit = models.CharField(max_length=30, choices=fit_CHOICES)
 
     class Meta:
         unique_together = ('product', 'user')  # 同じユーザーが同じ商品に複数レビューできないように

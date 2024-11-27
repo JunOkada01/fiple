@@ -14,6 +14,8 @@ const Register = () => {
     const [phone, setPhone] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [address, setAddress] = useState('');
+    const [height, setHeight] = useState(''); // 身長
+    const [weight, setWeight] = useState(''); // 体重
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
@@ -72,6 +74,8 @@ const Register = () => {
             postal_code: postalCode,
             birth,
             address,
+            height,
+            weight,
         };
 
         try {
@@ -121,18 +125,6 @@ const Register = () => {
                     </div>
 
                     <div className="flex items-center mb-4">
-                        <label className="text-left text-lg w-1/3">メールアドレス</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            placeholder="メールアドレスを入力してください"
-                            required
-                            className="ml-4 mt-1 w-3/4 text-left text-xl border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 placeholder:text-base"
-                        />
-                    </div>
-
-                    <div className="flex items-center mb-4">
                         <label className="text-left text-lg w-1/3">ふりがな</label>
                         <input
                             type="text"
@@ -144,6 +136,19 @@ const Register = () => {
                         />
                     </div>
 
+                    <div className="flex items-center mb-4">
+                        <label className="text-left text-lg w-1/3">メールアドレス</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            placeholder="メールアドレスを入力してください"
+                            required
+                            className="ml-4 mt-1 w-3/4 text-left text-xl border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 placeholder:text-base"
+                        />
+                    </div>
+
+                    
                     <div className="flex items-center mb-4">
                         <label className="text-left text-lg w-1/3">生年月日</label>
                         <div className="ml-4 flex w-3/4 space-x-2">
@@ -214,6 +219,32 @@ const Register = () => {
                                 /> その他
                             </div>
                         </div>
+                    </div>
+
+
+                    <div className="flex items-center mb-4">
+                        <label className="text-left text-lg w-1/3">身長</label>
+                        <input
+                            type="text"
+                            value={height}
+                            onChange={e => setHeight(e.target.value)}
+                            placeholder="cm"
+                            required
+                            className="ml-4 mt-1 w-3/4 text-left text-xl border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 placeholder:text-base"
+                        />
+                    </div>
+
+
+                    <div className="flex items-center mb-4">
+                        <label className="text-left text-lg w-1/3">体重</label>
+                        <input
+                            type="text"
+                            value={weight}
+                            onChange={e => setWeight(e.target.value)}
+                            placeholder="㎏"
+                            required
+                            className="ml-4 mt-1 w-3/4 text-left text-xl border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 placeholder:text-base"
+                        />
                     </div>
 
                     <div className="flex items-center mb-4">

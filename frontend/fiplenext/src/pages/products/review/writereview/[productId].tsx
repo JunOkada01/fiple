@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+
 interface Product {
   id: number;
   product_name: string;
@@ -10,11 +11,11 @@ const ProductReviewWrite = () => {
     const router = useRouter();
     const { productId } = router.query;
     const [product, setProduct] = useState<Product | null>(null);
-    // const [user, setUser] = useState(null);
     const [formData, setFormData] = useState({
         rating: 5,
         review_detail: '',
         subject: '',
+        fit: 'サイズ感', // フィット感のデフォルト
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -47,7 +48,6 @@ const ProductReviewWrite = () => {
 
         fetchProduct();
     }, [productId]);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -132,6 +132,20 @@ const ProductReviewWrite = () => {
                         placeholder="商品の感想を書いてください"
                         required
                     />
+                </div>
+
+                {/* フィット感の選択肢追加 */}
+                <div>
+                    <label className="block text-gray-700 mb-2">フィット感</label>
+                    <select
+                        value={formData.fit}
+                        onChange={(e) => setFormData({ ...formData, fit: e.target.value })}
+                        className="w-full p-2 border rounded"
+                    >
+                        <option value="大きすぎた">大きすぎた</option>
+                        <option value="ちょうどいい">ちょうどいい</option>
+                        <option value="ぱつぱつ">ぱつぱつ</option>
+                    </select>
                 </div>
 
                 <div className="flex justify-center space-x-4">

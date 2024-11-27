@@ -13,7 +13,7 @@ interface ProductCardProps {
     subcategoryName: string;
     price: number;
     imageUrl: string;
-    tags: string[];
+    // tags: string[];
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl }) => {
@@ -44,6 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
             setIsTryingOn(false);
         } else {
             // 試着リストに追加
+            
             const newItem = {
                 id,
                 product_id,

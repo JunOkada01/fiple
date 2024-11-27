@@ -146,6 +146,7 @@ const FittingArea: React.FC<FittingAreaProps> = ({
           {isLoading ? (
             <LoadingWave />
           ) : (
+            
             <MannequinModel height={height} weight={weight} />
           )}
         </div>
