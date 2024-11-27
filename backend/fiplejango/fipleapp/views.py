@@ -35,6 +35,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 import time
+from django.db.models import OuterRef, Subquery
 
 
 def data_view(request):
@@ -49,7 +50,19 @@ def data_view(request):
 
 class APIProductListView(APIView):
     def get(self, request):
-        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
+        # サブクエリで同じ product_origin 内で最小のサイズIDを取得
+        subquery = Product.objects.filter(
+            product_origin=OuterRef('product_origin')
+        ).order_by('size_id').values('size_id')[:1]
+
+        products = Product.objects.select_related(
+            'product_origin', 'product_origin__category', 'color', 'size'
+        ).prefetch_related(
+            'productimage_set'
+        ).filter(
+            size=Subquery(subquery)
+        )
+
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
     
