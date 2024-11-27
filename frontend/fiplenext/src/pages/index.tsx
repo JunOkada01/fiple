@@ -178,13 +178,13 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                 const newMin = Math.max(0, Math.min(Number(e.target.value), priceRange[1]));
                 setPriceRange([newMin, priceRange[1]]);
               }}
-              className="border rounded-lg px-2 py-1 text-center shadow-sm w-24"
+              className="border rounded-lg px-2 py-1 text-center shadow-sm w-20" // 幅を小さく
               min="0"
               max={priceRange[1]}
             />
             <div>円</div>
           </div>
-          <div>～</div>
+          <div className="mx-2">～</div> {/* 中央の余白を調整 */}
           <div className="flex items-center">
             {/* <label className="text-sm font-medium mr-2">最高価格 (¥)</label> */}
             <input
@@ -194,16 +194,14 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                 const newMax = Math.min(100000, Math.max(Number(e.target.value), priceRange[0]));
                 setPriceRange([priceRange[0], newMax]);
               }}
-              className="border rounded-lg px-2 py-1 text-center shadow-sm w-24"
+              className="border rounded-lg px-2 py-1 text-center shadow-sm w-20" // 幅を小さく
               min={priceRange[0]}
               max="100000"
             />
-            {/* <label className="text-sm font-medium mr-2">円</label> */}
             <div>円</div>
           </div>
         </div>
-        
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '200px', margin: '0 auto', marginTop: '20px' }}> {/* スライダーの横幅を半分に */}
           {/* 価格範囲スライダー */}
           <ReactSlider
             className="custom-slider"
@@ -216,7 +214,6 @@ export default function ProductList({ initialProducts }: ProductListProps) {
             onChange={(values: [number, number]) => setPriceRange(values)}
           />
         </div>
-
       </div>
 
       {/* 商品表示エリア */}
