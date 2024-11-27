@@ -166,13 +166,15 @@ const Cart: React.FC = () => {
                             <h2 className="text-2xl font-semibold mb-4">カートに入っている商品</h2>
                             {cartItems.map((item) => (
                                 <div key={item.id} className="cartItem flex items-center justify-between border-b border-gray-300 py-4">
+                                    <Link href={`/products/${item.product.product_origin.id}`}>
                                     <img 
                                         alt={item.product.product_origin.product_name}
                                         src={`${item.product.images[0]?.image}`}
                                         className="itemImage w-24 h-24 object-cover mr-4"
                                     />
+                                    </Link>
                                     <div className="itemDetails flex-1">
-                                        <Link href={`/products/${item.product.product_origin.id}`}><p className="text-lg font-semibold">
+                                        <Link href={`/products/${item.product.product_origin.id}`}><p className="font-medium text-blue-600 hover:underline">
                                             {item.product.product_origin.product_name}
                                         </p></Link>
                                         <p className="text-gray-500">

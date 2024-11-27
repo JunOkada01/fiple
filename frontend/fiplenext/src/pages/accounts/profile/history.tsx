@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 
 interface Order {
   id: number;
@@ -10,7 +11,13 @@ interface Order {
   delivery_address: string;
   status: string;
   items: {
-    product_name: string;
+    product: {
+      id: number;
+      product_origin: {
+        id: number;
+        product_name: string;
+      }
+    }
     product_image: string;
     quantity: number;
     unit_price: number;
@@ -92,13 +99,17 @@ const OrderHistoryPage: React.FC = () => {
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between items-center py-2 border-b">
                   <div className="flex items-center">
+                  <Link href={`products/${item.product.product_origin.id}`}>
                     <img 
                       src={`http://localhost:8000${item.product_image}`}
-                      alt={item.product_name} 
+                      alt={item.product.product_origin.product_name} 
                       className="w-16 h-16 object-cover mr-4 rounded"
                     />
+                    </Link>
                     <div>
-                      <p className="font-medium">{item.product_name}</p>
+                      <Link href={`products/${item.product.product_origin.id}`}>
+                      <p className="font-medium text-blue-600 hover:underline">{item.product.product_origin.product_name}</p>
+                      </Link>
                       <p className="text-gray-600">数量: {item.quantity}</p>
                     </div>
                   </div>

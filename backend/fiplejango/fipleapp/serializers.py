@@ -241,12 +241,13 @@ class DeliveryAddressSerializer(serializers.ModelSerializer):
         
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_image = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['product_name', 'quantity', 'unit_price', 'product_image']
+        fields = ['product', 'product_name', 'quantity', 'unit_price', 'product_image']
         
     def get_product_image(self, obj):
         product_images = obj.product.productimage_set.all()
