@@ -134,6 +134,14 @@ class Product(models.Model):
     status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product_origin', 'color', 'size'],
+                name='unique_product_combination'
+            )
+        ]
 
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.color.color_name} - {self.size.size_name}"
