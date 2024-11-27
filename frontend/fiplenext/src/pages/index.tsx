@@ -1,7 +1,8 @@
-import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
-import React, { useEffect, useState } from 'react';  
+import React, { useEffect, useState } from 'react';
+import ReactSlider from 'react-slider'; // react-slider をインポート
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
+import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import FittingArea from '../components/VrFitting';
 import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
@@ -62,7 +63,7 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
       },
     };
   }
-}
+};
 
 export default function ProductList({ initialProducts }: ProductListProps) {
   const [height, setHeight] = useState<number>(180);
@@ -70,6 +71,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
   const removeItemFromFitting = (id: number) => {
     setFittingItems(fittingItems.filter(item => item.id !== id));
@@ -85,41 +87,41 @@ export default function ProductList({ initialProducts }: ProductListProps) {
 
   // 検索フィルタリング機能を更新
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredProducts(initialProducts);
-      return;
-    }
+    const query = searchQuery.toLowerCase().trim();
 
-    const query = searchQuery.toLowerCase();
     const filtered = initialProducts.filter(product => {
-      // タグでの検索を追加
+      const isWithinPriceRange =
+        product.price >= priceRange[0] && product.price <= priceRange[1];
+
       const hasMatchingTag = product.product_tags?.some(productTag =>
         productTag.tag.tag_name.toLowerCase().includes(query)
       );
 
       return (
-        // 商品名で検索
-        product.product_name.toLowerCase().includes(query) ||
-        // カテゴリー名で検索
-        product.category.category_name.toLowerCase().includes(query) ||
-        // サブカテゴリー名で検索
-        product.subcategory.subcategory_name.toLowerCase().includes(query) ||
-        // タグで検索
-        hasMatchingTag ||
-        // 価格で検索（数値の場合）
-        (!isNaN(Number(query)) && product.price === Number(query))
+        // 価格で検索
+        isWithinPriceRange &&
+        (
+          // 商品名で検索
+          product.product_name.toLowerCase().includes(query) ||
+          // カテゴリー名で検索
+          product.category.category_name.toLowerCase().includes(query) ||
+          // サブカテゴリ―で検索
+          product.subcategory.subcategory_name.toLowerCase().includes(query) ||
+          // タグで検索
+          hasMatchingTag
+        )
       );
     });
 
     setFilteredProducts(filtered);
-  }, [searchQuery, initialProducts]);
+  }, [searchQuery, priceRange, initialProducts]);
 
   // カテゴリごとに商品をグループ化
   const categoriesMap: { [key: string]: Product[] } = {};
-  
+
   if (Array.isArray(filteredProducts)) {
     filteredProducts.forEach(product => {
-      if (product && product.category && product.category.category_name) {
+      if (product?.category?.category_name) {
         const categoryName = product.category.category_name;
         if (!categoriesMap[categoryName]) {
           categoriesMap[categoryName] = [];
@@ -159,6 +161,25 @@ export default function ProductList({ initialProducts }: ProductListProps) {
             className="border rounded-lg px-2 py-1 text-center shadow-sm"
             min="20"
             max="300"
+          />
+        </div>
+      </div>
+
+      {/* 価格範囲スライダー */}
+      <div className="mb-8 text-center">
+        <p className="text-lg font-semibold">
+          価格範囲: ¥{priceRange[0].toLocaleString()} ～ ¥{priceRange[1].toLocaleString()}
+        </p>
+        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+          <ReactSlider
+            className="custom-slider"
+            thumbClassName="custom-thumb"
+            trackClassName="custom-track"
+            min={0}
+            max={100000}
+            step={100}
+            value={priceRange}
+            onChange={(values: [number, number]) => setPriceRange(values)}
           />
         </div>
       </div>
