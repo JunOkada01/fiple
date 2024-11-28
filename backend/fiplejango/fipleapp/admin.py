@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, ProductImage, Cart, Favorite
+from .models import CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem
 
 # Register your models here.
 
