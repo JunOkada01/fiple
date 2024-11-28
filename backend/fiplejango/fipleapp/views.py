@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.db.models import Prefetch
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -35,8 +35,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 import time
-from django.db.models import OuterRef, Subquery
-
+from django.db.models import OuterRef, Subquery, Q
+from django.core.paginator import Paginator
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
@@ -360,6 +360,74 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 def user_list(request):
     users = CustomUser.objects.all().values('id', 'username', 'email')  # 必要なフィールドだけを取得
     return JsonResponse(list(users), safe=False)
+
+class UserListView(LoginRequiredMixin, ListView):
+    """
+    ユーザー一覧ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'user_list.html'
+    context_object_name = 'users'
+    paginate_by = 20
+    model = CustomUser
+
+    def get_queryset(self):
+        """
+        検索機能の実装
+        """
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search', '')
+        
+        if search_query:
+            queryset = queryset.filter(
+                Q(username__icontains=search_query) | 
+                Q(email__icontains=search_query) | 
+                Q(hurigana__icontains=search_query)
+            )
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        検索クエリをコンテキストに追加
+        """
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+class UserDetailView(LoginRequiredMixin, DetailView):
+    """
+    ユーザー詳細ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = CustomUser
+    template_name = 'user_detail.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'user_id'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        """
+        ユーザーの注文履歴を追加
+        """
+        context = super().get_context_data(**kwargs)
+        orders = Order.objects.filter(user=self.object).order_by('-order_date')
+        
+        # ページネーションの追加
+        paginator = Paginator(orders, 10)  # 1ページあたり10件
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context['orders'] = page_obj
+        context['order_items'] = OrderItem.objects.filter(order__in=page_obj).select_related('product')
+        context['page_obj'] = page_obj  # ページオブジェクトをコンテキストに追加
+        
+        return context
+    
 
 class RegisterView(APIView):
     def post(self, request):

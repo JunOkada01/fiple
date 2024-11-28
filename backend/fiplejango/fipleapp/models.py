@@ -9,9 +9,9 @@ class CustomUser(AbstractUser):
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
     
     class SexChoices(models.TextChoices):
-        MALE = 'M', 'Male'
-        FEMALE = 'F', 'Female'
-        OTHER = 'O', 'Other'
+        MALE = 'M', '男性'
+        FEMALE = 'F', '女性'
+        OTHER = 'O', 'その他'
     sex = models.CharField(max_length=1, choices=SexChoices.choices, default=SexChoices.OTHER)  # 性別
     
     phone = models.CharField(max_length=15, default='')  # 電話番号

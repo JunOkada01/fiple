@@ -20,6 +20,9 @@ app_name = 'fipleapp'
 urlpatterns = [
     path('data/', data_view, name='data'),
     path('users/', views.user_list, name='user-list'),
+    
+    path('users_list/', UserListView.as_view(), name='admin_user_list'),
+    path('users_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

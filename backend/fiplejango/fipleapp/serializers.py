@@ -250,6 +250,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['product', 'product_name', 'quantity', 'unit_price', 'product_image']
         
     def get_product_image(self, obj):
+        
+        # まず、productが存在するかチェック
+        if obj.product is None:
+            return None
+        
+        # 画像を取得
         product_images = obj.product.productimage_set.all()
         if product_images.exists():
             return product_images.first().image.url
