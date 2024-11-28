@@ -16,7 +16,7 @@ const NewEmail: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
-            <h1 className="text-4xl font-bold mt-[100px] mb-5">NEW EMAIL ADDRESS</h1>
+            <h1 className="text-4xl mt-[100px] mb-5">NEW EMAIL ADDRESS</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-10" />
 
             <div className="flex flex-col items-center w-full max-w-lg">

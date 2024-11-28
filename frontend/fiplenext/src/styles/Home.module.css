@@ -1,0 +1,15 @@
+    /* 横幅の調整: マネキンとカートエリアを少し小さく */
+    /* .sideSection {}
+        /* position: sticky; /* スクロールしてもついてくるようにする */
+        /* top: 100px; /* スクロール時にページ上部からの位置を0にする */
+        /* margin-top: -200px; /*  */
+        /* display: flex; /*  */
+        /* flex-direction: column; /*  */
+        /* justify-content: flex-start; /*  */
+        /* 背景色を追加することで内容が見やすくなる */
+        /* background-color: #ffffff; /* 必要に応じて */
+        /* z-index: 10; /* 他のコンテンツの上に表示されるようにする */
+
+    /* .mannequinArea {} */
+
+    /* .removeButton {} */

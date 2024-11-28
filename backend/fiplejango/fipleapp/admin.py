@@ -1,8 +1,6 @@
+from django.contrib import admin
+from .models import CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, ProductImage, Cart, Favorite
 
-from django.contrib import admin
-from .models import CustomUser
-from django.contrib import admin
-from.models import *
 # Register your models here.
 
 @admin.register(QuestionCategory)
@@ -25,7 +23,11 @@ class ContactCategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'rating', 'user', 'subject', 'review_detail',)
 
+# Registering other models
 admin.site.register(CustomUser)
 admin.site.register(AdminUser)
 admin.site.register(Category)
@@ -46,3 +48,5 @@ admin.site.register(OrderItem)
 
 
 
+admin.site.register(Cart)
+admin.site.register(Favorite)

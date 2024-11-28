@@ -1,10 +1,14 @@
 from rest_framework import serializers
+from .models import Product
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone', 'postal_code', 'birth', 'address']
+        fields = [
+            'id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone',
+            'postal_code', 'birth', 'address', 'height', 'weight'
+        ]
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -18,12 +22,15 @@ class UserSerializer(serializers.ModelSerializer):
             phone=validated_data['phone'],
             postal_code=validated_data['postal_code'],
             birth=validated_data['birth'],
-            address=validated_data['address']
+            address=validated_data['address'],
+            height=validated_data['height'],  # 身長
+            weight=validated_data['weight'],  # 体重
         )
         user.set_password(validated_data['password'])  # パスワードをハッシュ化して保存
         user.save()
         
         return user
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,14 +51,6 @@ class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
         fields = ['id', 'size_name']
-        
-class ProductOriginSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    subcategory = SubCategorySerializer()
-
-    class Meta:
-        model = ProductOrigin
-        fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,9 +58,16 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'tag_name']
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'image_description']
+
+    def get_image(self, obj):
+        if obj.image:
+            return f"{obj.image.url}"
+        return None
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
@@ -110,7 +116,14 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
-        
+
+class ProductOriginSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    subcategory = SubCategorySerializer()
+
+    class Meta:
+        model = ProductOrigin
+        fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
 
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
@@ -120,16 +133,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = [
-            'id',
-            'product_origin',
-            'color',
-            'size',
-            'price',
-            'stock',
-            'status',
-            'images'
-        ]
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     product_origin = ProductOriginSerializer()
+#     color = ColorSerializer()
+#     size = SizeSerializer()
+#     images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             'id',
+#             'product_origin',
+#             'color',
+#             'size',
+#             'price',
+#             'stock',
+#             'status',
+#             'images'
+#         ]
 
 class CartListSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
@@ -181,7 +205,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'user', 'product', 'images', 'created_at', 'updated_at']
-        
+
 class ContactCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactCategory
@@ -265,3 +289,14 @@ class OrderSerializer(serializers.ModelSerializer):
             'status', 'payment_method', 'delivery_address', 
             'items'
         ]
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name']  # 必要なフィールドを指定
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
+        read_only_fields = ['user', 'datetime']  # userとdatetimeは読み取り専用

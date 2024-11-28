@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+<<<<<<< HEAD
 import Link from 'next/link';
 
 interface OrderDetails {
@@ -13,7 +14,11 @@ interface OrderDetails {
 }
 
 const OrderConfirmation: React.FC = () => {  
+=======
+import Link from 'next/link';  
+>>>>>>> origin/fiple11/22
 
+const OrderConfirmation: React.FC = () => {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
