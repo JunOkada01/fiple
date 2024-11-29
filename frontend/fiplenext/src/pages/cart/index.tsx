@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import Router from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -43,7 +44,20 @@ const Cart: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        Router.push({
+        pathname: '/accounts/login',
+        query: { 
+            error: 'authentication', 
+            message: 'セッションが期限切れです。再度ログインしてください。' 
+        }
+        });
+        return;
+    }
     const fetchCartItems = async (token?: string) => {
         try {
             const response = await axios.get('http://localhost:8000/api/cart/', {

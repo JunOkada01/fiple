@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import Router from 'next/router';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +32,21 @@ const Profile: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        Router.push({
+        pathname: '/accounts/login',
+        query: { 
+            error: 'authentication', 
+            message: 'セッションが期限切れです。再度ログインしてください。' 
+        }
+        });
+        return;
+    }
     
     const logout = async () => {
         try {
