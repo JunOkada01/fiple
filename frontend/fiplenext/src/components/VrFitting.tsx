@@ -24,7 +24,7 @@ const LoadingWave = () => (
   </div>
 );
 
-interface FittingItem {
+export interface FittingItem {
   id: number;
   product_id: number;
   productName: string;
@@ -34,13 +34,12 @@ interface FittingItem {
   imageUrl?: string;
 }
 
-interface FittingAreaProps {
+export interface FittingAreaProps {
   height: number;
   weight: number;
   fittingItems: FittingItem[];
   onRemoveItem: (id: number) => void;
   onAddToCart: () => void;
-  onAddToFavorites: () => void;
 }
 
 const FittingArea: React.FC<FittingAreaProps> = ({
@@ -55,7 +54,9 @@ const FittingArea: React.FC<FittingAreaProps> = ({
   /* お気に入り */
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteId, setFavoriteId] = useState<number | null>(null);
-  // 試着中商品
+  // 試着中商品 (選択しているカラーとサイズ)
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
   // セッションから試着中商品を読み込む
   const loadFittingItems = () => {
@@ -71,7 +72,7 @@ const FittingArea: React.FC<FittingAreaProps> = ({
   // 試着商品リストを一定時間ごとに自動更新する
   useEffect(() => {
     loadFittingItems();
-    const intervalId = setInterval(loadFittingItems, 3000); // 5秒ごとにリストを更新
+    const intervalId = setInterval(loadFittingItems, 5000); // 5秒ごとにリストを更新
     // コンポーネントがアンマウントされた時にインターバルをクリア
     return () => {
       clearInterval(intervalId);
@@ -81,7 +82,6 @@ const FittingArea: React.FC<FittingAreaProps> = ({
   useEffect(() => {
     loadFittingItems();
   }, []);
-
   const toggleFavorite = () => setIsFavorite((prev) => !prev);
   const toggleFittingArea = () => setIsOpen(!isOpen);
   // 試着エリアを開いたときにローディングを開始
@@ -258,34 +258,37 @@ const FittingArea: React.FC<FittingAreaProps> = ({
             {fittingItems.length > 0 ? (
               <div className="items-scrollbar max-h-[200px] overflow-y-auto">
                 <ul className="space-y-0">
-                    {fittingItems.map((item) => (
-                        <li key={item.id} className="flex items-center justify-between border-t brder-b">
-                            <div className="flex items-center space-x-1">
-                            {item.imageUrl && (
-                              <Image
-                                src={item.imageUrl}
-                                alt={item.productName}
-                                width={80} // 高さと幅を指定
-                                height={106} // アスペクト比が3/4に近い場合
-                                className="m-1 aspect-[3/4]"
-                                style={{ objectFit: 'cover' }}
-                              />
-                            )}
-                              <div className='flex flex-col'>
-                                <span className="text-[12px]">{item.productName}</span>
-                                <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <button
-                                  className="text-black-500 hover:text-black-700"
-                                  onClick={() => removeFittingItem(item.id)}
-                              >
-                                <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
-                              </button>
-                            </div>
-                        </li>
-                    ))}
+                {fittingItems.map((item) => {
+                  console.log("商品全体", item); // item全体を表示
+                  return (
+                    <li key={item.id} className="flex items-center justify-between border-t brder-b">
+                      <div className="flex items-center space-x-1">
+                        {item.imageUrl && (
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.productName}
+                            width={80}
+                            height={106}
+                            className="m-1 aspect-[3/4]"
+                            style={{ objectFit: 'cover' }}
+                          />
+                        )}
+                        <div className='flex flex-col'>
+                          <span className="text-[12px]">{item.productName}</span>
+                          <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <button
+                          className="text-black-500 hover:text-black-700"
+                          onClick={() => removeFittingItem(item.id)}
+                        >
+                          <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
                 </ul>
               </div>
             ) : (

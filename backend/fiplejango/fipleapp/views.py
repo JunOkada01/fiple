@@ -43,8 +43,19 @@ def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
 
 class APIProductListView(APIView):
+    serializer_class = ProductListSerializer
     def get(self, request):
-        products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
+        # サブクエリで同じ product_origin 内で最小のサイズIDを取得
+        subquery = Product.objects.filter(
+            product_origin=OuterRef('product_origin')
+        ).order_by('size_id').values('size_id')[:1]
+        products = Product.objects.select_related(
+            'product_origin', 'product_origin__category', 'color', 'size'
+        ).prefetch_related(
+            'productimage_set'
+        ).filter(
+            size=Subquery(subquery)
+        )
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
     
@@ -62,6 +73,7 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+        
 class ProductByCategoryView(APIView):
     def get(self, request, category_name):
         try:

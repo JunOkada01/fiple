@@ -26,13 +26,22 @@ interface Product {
     image: string;
     image_description: string;
   }[];
+  sizes: {
+    id: number;
+    size_name: string;
+    order: number;
+  }[];
+  colors: {
+    id: number;
+    color_name: string;
+  }[];
 }
 
 interface ProductListProps {
   products: Product[];
 }
 
-interface FittingItem {
+export interface FittingItem {
   id: number;
   product_id: number;
   productName: string;
@@ -41,6 +50,7 @@ interface FittingItem {
   price: number;
   imageUrl?: string;
 }
+
 
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/products/');
@@ -64,10 +74,6 @@ export default function ProductList({ products }: ProductListProps) {
 
   const handleAddToCart = () => {
     console.log('商品をカートに追加');
-  };
-
-  const handleAddToFavorites = () => {
-    console.log('商品をお気に入りに追加');
   };
 
   // カテゴリごとに商品をグループ化
@@ -132,7 +138,6 @@ export default function ProductList({ products }: ProductListProps) {
           fittingItems={fittingItems}
           onRemoveItem={removeItemFromFitting}
           onAddToCart={handleAddToCart}
-          onAddToFavorites={handleAddToFavorites}
         />
       </div>
     </div>

@@ -37,6 +37,15 @@ interface ProductDetailType {
         image: string;
         image_description: string;
     }[];
+    size: {
+        id: number;
+        size_name: string;
+        order: number;
+    }[];
+    color: {
+        id: number;
+        color_name: string;
+    }[];
     variants: ProductVariantType[];
 }
 
@@ -45,7 +54,7 @@ interface CategoryPageProps {
     categoryName: string;
 }
 
-interface FittingItem {
+export interface FittingItem {
     id: number;
     product_id: number;
     productName: string;
@@ -94,9 +103,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
         console.log('商品をカートに追加');
     };
 
-    const handleAddToFavorites = () => {
-        console.log('商品をお気に入りに追加');
-    };
 
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
@@ -142,12 +148,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
             </div>
             {/* 右側: FittingArea コンポーネント */}
             <FittingArea
-            height={height}
-            weight={weight}
-            fittingItems={fittingItems}
-            onRemoveItem={removeItemFromFitting}
-            onAddToCart={handleAddToCart}
-            onAddToFavorites={handleAddToFavorites}
+                height={height}
+                weight={weight}
+                fittingItems={fittingItems}
+                onRemoveItem={removeItemFromFitting}
+                onAddToCart={handleAddToCart}
             />
         </div>
     );

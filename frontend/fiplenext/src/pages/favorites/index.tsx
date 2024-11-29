@@ -24,6 +24,11 @@ interface FavoriteItem {
             image: string;
             image_description: string;
         }[];
+        size: {
+            id: number;
+            size_name: string;
+            order: number;
+        }[];
     };
 }
 
@@ -75,6 +80,7 @@ const FavoriteList: React.FC = () => {
                                     subcategoryName={favorite.product.product_origin.subcategory.subcategory_name}
                                     price={favorite.product.price}
                                     imageUrl={favorite.product.images[0]?.image}
+                                    size={favorite.product.size}
                                 />
                             </div>
                         ))}

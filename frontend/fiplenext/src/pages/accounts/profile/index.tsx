@@ -70,8 +70,16 @@ const Profile: React.FC = () => {
         fetchUserData();
     }, []);
     if (error) {
-        return <div>{error}</div>;
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative w-96">
+                    <p className="font-bold">エラー</p>
+                    <p>{error}</p>
+                </div>
+            </div>
+        );
     }
+    
 
     // birthの年、月、日を分割
     const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];

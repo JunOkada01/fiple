@@ -6,7 +6,7 @@ import Link from 'next/link';
 const registeredAddress = {
     prefecture: "福岡県",
     city: "福岡市博多区",
-    street: "乳首高原"
+    street: "博多駅中央街 1-1"
 };
 
 type Address = {

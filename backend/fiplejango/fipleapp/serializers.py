@@ -54,6 +54,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image', 'image_description']
 
+# 商品の詳細情報のシリアライズ
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
     size = SizeSerializer()
@@ -65,7 +66,6 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             'id', 'color', 'size', 'stock', 'price', 
             'status', 'images'
         ]
-
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     subcategory = SubCategorySerializer()
@@ -91,17 +91,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         variants = Product.objects.filter(product_origin=obj)
         return ProductVariantSerializer(variants, many=True).data
 
+# 商品リスト向けに簡略化された情報のシリアライズ
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
     subcategory = SubCategorySerializer(source='product_origin.subcategory')
     images = ProductImageSerializer(source='productimage_set', many=True)
     product_name = serializers.CharField(source='product_origin.product_name')
     product_origin_id = serializers.IntegerField(source='product_origin.id')
-
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id',]
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
 
+# 商品の基本的な情報のシリアライズ
 class ProductOriginSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     subcategory = SubCategorySerializer()
@@ -109,7 +110,7 @@ class ProductOriginSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductOrigin
         fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
-
+# 商品の基本情報を含む商品全体の情報のシリアライズ
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
     color = ColorSerializer()

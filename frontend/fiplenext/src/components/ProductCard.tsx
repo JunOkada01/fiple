@@ -4,6 +4,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
+import { color } from 'framer-motion';
 
 interface ProductCardProps {
     id: number;
@@ -15,7 +16,41 @@ interface ProductCardProps {
     imageUrl: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl }) => {
+/* セッションストレージに保存したい試着中商品のデータ
+export interface FittingItem {
+    id: number;
+    product_name: string;
+    category: {
+        id: number;
+        category_name: string;
+    };
+    subcategory: {
+        id: number;
+        subcategory_name: string;
+    };
+    variants: Array<{
+        id: number;
+        color: {
+            id: number;
+            color_name: string;
+        };
+        size: {
+            id: number;
+            size_name: string;
+            order: number;
+        };
+        price: number;
+        status: string;
+        images: Array<{
+            id: number;
+            image: string;
+            image_description: string | null;
+        }>;
+    }>;
+}
+*/
+
+const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl}) => {
     /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
@@ -23,13 +58,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
     const [favoriteId, setFavoriteId] = useState<number | null>(null);
     /* 通知 */
     const [notification, setNotification] = useState<string | null>(null);
-
-    // 試着中の商品リストをセッションストレージから取得・保存
+    const [selectedColor, setSelectedColor] = useState<number | null>(null); // 選択中のカラーID
+    const [selectedSize, setSelectedSize] = useState<number | null>(null);   // 選択中のサイズID
+    // 試着中の商品リストをセッションに保存
     const updateSessionFittingItems = (items: any[]) => {
         sessionStorage.setItem("fittingItems", JSON.stringify(items));
     };
+    // 試着中の商品リストをセッションから取得
     const getSessionFittingItems = (): any[] => {
         const items = sessionStorage.getItem("fittingItems");
+        console.log('ローカルストレージ', items)
         return items ? JSON.parse(items) : [];
     };
     // 試着ボタンを切り替え
@@ -190,28 +228,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                 <p className="text-gray-900 text-base sm:text-lg mt-1">¥{price.toLocaleString()}</p>
 
                 <div className="flex justify-end mt-2 space-x-10 sm:space-x-16 lg:space-x-20">
-                <div 
-                    onClick={toggleTryingOn} 
-                    className={`cursor-pointer transition-all duration-150 transform ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'} 
-                        hover:scale-105 active:scale-125`}
-                >
-                    <FontAwesomeIcon 
-                        icon={faShirt} 
-                        className="text-md transition-all duration-150" 
-                    />
-                </div>
+                    <div 
+                        onClick={toggleTryingOn} 
+                        className={`cursor-pointer transition-all duration-150 transform ${isTryingOn ? 'text-black' : 'text-gray-300 hover:text-gray-200'} 
+                            hover:scale-105 active:scale-125`}
+                    >
+                        <FontAwesomeIcon 
+                            icon={faShirt} 
+                            className="text-md transition-all duration-150" 
+                        />
+                    </div>
 
-                <div 
-                    onClick={(e) => {e.preventDefault(); toggleFavorite();}}
-                    className={`cursor-pointer transition-all duration-150 transform ${isFavorite ? 'text-red-500' : 'text-red-300 hover:text-red-200'}
-                        hover:scale-105 active:scale-125`}
-                >
-                    <FontAwesomeIcon 
-                        icon={faHeart} 
-                        className="text-md transition-all duration-150" 
-                    />
-                </div>
-
+                    <div 
+                        onClick={(e) => {e.preventDefault(); toggleFavorite();}}
+                        className={`cursor-pointer transition-all duration-150 transform ${isFavorite ? 'text-red-500' : 'text-red-300 hover:text-red-200'}
+                            hover:scale-105 active:scale-125`}
+                    >
+                        <FontAwesomeIcon 
+                            icon={faHeart} 
+                            className="text-md transition-all duration-150" 
+                        />
+                    </div>
                 </div>
             </div>
         </div>

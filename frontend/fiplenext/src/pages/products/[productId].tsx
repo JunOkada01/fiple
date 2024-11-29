@@ -79,6 +79,7 @@ const ProductDetail: React.FC = () => {
     if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
     if (!product) return null;
     
+    /* 選択したカラーによる切り替え */
     const groupedVariants = product.variants.reduce((acc, variant) => {
         const colorName = variant.color.color_name;
         if (!acc[colorName]) {
