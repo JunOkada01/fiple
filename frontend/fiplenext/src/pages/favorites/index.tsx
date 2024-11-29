@@ -3,6 +3,7 @@ import axios from 'axios';
 import ProductCard from '../../components/ProductCard'; // ProductCardをインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import Router from 'next/router';
 
 interface FavoriteItem {
   id: number;
@@ -34,7 +35,15 @@ const FavoriteList: React.FC = () => {
     const fetchFavorites = async () => {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        alert('ログインが必要です。');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        Router.push({
+          pathname: '/accounts/login',
+          query: { 
+            error: 'authentication', 
+            message: 'セッションが期限切れです。再度ログインしてください。' 
+          }
+        });
         return;
       }
 

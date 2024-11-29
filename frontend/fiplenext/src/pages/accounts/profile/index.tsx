@@ -1,26 +1,26 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faCreditCard, faClockRotateLeft, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Profile: React.FC = () => {
     const router = useRouter();
+    const token = localStorage.getItem('access_token');
 
-    // トークンの有効性をチェックし、未認証の場合ログインページにリダイレクト
-    useEffect(() => {
-        const accessToken = localStorage.getItem('access_token');
-        if (!accessToken) {
-            router.push('/accounts/login');
-        } else {
-            axios.post('http://localhost:8000/api/token/verify/', {
-                token: localStorage.getItem('access_token')
-            }).catch(() => {
-                router.push('/accounts/login');
-            });
+    if (!token) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        Router.push({
+        pathname: '/accounts/login',
+        query: { 
+            error: 'authentication', 
+            message: 'セッションが期限切れです。再度ログインしてください。' 
         }
-    }, [router]);
+        });
+        return;
+    }
 
     // ログアウト関数
     const logout = async () => {

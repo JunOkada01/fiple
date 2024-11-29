@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect  } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,7 +10,29 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        // クエリパラメータからエラーメッセージを取得
+        const { error, message } = router.query;
+    
+        if (error === 'authentication' && message) {
+          setErrorMessage(message as string);
+          
+          // オプション: 一定時間後にエラーメッセージを消去
+          const timer = setTimeout(() => {
+            setErrorMessage(null);
+            // クエリパラメータをクリア
+            router.replace('/accounts/login', undefined, { shallow: true });
+          }, 5000); // 5秒後にメッセージを消去
+    
+          // クリーンアップ
+          return () => clearTimeout(timer);
+        }
+      }, [router.query]);
+    
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,6 +55,14 @@ const Login = () => {
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
+            
+            {/* エラーメッセージ表示 */}
+            {errorMessage && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{errorMessage}</span>
+            </div>
+            )}
+
             {/* タイトル部分 */}
             <h1 className="text-4xl font-bold mt-[100px] mb-5">LOGIN</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" /> {/* 区切り線の幅をさらに広く */}
