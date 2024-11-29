@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface Order {
   id: number;
@@ -29,6 +30,7 @@ interface ApiResponse {
 }
 
 const OrderHistoryPage: React.FC = () => {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +72,10 @@ const OrderHistoryPage: React.FC = () => {
     return <div className="text-red-500 p-4">{error}</div>;
   }
 
+  const handleWriteReview = (productId: number) => {
+    router.push(`/products/review/writereview/${productId}`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">注文履歴</h1>
@@ -99,21 +105,31 @@ const OrderHistoryPage: React.FC = () => {
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between items-center py-2 border-b">
                   <div className="flex items-center">
-                  <Link href={`products/${item.product.product_origin.id}`}>
-                    <img 
-                      src={`http://localhost:8000${item.product_image}`}
-                      alt={item.product.product_origin.product_name} 
-                      className="w-16 h-16 object-cover mr-4 rounded"
-                    />
+                    <Link href={`products/${item.product.product_origin.id}`}>
+                      <img 
+                        src={`http://localhost:8000${item.product_image}`}
+                        alt={item.product.product_origin.product_name} 
+                        className="w-16 h-16 object-cover mr-4 rounded"
+                      />
                     </Link>
                     <div>
                       <Link href={`products/${item.product.product_origin.id}`}>
-                      <p className="font-medium text-blue-600 hover:underline">{item.product.product_origin.product_name}</p>
+                        <p className="font-medium text-blue-600 hover:underline">
+                          {item.product.product_origin.product_name}
+                        </p>
                       </Link>
                       <p className="text-gray-600">数量: {item.quantity}</p>
                     </div>
                   </div>
-                  <p className="font-medium">¥{item.unit_price.toLocaleString()}</p>
+                  <div className="flex flex-col items-end">
+                    <p className="font-medium mb-2">¥{item.unit_price.toLocaleString()}</p>
+                    <button
+                      onClick={() => handleWriteReview(item.product.id)}
+                      className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    >
+                      レビューを書く
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -125,4 +141,3 @@ const OrderHistoryPage: React.FC = () => {
 };
 
 export default OrderHistoryPage;
-
