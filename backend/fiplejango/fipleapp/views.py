@@ -1,79 +1,39 @@
 # Python Standard Library
-from datetime import timezone
+from datetime import timezone, datetime, timedelta
 import json
+import jwt
 
-# Djangoインポート
-from django.core.mail import EmailMessage
+# Django imports
+from django.core.mail import EmailMessage, send_mail
 from django.contrib import messages
-from django.contrib.auth import (
-    authenticate,
-    login,
-    logout,
-)
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.db.models import (
-    Avg,
-    Count,
-    Prefetch,
-)
-from django.http import (
-    HttpResponse,
-    JsonResponse,
-)
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-    redirect,
-)
+from django.db.models import Avg, Count, Prefetch, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import (
-    TemplateView,
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.conf import settings
 
-# DRFインポート
+# DRF imports
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import *
-from .serializers import *
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import *
-from .serializers import ProductListSerializer
-from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from django.utils.decorators import method_decorator
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.db.models import Prefetch
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from django.db import transaction
-from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from rest_framework_simplejwt.authentication import JWTAuthentication
+# App-specific imports
+from .models import *
+from .forms import *
+from .serializers import *
+
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
@@ -83,6 +43,21 @@ class APIProductListView(APIView):
         products = Product.objects.select_related('product_origin', 'product_origin__category', 'color', 'size').prefetch_related('productimage_set').all()
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+# class APIProductListView(APIView):
+#     def get(self, request):
+#         gender = request.query_params.get('gender')  # クエリパラメータを取得
+#         products = Product.objects.select_related(
+#             'product_origin', 'product_origin__category', 
+#             'color', 'size'
+#         ).prefetch_related('productimage_set').all()
+
+#         # genderでフィルタリング
+#         if gender:
+#             products = products.filter(product_origin__gender=gender)
+
+#         serializer = ProductListSerializer(products, many=True)
+#         print(products.query)
+#         return Response(serializer.data)
     
 class APIProductDetailView(generics.RetrieveAPIView):
     serializer_class = ProductDetailSerializer
@@ -801,17 +776,6 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
-    
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
-
 
 class PasswordResetRequestView(APIView):
     def post(self, request):
@@ -962,10 +926,6 @@ def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
 # views.py
-from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
-
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -975,9 +935,6 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 #問い合わせ一覧表示
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -988,8 +945,6 @@ def contact_detail(request, contact_id):
     return render(request, 'contact/contact_detail.html', {'contact': contact})
 
 # backend/app/views.py
-from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1191,15 +1146,6 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
 
 User = get_user_model()
 
@@ -1427,10 +1373,6 @@ def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
 # views.py
-from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
-
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -1440,10 +1382,6 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 #問い合わせ一覧表示
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
-
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
     return render(request, 'contact/contact_list.html', {'contacts': contacts})
@@ -1453,8 +1391,6 @@ def contact_detail(request, contact_id):
     return render(request, 'contact/contact_detail.html', {'contact': contact})
 
 # backend/app/views.py
-from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1469,11 +1405,6 @@ def add_contact_category(request):
     
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
 
 @csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
 def submit_contact_form(request):
@@ -1510,11 +1441,6 @@ def submit_contact_form(request):
 
 
 # 検索機能
-from rest_framework import generics
-from rest_framework.response import Response
-from django.db.models import Q
-from .models import Product, ProductOrigin,ProductTag
-from .serializers import ProductSerializer
 
 class ProductSearchView(generics.ListAPIView):
     serializer_class = ProductSerializer

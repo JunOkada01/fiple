@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactSlider from 'react-slider'; // react-slider をインポート
+import ReactSlider from 'react-slider';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
@@ -30,6 +30,7 @@ interface Product {
   category: Category;
   subcategory: SubCategory;
   price: number;
+  gender: string;
   images: Array<{ image: string }>;
   product_tags?: Array<{ tag: Tag }>;
 }
@@ -70,6 +71,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   const [weight, setWeight] = useState<number>(70);
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGender, setSelectedGender] = useState<string>('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
@@ -85,21 +87,31 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     console.log('商品をお気に入りに追加');
   };
 
-  // 検索フィルタリング機能を更新
+  // 検索とフィルタリング機能を更新
   useEffect(() => {
-    const query = searchQuery.toLowerCase().trim();
+  
 
+    const query = searchQuery.toLowerCase().trim();
+  
     const filtered = initialProducts.filter(product => {
       const isWithinPriceRange =
         product.price >= priceRange[0] && product.price <= priceRange[1];
-
+  
       const hasMatchingTag = product.product_tags?.some(productTag =>
         productTag.tag.tag_name.toLowerCase().includes(query)
       );
 
+      // 性別フィルタリング
+      const matchesGender = 
+        selectedGender === '' || 
+        (product.gender || '') === selectedGender;
+        console.log('プロダクトオリジンの方:', product.product_origin?.gender);
+        console.log('プロダクトの方:', product.gender);
       return (
         // 価格で検索
         isWithinPriceRange &&
+        // 性別フィルター
+        matchesGender &&
         (
           // 商品名で検索
           product.product_name.toLowerCase().includes(query) ||
@@ -114,7 +126,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     });
 
     setFilteredProducts(filtered);
-  }, [searchQuery, priceRange, initialProducts]);
+  }, [searchQuery, priceRange, selectedGender, initialProducts]);
 
   // カテゴリごとに商品をグループ化
   const categoriesMap: { [key: string]: Product[] } = {};
@@ -131,13 +143,18 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     });
   }
 
+
   return (
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* Navigation コンポーネント */}
       <Navigation onSearch={setSearchQuery} />
       
       {/* 性別カテゴリメニュー */}
-      <AllMensLeadiesKidsFilter />
+      <AllMensLeadiesKidsFilter 
+        selectedGender={selectedGender}
+        onGenderChange={setSelectedGender}
+      />
+      
       
       {/* 身長と体重入力フォーム */}
       <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">

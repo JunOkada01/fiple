@@ -110,6 +110,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Product
 #         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(source='product_origin.category')
     subcategory = SubCategorySerializer(source='product_origin.subcategory')
@@ -117,11 +119,12 @@ class ProductListSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product_origin.product_name')
     product_origin_id = serializers.IntegerField(source='product_origin.id')
     product_tags = serializers.SerializerMethodField()  # 追加
+    gender = serializers.CharField(source='product_origin.gender')  # 追加
 
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 
-                 'images', 'product_origin_id', 'product_tags']  # product_tags追加
+                 'images', 'product_origin_id', 'product_tags','gender']  # product_tags追加
     
     def get_product_tags(self, obj):
         # product_originに関連付けられたタグを取得
