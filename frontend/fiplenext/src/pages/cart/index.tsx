@@ -51,10 +51,6 @@ const Cart: React.FC = () => {
                     Authorization: `Bearer ${token || localStorage.getItem('access_token')}`
                 }
             });
-
-            console.log(response.data)
-            console.log(Array.isArray(response.data.results)); 
-            
             setCartItems(response.data);
             setError(null);
         } catch (error) {
@@ -151,28 +147,6 @@ const Cart: React.FC = () => {
                     <div className="sticky top-0 bg-white border-b p-4 z-10">  
                         <h2 className="text-lg text-center">カートに入っている商品</h2>  
                     </div>
-<<<<<<< HEAD
-                ) : (
-                    <>
-                        <div className="cartItems mb-8">
-                            <h2 className="text-2xl font-semibold mb-4">カートに入っている商品</h2>
-                            {cartItems.map((item) => (
-                                <div key={item.id} className="cartItem flex items-center justify-between border-b border-gray-300 py-4">
-                                    <Link href={`/products/${item.product.product_origin.id}`}>
-                                    <img 
-                                        alt={item.product.product_origin.product_name}
-                                        src={`${item.product.images[0]?.image}`}
-                                        className="itemImage w-24 h-24 object-cover mr-4"
-                                    />
-                                    </Link>
-                                    <div className="itemDetails flex-1">
-                                        <Link href={`/products/${item.product.product_origin.id}`}><p className="font-medium text-blue-600 hover:underline">
-                                            {item.product.product_origin.product_name}
-                                        </p></Link>
-                                        <p className="text-gray-500">
-                                            カテゴリー: {item.product.product_origin.category.category_name} / 
-                                            {item.product.product_origin.subcategory.subcategory_name}
-=======
                     {cartItems.length === 0 ? (  
                         <div className="text-center py-8">  
                             <p className="text-xl mb-4">カートに商品がありません</p>  
@@ -190,7 +164,7 @@ const Cart: React.FC = () => {
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
-                                            src={`${item.product.images[0]?.image}`}
+                                            src={`http://localhost:8000/${item.product.images[0]?.image}`}
                                             className="itemImage w-auto h-[150px] object-cover"   
                                         />
                                     </Link>
@@ -207,7 +181,6 @@ const Cart: React.FC = () => {
                                         <p className="text-gray-500 text-sm">  
                                             カテゴリー: {item.product.product_origin.category.category_name} /   
                                             {item.product.product_origin.subcategory.subcategory_name}  
->>>>>>> origin/fiple11/22
                                         </p>
                                         {/* カラー */}
                                         <p className="text-gray-500 text-sm">  
