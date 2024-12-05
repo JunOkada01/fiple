@@ -17,10 +17,9 @@ body {
 }
 
 /* レイアウトコンテナ */  
-.container {  
-  max-width: 1200px;  
+.container {
   margin: 0 auto;  
-  padding: 0 1rem; /* サイドのパディングを追加 */
+  padding: 0 auto; /* サイドのパディングを追加 */
 }
 
 /* ナビゲーション */

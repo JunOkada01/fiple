@@ -24,15 +24,17 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'category_name']
-
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = ['id', 'subcategory_name']
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'category_name', 'subcategories']
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:

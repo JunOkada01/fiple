@@ -109,6 +109,12 @@ class ProductByCategoryView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+class APICategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.prefetch_related('subcategories').all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
 # アカウント関連-----------------------------------------------------------------------------------------
 
 def user_list(request):
@@ -226,13 +232,22 @@ def admin_logout(request):
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
 
+class BaseSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/top.html'
+
 # カテゴリ関連-----------------------------------------------------------------------------------------
+class CategoryTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/category/top.html'
 
 class CategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Category
-    template_name = 'category_list.html'
+    template_name = 'base_settings/category/category_list.html'
     context_object_name = 'categories'
     paginate_by = 20
 
@@ -241,7 +256,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Category
     form_class = CategoryForm
-    template_name = 'category_form.html'
+    template_name = 'base_settings/category/category_form.html'
     success_url = reverse_lazy('fipleapp:category_list')
 
     def form_valid(self, form):
@@ -253,7 +268,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Category
     form_class = CategoryForm
-    template_name = 'category_form.html'
+    template_name = 'base_settings/category/category_form.html'
     success_url = reverse_lazy('fipleapp:category_list')
     
     def get_queryset(self):
@@ -263,7 +278,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Category
-    template_name = 'category_confirm_delete.html'
+    template_name = 'base_settings/category/category_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:category_list')
 
     def get_queryset(self):
@@ -275,7 +290,7 @@ class SubCategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = SubCategory
-    template_name = 'subcategory_list.html'
+    template_name = 'base_settings/category/subcategory_list.html'
     context_object_name = 'subcategories'
     paginate_by = 20
     
@@ -284,7 +299,7 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = SubCategory
     form_class = SubCategoryForm
-    template_name = 'subcategory_form.html'
+    template_name = 'base_settings/category/subcategory_form.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
 
     def form_valid(self, form):
@@ -296,7 +311,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = SubCategory
     form_class = SubCategoryForm
-    template_name = 'subcategory_form.html'
+    template_name = 'base_settings/category/subcategory_form.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
     
     def get_queryset(self):
@@ -306,7 +321,7 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = SubCategory
-    template_name = 'subcategory_confirm_delete.html'
+    template_name = 'base_settings/category/subcategory_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
 
     def get_queryset(self):
@@ -314,11 +329,16 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     
 # 色関連-----------------------------------------------------------------------------------------
 
+class ColorTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/color/top.html'
+
 class ColorListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Color
-    template_name = 'color_list.html'
+    template_name = 'base_settings/color/color_list.html'
     context_object_name = 'colors'
     paginate_by = 20
     
@@ -327,7 +347,7 @@ class ColorCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Color
     form_class = ColorForm
-    template_name = 'color_form.html'
+    template_name = 'base_settings/color/color_form.html'
     success_url = reverse_lazy('fipleapp:color_list')
 
     def form_valid(self, form):
@@ -339,7 +359,7 @@ class ColorUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Color
     form_class = ColorForm
-    template_name = 'color_form.html'
+    template_name = 'base_settings/color/color_form.html'
     success_url = reverse_lazy('fipleapp:color_list')
     
     def get_queryset(self):
@@ -349,7 +369,7 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Color
-    template_name = 'color_confirm_delete.html'
+    template_name = 'base_settings/color/color_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:color_list')
 
     def get_queryset(self):
@@ -357,11 +377,16 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
     
 # サイズ関連-----------------------------------------------------------------------------------------
 
+class SizeTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/size/top.html'
+
 class SizeListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Size
-    template_name = 'size_list.html'
+    template_name = 'base_settings/size/size_list.html'
     context_object_name = 'sizes'
     paginate_by = 20
     
@@ -370,7 +395,7 @@ class SizeCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Size
     form_class = SizeForm
-    template_name = 'size_form.html'
+    template_name = 'base_settings/size/size_form.html'
     success_url = reverse_lazy('fipleapp:size_list')
 
     def form_valid(self, form):
@@ -382,7 +407,7 @@ class SizeUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Size
     form_class = SizeForm
-    template_name = 'size_form.html'
+    template_name = 'base_settings/size/size_form.html'
     success_url = reverse_lazy('fipleapp:size_list')
     
     def get_queryset(self):
@@ -392,19 +417,74 @@ class SizeDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Size
-    template_name = 'size_confirm_delete.html'
+    template_name = 'base_settings/size/size_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:size_list')
 
     def get_queryset(self):
         return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
     
+# タグ関連------------------------------------------------------------------------------------------------------
+
+class TagTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/tag/top.html'
+
+class TagListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    template_name = 'base_settings/tag/tag_list.html'
+    context_object_name = 'tags'
+    paginate_by = 20
+    
+class TagCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    form_class = TagForm
+    template_name = 'base_settings/tag/tag_form.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+
+class TagUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    form_class = TagForm
+    template_name = 'base_settings/tag/tag_form.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+    
+    def get_queryset(self):
+        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+class TagDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    template_name = 'base_settings/tag/tag_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+
+    def get_queryset(self):
+        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+# 商品管理----------------------------------------------------------------------------------------
+
+class ProductManagementView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'product_management/top.html'
+
 # 商品元関連----------------------------------------------------------------------------------------
 
 class ProductOriginListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
-    template_name = 'product_origin_list.html'
+    template_name = 'product_management/product_origin_list.html'
     context_object_name = 'products_origin'
     paginate_by = 10
     
@@ -413,7 +493,7 @@ class ProductOriginCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
     form_class = ProductOriginForm
-    template_name = 'product_origin_form.html'
+    template_name = 'product_management/product_origin_form.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
 
     def form_valid(self, form):
@@ -425,7 +505,7 @@ class ProductOriginUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
     form_class = ProductOriginForm
-    template_name = 'product_origin_form.html'
+    template_name = 'product_management/product_origin_form.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
     
     def get_queryset(self):
@@ -435,7 +515,7 @@ class ProductOriginDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
-    template_name = 'product_origin_confirm_delete.html'
+    template_name = 'product_management/product_origin_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
 
     def get_queryset(self):
@@ -452,7 +532,7 @@ class ProductListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Product
-    template_name = 'product_list.html'
+    template_name = 'product_management/product_list.html'
     context_object_name = 'products'
     paginate_by = 10
     
@@ -461,7 +541,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Product
     form_class = ProductForm
-    template_name = 'product_form.html'
+    template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
 
     def form_valid(self, form):
@@ -473,7 +553,7 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Product
     form_class = ProductForm
-    template_name = 'product_form.html'
+    template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
     
     def get_queryset(self):
@@ -483,54 +563,11 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Product
-    template_name = 'product_confirm_delete.html'
+    template_name = 'product_management/product_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_list')
 
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
-# タグ関連------------------------------------------------------------------------------------------------------
-
-class TagListView(LoginRequiredMixin, ListView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    template_name = 'tag_list.html'
-    context_object_name = 'tags'
-    paginate_by = 20
-    
-class TagCreateView(LoginRequiredMixin, CreateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    form_class = TagForm
-    template_name = 'tag_form.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-
-    def form_valid(self, form):
-        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
-        return super().form_valid(form)
-
-class TagUpdateView(LoginRequiredMixin, UpdateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    form_class = TagForm
-    template_name = 'tag_form.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-    
-    def get_queryset(self):
-        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
-class TagDeleteView(LoginRequiredMixin, DeleteView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    template_name = 'tag_confirm_delete.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-
-    def get_queryset(self):
-        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
 # 商品タグ関連------------------------------------------------------------------------------------------------------------------------
 
@@ -538,7 +575,7 @@ class ProductTagListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductTag
-    template_name = 'product_tag_list.html'
+    template_name = 'product_management/product_tag_list.html'
     context_object_name = 'product_tags'
     paginate_by = 20
     
@@ -547,7 +584,7 @@ class ProductTagCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductTag
     form_class = ProductTagForm
-    template_name = 'product_tag_form.html'
+    template_name = 'product_management/product_tag_form.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
 
     def form_valid(self, form):
@@ -559,7 +596,7 @@ class ProductTagUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductTag
     form_class = ProductTagForm
-    template_name = 'product_tag_form.html'
+    template_name = 'product_management/product_tag_form.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
     
     def get_queryset(self):
@@ -569,7 +606,7 @@ class ProductTagDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductTag
-    template_name = 'product_tag_confirm_delete.html'
+    template_name = 'product_management/product_tag_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
 
     def get_queryset(self):
@@ -581,7 +618,7 @@ class ProductImageListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductImage
-    template_name = 'product_image_list.html'
+    template_name = 'product_management/product_image_list.html'
     context_object_name = 'product_images'
     paginate_by = 20
     
@@ -590,7 +627,7 @@ class ProductImageCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductImage
     form_class = ProductImageForm
-    template_name = 'product_image_form.html'
+    template_name = 'product_management/product_image_form.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
 
     def form_valid(self, form):
@@ -602,7 +639,7 @@ class ProductImageUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductImage
     form_class = ProductImageForm
-    template_name = 'product_image_form.html'
+    template_name = 'product_management/product_image_form.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
     
     def get_queryset(self):
@@ -612,7 +649,7 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductImage
-    template_name = 'product_image_confirm_delete.html'
+    template_name = 'product_management/product_image_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
 
     def get_queryset(self):

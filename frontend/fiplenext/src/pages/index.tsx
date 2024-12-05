@@ -3,6 +3,7 @@ import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter
 import React, { useEffect, useState } from 'react';  
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
+import SideMenu from '@styles/components/SideMenu';
 import dynamic from 'next/dynamic';
 import FittingArea from '../components/VrFitting';
 import styles from '../styles/Home.module.css'
@@ -37,8 +38,16 @@ interface Product {
   }[];
 }
 
+// カテゴリの型を定義
+interface Category {
+  id: number;
+  category_name: string;
+  subcategories: { id: number; subcategory_name: string }[];  // サブカテゴリも含める場合
+}
+
 interface ProductListProps {
   products: Product[];
+  categories: Category[];
 }
 
 export interface FittingItem {
@@ -55,15 +64,18 @@ export interface FittingItem {
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/products/');
   const products = await res.json();
+  const resCategories = await fetch('http://127.0.0.1:8000/api/categories/'); // カテゴリデータを取得
+  const categories = await resCategories.json(); // 取得したカテゴリデータ
 
   return {
     props: {
+      categories,
       products,
     },
   };
 }
 
-export default function ProductList({ products }: ProductListProps) {
+export default function ProductList({ products, categories }: ProductListProps) {
   const [height] = useState<number>(180);
   const [weight] = useState<number>(70);
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
@@ -87,11 +99,16 @@ export default function ProductList({ products }: ProductListProps) {
     categoriesMap[categoryName].push(product);
   });
   
+  /*
+      サイドバー
+      <div className="">
+        <SideMenu categories={categories} />
+      </div>
+  */
   return (  
-    <div className="container mx-auto max-w-screen-xl px-4">  
+    <div className="container mx-auto max-w-screen-xl px-4">
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
-  
       {/* その他のコンテンツ */}
       <div className="flex justify-center items-center flex-col">  
         {Object.keys(categoriesMap).map(categoryName => (
