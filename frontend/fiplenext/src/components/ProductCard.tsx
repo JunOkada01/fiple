@@ -90,6 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                 subcategoryName,
                 imageUrl,
             };
+            
             // 同じカテゴリの商品が試着中か確認
             const existingIndex = currentItems.findIndex(item => item.categoryName === newItem.categoryName);
             if (isTryingOn) {

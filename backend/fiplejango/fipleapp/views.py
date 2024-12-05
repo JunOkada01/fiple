@@ -44,6 +44,7 @@ def data_view(request):
 
 class APIProductListView(APIView):
     serializer_class = ProductListSerializer
+    queryset = ProductOrigin.objects.all()
     def get(self, request):
         # サブクエリで同じ product_origin 内で最小のサイズIDを取得
         subquery = Product.objects.filter(
@@ -56,6 +57,17 @@ class APIProductListView(APIView):
         ).filter(
             size=Subquery(subquery)
         )
+        # 商品元で絞り込む
+        #products2 = Product.objects.select_related(
+        #    'product_origin', 'product_origin__category', 'color', 'size'
+        #).prefetch_related(
+        #    'productimage_set'
+        #).filter(
+            # product_origin = 5
+            #ここをサイズで絞るのではなくて商品元origin?で絞る
+        #    product_origin='product_origin_id'
+        #)
+        print("商品だよ" ,products)
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
     

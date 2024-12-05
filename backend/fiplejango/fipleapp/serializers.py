@@ -90,18 +90,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_variants(self, obj):
         variants = Product.objects.filter(product_origin=obj)
         return ProductVariantSerializer(variants, many=True).data
-
-# 商品リスト向けに簡略化された情報のシリアライズ
-class ProductListSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(source='product_origin.category')
-    subcategory = SubCategorySerializer(source='product_origin.subcategory')
-    images = ProductImageSerializer(source='productimage_set', many=True)
-    product_name = serializers.CharField(source='product_origin.product_name')
-    product_origin_id = serializers.IntegerField(source='product_origin.id')
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
-
+    
 # 商品の基本的な情報のシリアライズ
 class ProductOriginSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -110,6 +99,20 @@ class ProductOriginSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductOrigin
         fields = ['id', 'product_name', 'category', 'subcategory', 'gender', 'description']
+
+# 商品リスト向けに簡略化された情報のシリアライズ
+class ProductListSerializer(serializers.ModelSerializer):
+    product_origin = ProductOriginSerializer()  # 商品元の詳細情報を含める
+    
+    category = CategorySerializer(source='product_origin.category')
+    subcategory = SubCategorySerializer(source='product_origin.subcategory')
+    images = ProductImageSerializer(source='productimage_set', many=True)
+    product_name = serializers.CharField(source='product_origin.product_name')
+    product_origin_id = serializers.IntegerField(source='product_origin.id')
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id', 'product_origin']
+
 # 商品の基本情報を含む商品全体の情報のシリアライズ
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
