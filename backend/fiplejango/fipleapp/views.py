@@ -329,11 +329,6 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     
 # 色関連-----------------------------------------------------------------------------------------
 
-class ColorTopView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/color/top.html'
-
 class ColorListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -377,11 +372,6 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
     
 # サイズ関連-----------------------------------------------------------------------------------------
 
-class SizeTopView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/size/top.html'
-
 class SizeListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -424,11 +414,6 @@ class SizeDeleteView(LoginRequiredMixin, DeleteView):
         return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
     
 # タグ関連------------------------------------------------------------------------------------------------------
-
-class TagTopView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/tag/top.html'
 
 class TagListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'

@@ -23,7 +23,9 @@
                 </div>
                 <div class="admin-user-state">
                     <i class="fa-solid fa-user-tie" style="font-size: 25px;"></i>
+                    {% if request.user.is_authenticated %}
                     <span class="me-3">{{ user }} さん</span>
+                    {% endif %}
                 </div>
                 {% if request.user.is_authenticated %}
                 <div class="logout-link">
