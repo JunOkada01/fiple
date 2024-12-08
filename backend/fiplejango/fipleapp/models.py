@@ -78,12 +78,13 @@ class SubCategory(models.Model):
     
 class Color(models.Model):
     color_name = models.CharField(max_length=255, unique=True)  # 色名
+    color_code = models.CharField(max_length=7, default='#000000')  # 色コード
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
-        return self.color_name  # 色名を返す
+        return f"{self.color_name} ({self.color_code})"  # 色名を返す
 
     
 class Size(models.Model):

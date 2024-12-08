@@ -27,7 +27,7 @@ body {
 .dashboard-header .top-link a,
 .dashboard-header .logout-link a{
     text-decoration: none; /* 下線をなくす */
-    color: black; /* 文字色を黒にする */
+    color: rgb(53, 53, 53);
     font-size: 25px; /* 文字サイズを少し小さくする */
     padding-left: 20px;
     padding-right: 20px;
@@ -53,7 +53,7 @@ body {
 
 .admin-table .register-title,
 .admin-table .login-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: #333;
     margin-bottom: 20px;
 }
@@ -69,7 +69,7 @@ body {
     width: 100px; /* ラベルの固定幅 */
     text-align: left; /* テキストを右寄せ */
     margin-right: 2px; /* ラベルと入力フィールドの間隔 */
-    font-weight: bold; /* ラベルの強調 */
+    color: #606060;
 }
 
 .admin-table .register-form input[type="text"],
@@ -107,16 +107,16 @@ body {
     transform: scale(1.03); /* 少し拡大 */
 }
 
-.admin-table a {
+.admin-table .admin-link {
     display: inline-block; /* リンクをブロック状にする */
-    margin-top: 15px;
-    font-size: 0.9rem;
+    margin-top: 10px;
+    font-size: 1rem;
     color: #007bff;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.admin-table a:hover {
+.admin-table .admin-link:hover {
     color: #0056b3;
     text-decoration: underline;
 }
@@ -172,7 +172,7 @@ body {
 }
 
 .icon-tile:hover, .text-tile:hover {
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 

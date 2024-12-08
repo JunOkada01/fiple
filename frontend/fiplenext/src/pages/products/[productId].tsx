@@ -25,6 +25,7 @@ export interface ProductDetailType {
         color: {
             id: number;
             color_name: string;
+            color_code: string;
         };
         size: {
             id: number;
@@ -138,23 +139,30 @@ const ProductDetail: React.FC = () => {
                     </div>
 
                     {/* カラー選択ボタン（画像の下に移動） */}
-                    <div className="flex gap-2 mt-4">
-                        {Object.keys(groupedVariants).map(colorName => (
-                        <button
-                            key={colorName}
-                            className={`px-2 py-1 border rounded-lg ${selectedColor === colorName ? 'bg-white text-black' : 'bg-gray-300'}`}
-                            onClick={() => {
-                            setSelectedColor(colorName);
-                            const firstImage = groupedVariants[colorName][0]?.images[0];
-                            if (firstImage) {
-                                setSelectedImage(`http://127.0.0.1:8000/${firstImage.image}`);
-                            }
-                            }}
-                        >
-                            {colorName}
-                        </button>
-                        ))}
+                    <div className="grid grid-cols-8 gap-4 mt-4">
+                        {Object.keys(groupedVariants).map(colorName => {
+                            const colorCode = groupedVariants[colorName][0]?.color.color_code; // カラーコード取得
+                            return (
+                                <div key={colorName} className="text-center">
+                                    <button
+                                        className={`w-10 h-10 rounded-full border ${
+                                            selectedColor === colorName ? 'border-black' : 'border-gray-300'
+                                        } shadow-md transition-transform duration-300 hover:scale-105`}
+                                        style={{ backgroundColor: colorCode || '#ccc' }} // カラーコード適用
+                                        onClick={() => {
+                                            setSelectedColor(colorName);
+                                            const firstImage = groupedVariants[colorName][0]?.images[0];
+                                            if (firstImage) {
+                                                setSelectedImage(`http://127.0.0.1:8000/${firstImage.image}`);
+                                            }
+                                        }}
+                                    ></button>
+                                    <span className="block mt-1 text-xs text-gray-700">{colorName}</span> {/* カラー名表示 */}
+                                </div>
+                            );
+                        })}
                     </div>
+
 
                     {/* サムネイル画像一覧 */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-4">
@@ -169,12 +177,15 @@ const ProductDetail: React.FC = () => {
                                         } overflow-hidden`}
                                         onClick={() => setSelectedImage(imageUrl)}
                                     >
-                                        <img
-                                            className="w-full h-auto transition-transform duration-300 hover:scale-105"
-                                            style={{ objectFit: 'cover' }}
-                                            src={imageUrl}
-                                            alt={image.image_description || product.product_name}
-                                        />
+                                        {/* サイズ固定・アスペクト比維持 */}
+                                        <div className="w-full aspect-[3/4] bg-gray-200 overflow-hidden">
+                                            <img
+                                                className="w-full h-full transition-transform duration-300 hover:scale-105"
+                                                style={{ objectFit: 'cover' }}
+                                                src={imageUrl}
+                                                alt={image.image_description || product.product_name}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })

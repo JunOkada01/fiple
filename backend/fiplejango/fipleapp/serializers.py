@@ -39,7 +39,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
-        fields = ['id', 'color_name']
+        fields = ['id', 'color_name', 'color_code']
 
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
