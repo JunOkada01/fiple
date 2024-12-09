@@ -52,8 +52,14 @@ class ColorForm(forms.ModelForm):
             'color_name': 'カラー名',
             'color_code': 'カラーコード',
         }
+        widgets = {
+            'color_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
     color_code = forms.CharField(
-        widget=forms.widgets.Input(attrs={'type': 'color', 'class': 'form-control'}),
+        widget=forms.widgets.Input(attrs={
+            'type': 'color',
+            'class': 'form-control'
+            }),
         label='カラーコード',
     )
         
