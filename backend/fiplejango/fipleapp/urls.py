@@ -30,6 +30,8 @@ urlpatterns = [
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
+    path('base_settings/', BaseSettingView.as_view(), name='base_settings'),
+    path('categories/top/', CategoryTopView.as_view(), name='category_top'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
     path('categories/add/', CategoryCreateView.as_view(), name='category_add'),
     path('categories/edit/<int:pk>/', CategoryUpdateView.as_view(), name='category_edit'),
@@ -49,6 +51,7 @@ urlpatterns = [
     path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),
     path('product-origins/add/', ProductOriginCreateView.as_view(), name='product_origin_add'),
     path('get-subcategories/', get_subcategories, name='get_subcategories'),
+    path('product_management/', ProductManagementView.as_view(), name='product_management'),
     path('product-origins/edit/<int:pk>/', ProductOriginUpdateView.as_view(), name='product_origin_edit'),
     path('product-origins/delete/<int:pk>/', ProductOriginDeleteView.as_view(), name='product_origin_delete'),
     path('products/', ProductListView.as_view(), name='product_list'),
@@ -68,8 +71,11 @@ urlpatterns = [
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
     
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
+    path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
     path('api/cart/', CartListView.as_view(), name='cart-list'),
     path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
@@ -102,12 +108,14 @@ urlpatterns = [
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
     
-    path('api/user/', UserView.as_view({'get': 'list'}), name='user_view'),
-    
     # 配達先関連
     path('api/', include(router.urls)),
     
     # 注文関連
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
+    
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

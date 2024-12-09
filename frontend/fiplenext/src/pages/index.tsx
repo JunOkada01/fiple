@@ -1,14 +1,17 @@
-import { GetServerSideProps } from 'next';
-import styles from '../styles/Home.module.css';
-import dynamic from 'next/dynamic';
+import ProductCard from '@styles/components/ProductCard';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
-import React, { useState } from 'react';
-import ProductCard from '../components/ProductCard'; // ProductCardをインポート
+import React, { useEffect, useState } from 'react';  
+import Link from 'next/link';
+import { GetServerSideProps } from 'next';
+import SideMenu from '@styles/components/SideMenu';
+import dynamic from 'next/dynamic';
 import FittingArea from '../components/VrFitting';
+import styles from '../styles/Home.module.css'
 
 
 interface Product {
   id: number;
+  product_name: string;
   product_origin_id: number;
   category: {
     id: number;
@@ -17,114 +20,143 @@ interface Product {
   subcategory: {
     id: number;
     subcategory_name: string;
-  }
+  };
   price: number;
   images: {
     id: number;
     image: string;
     image_description: string;
   }[];
+  sizes: {
+    id: number;
+    size_name: string;
+    order: number;
+  }[];
+  colors: {
+    id: number;
+    color_name: string;
+  }[];
+}
+
+// カテゴリの型を定義
+interface Category {
+  id: number;
+  category_name: string;
+  subcategories: { id: number; subcategory_name: string }[];  // サブカテゴリも含める場合
 }
 
 interface ProductListProps {
   products: Product[];
+  categories: Category[];
 }
 
-interface FittingItem {
+export interface FittingItem {
   id: number;
-  name: string;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
   price: number;
   imageUrl?: string;
 }
 
 
-const MannequinModel = dynamic(() => import('../components/MannequinModel'), {
-    ssr: false
-})
-
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/products/');
   const products = await res.json();
+  const resCategories = await fetch('http://127.0.0.1:8000/api/categories/'); // カテゴリデータを取得
+  const categories = await resCategories.json(); // 取得したカテゴリデータ
 
   return {
     props: {
+      categories,
       products,
     },
   };
 }
 
-export default function ProductList({ products }: ProductListProps) {
-  const [height, setHeight] = useState<number>(180); // デフォルト身長
-  const [weight, setWeight] = useState<number>(70); // デフォルト体重
+export default function ProductList({ products, categories }: ProductListProps) {
+  const [height] = useState<number>(180);
+  const [weight] = useState<number>(70);
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
 
-  const removeItemFromFitting = (id: number) => {
-    setFittingItems(fittingItems.filter(item => item.id !== id));
+  const removeItemFromFitting = (product_id: number) => {
+    setFittingItems(fittingItems.filter(item => item.product_id !== product_id));
   };
 
   const handleAddToCart = () => {
     console.log('商品をカートに追加');
   };
 
-  const handleAddToFavorites = () => {
-    console.log('商品をお気に入りに追加');
-  };
-  return (
-    <div className="container mx-auto max-w-screen-xl px-4">
-      {/* 身長と体重入力フォーム */}
-      <div className="flex justify-center items-center my-8">
-        <label className="mr-4">身長 (cm):</label>
-        <input
-          type="number"
-          value={height}
-          onChange={(e) => setHeight(Number(e.target.value))}
-          className="border px-2 py-1"
-        />
-        <label className="mx-4">体重 (kg):</label>
-        <input
-          type="number"
-          value={weight}
-          onChange={(e) => setWeight(Number(e.target.value))}
-          className="border px-2 py-1"
-        />
-      </div>
-    <div className="container mx-auto max-w-screen-xl px-4 py-8">
-      {/* 性別カテゴリメニュー */}
-      <ul className="flex justify-center items-center my-12">
-        <li className="px-4 border-l border-r border-gray-300">ALL</li>
-        <li className="px-4 border-l border-r border-gray-300">MENS</li>
-        <li className="px-4 border-l border-r border-gray-300">LADIES</li>
-        <li className="px-4 border-l border-r border-gray-300">KIDS</li>
-      </ul>
+  // カテゴリごとに商品をグループ化
+  const categoriesMap: { [key: string]: Product[] } = {};
 
-      {/* 商品リスト */}
-      <div className="flex justify-center items-center flex-col">
-        <div className="flex flex-col space-y-6">
-          <p className="text-lg text-center">カテゴリ名</p>
-          <div className="flex overflow-x-auto max-w-[800px] gap-3 p-2 scrollbar-hide">
-            {products.map((product) => (
-              <ProductCard 
-                id={product.product_origin_id}
-                product_id={product.id}
-                productName=''
-                categoryName={product.category.category_name}
-                subcategoryName={product.subcategory.subcategory_name}
-                price={product.price}
-                imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
-              />
-            ))}
-          </div>
-        </div>
+  products.forEach(product => {
+    const categoryName = product.category.category_name;
+    if (!categoriesMap[categoryName]) {
+      categoriesMap[categoryName] = [];
+    }
+    categoriesMap[categoryName].push(product);
+  });
+  
+  /*
+      サイドバー
+      <div className="">
+        <SideMenu categories={categories} />
       </div>
-      <FittingArea
+  */
+  return (  
+    <div className="container mx-auto max-w-screen-xl px-4">
+      {/* 性別カテゴリメニュー */}
+      <AllMensLeadiesKidsFilter />
+      {/* その他のコンテンツ */}
+      <div className="flex justify-center items-center flex-col">  
+        {Object.keys(categoriesMap).map(categoryName => (
+          <div key={categoryName} className="flex flex-col space-y-6 mt-5">  
+            <p className="text-xl text-center">{categoryName}</p>  
+            
+            {/* 商品カードのスクロールリスト（レスポンシブ対応） */}
+            <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">
+              <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
+                {categoriesMap[categoryName].slice(0, 20).map(product => (
+                  <ProductCard 
+                    key={product.id}
+                    id={product.product_origin_id}
+                    product_id={product.id}
+                    productName={product.product_name}
+                    categoryName={product.category.category_name}
+                    subcategoryName={product.subcategory.subcategory_name}
+                    price={product.price}
+                    imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                  />
+                ))}
+              </div>
+            </div>
+  
+            {/* カテゴリごとの「もっと見る」リンク */}
+            <div className="text-center m-4">
+              <Link
+                href={`/products/category/${encodeURIComponent(categoryName)}`}>
+                <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
+                  <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
+                  <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
+                    VIEW MORE
+                  </span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        ))}
+        
+        {/* 右側: FittingArea コンポーネント */}
+        <FittingArea
           height={height}
           weight={weight}
           fittingItems={fittingItems}
           onRemoveItem={removeItemFromFitting}
           onAddToCart={handleAddToCart}
-          onAddToFavorites={handleAddToFavorites}
         />
-    </div>
+      </div>
     </div>
   );
-}
+};

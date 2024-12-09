@@ -1,42 +1,57 @@
-from datetime import timezone
-import uuid
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.urls import reverse_lazy
-from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta, timezone
 import json
+import time
+import uuid
+import jwt
 import requests
-from rest_framework import generics
-from .models import *
-from .serializers import *
-from rest_framework import status, viewsets, permissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404, render, redirect
+
+from django.conf import settings
 from django.contrib import messages
-from .forms import *
-from django.views.generic import TemplateView
+from django.contrib.auth import (
+    authenticate, get_user_model, login, logout
+)
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.db.models import Prefetch
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from django.core.mail import EmailMessage, send_mail
+from django.core.paginator import Paginator
 from django.db import transaction
-from rest_framework.permissions import AllowAny
+from django.db.models import (
+    OuterRef, Subquery, Q, Prefetch, 
+    F, Sum, Count, Max, Min, Avg
+)
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import (
+    TemplateView, ListView, CreateView, 
+    UpdateView, DeleteView, DetailView
+)
+
+from rest_framework import (
+    generics, status, viewsets, permissions
+)
+from rest_framework.decorators import (
+    api_view, action, permission_classes
+)
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
-import time
-from django.db.models import OuterRef, Subquery, Q
-from django.core.paginator import Paginator
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated
+)
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import *
+from .serializers import *
+from .forms import *
+
+# ユーザーモデルの取得
+User = get_user_model()
+
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
@@ -64,6 +79,35 @@ class APIProductListView(APIView):
         )
 
         serializer = ProductListSerializer(products, many=True)
+        return Response(serializer.data)
+    
+class ProductByCategoryView(APIView):
+    def get(self, request, category_name):
+        try:
+            # カテゴリ名でフィルタリング
+            category = Category.objects.get(category_name=category_name)
+            products = Product.objects.filter(product_origin__category=category)
+
+            # 商品が見つからない場合の処理
+            if not products.exists():
+                return Response(
+                    {"message": "このカテゴリには商品がありません"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
+            # シリアライザーを使用してデータを変換
+            serializer = ProductListSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "カテゴリが見つかりません"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+class APICategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.prefetch_related('subcategories').all()
+        serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
     
 class APIProductDetailView(generics.RetrieveAPIView):
@@ -451,14 +495,31 @@ class LoginView(generics.GenericAPIView):
             
             # JWTトークンを生成
             refresh = RefreshToken.for_user(user)
-            
+            access_token = str(refresh.access_token)
+            # ユーザー情報をシリアライズ
+            serializer = UserSerializer(user)
+            # レスポンスにトークンとユーザー情報を含めて返す
             return Response({
-                "message": "Login successful!",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-            }, status=status.HTTP_200_OK)
-            
-        return Response({"error": "メールアドレスかパスワードが間違っています"}, status=400)
+                "message": "Login successful",
+                "user": serializer.data,
+                "access": access_token,
+                "refresh": str(refresh)
+            })
+        return Response({"error": "メールアドレスかパスワードが間違っています。"}, status=400)
+    
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]  # 認証されたユーザーのみアクセス可能
+    authentication_classes = [JWTAuthentication]  # JWT認証を使用
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        # 認証されたユーザーを取得
+        user = request.user
+        print(user)
+        # シリアライザを使用してユーザー情報をシリアライズ
+        serializer = UserSerializer(user)
+        # シリアライズしたデータを返す
+        return Response(serializer.data)
         
 class LogoutView(APIView):
     def post(self, request):
@@ -523,14 +584,23 @@ def admin_logout(request):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
+    
+class BaseSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/top.html'
 
 # カテゴリ関連-----------------------------------------------------------------------------------------
+class CategoryTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/category/top.html'
 
 class CategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Category
-    template_name = 'category_list.html'
+    template_name = 'base_settings/category/category_list.html'
     context_object_name = 'categories'
     paginate_by = 20
 
@@ -539,7 +609,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Category
     form_class = CategoryForm
-    template_name = 'category_form.html'
+    template_name = 'base_settings/category/category_form.html'
     success_url = reverse_lazy('fipleapp:category_list')
 
     def form_valid(self, form):
@@ -551,7 +621,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Category
     form_class = CategoryForm
-    template_name = 'category_form.html'
+    template_name = 'base_settings/category/category_form.html'
     success_url = reverse_lazy('fipleapp:category_list')
     
     def get_queryset(self):
@@ -561,7 +631,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Category
-    template_name = 'category_confirm_delete.html'
+    template_name = 'base_settings/category/category_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:category_list')
 
     def get_queryset(self):
@@ -573,7 +643,7 @@ class SubCategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = SubCategory
-    template_name = 'subcategory_list.html'
+    template_name = 'base_settings/category/subcategory_list.html'
     context_object_name = 'subcategories'
     paginate_by = 20
     
@@ -582,7 +652,7 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = SubCategory
     form_class = SubCategoryForm
-    template_name = 'subcategory_form.html'
+    template_name = 'base_settings/category/subcategory_form.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
 
     def form_valid(self, form):
@@ -594,7 +664,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = SubCategory
     form_class = SubCategoryForm
-    template_name = 'subcategory_form.html'
+    template_name = 'base_settings/category/subcategory_form.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
     
     def get_queryset(self):
@@ -604,7 +674,7 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = SubCategory
-    template_name = 'subcategory_confirm_delete.html'
+    template_name = 'base_settings/category/subcategory_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:subcategory_list')
 
     def get_queryset(self):
@@ -616,7 +686,7 @@ class ColorListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Color
-    template_name = 'color_list.html'
+    template_name = 'base_settings/color/color_list.html'
     context_object_name = 'colors'
     paginate_by = 20
     
@@ -625,7 +695,7 @@ class ColorCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Color
     form_class = ColorForm
-    template_name = 'color_form.html'
+    template_name = 'base_settings/color/color_form.html'
     success_url = reverse_lazy('fipleapp:color_list')
 
     def form_valid(self, form):
@@ -637,7 +707,7 @@ class ColorUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Color
     form_class = ColorForm
-    template_name = 'color_form.html'
+    template_name = 'base_settings/color/color_form.html'
     success_url = reverse_lazy('fipleapp:color_list')
     
     def get_queryset(self):
@@ -647,7 +717,7 @@ class ColorDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Color
-    template_name = 'color_confirm_delete.html'
+    template_name = 'base_settings/color/color_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:color_list')
 
     def get_queryset(self):
@@ -659,7 +729,7 @@ class SizeListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Size
-    template_name = 'size_list.html'
+    template_name = 'base_settings/size/size_list.html'
     context_object_name = 'sizes'
     paginate_by = 20
     
@@ -668,7 +738,7 @@ class SizeCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Size
     form_class = SizeForm
-    template_name = 'size_form.html'
+    template_name = 'base_settings/size/size_form.html'
     success_url = reverse_lazy('fipleapp:size_list')
 
     def form_valid(self, form):
@@ -680,7 +750,7 @@ class SizeUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Size
     form_class = SizeForm
-    template_name = 'size_form.html'
+    template_name = 'base_settings/size/size_form.html'
     success_url = reverse_lazy('fipleapp:size_list')
     
     def get_queryset(self):
@@ -690,19 +760,24 @@ class SizeDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Size
-    template_name = 'size_confirm_delete.html'
+    template_name = 'base_settings/size/size_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:size_list')
 
     def get_queryset(self):
         return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
     
 # 商品元関連----------------------------------------------------------------------------------------
+class ProductManagementView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'product_management/top.html'
+
 
 class ProductOriginListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
-    template_name = 'product_origin_list.html'
+    template_name = 'product_management/product_origin_list.html'
     context_object_name = 'products_origin'
     paginate_by = 10
     
@@ -711,7 +786,7 @@ class ProductOriginCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
     form_class = ProductOriginForm
-    template_name = 'product_origin_form.html'
+    template_name = 'product_management/product_origin_form.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
 
     def form_valid(self, form):
@@ -723,7 +798,7 @@ class ProductOriginUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
     form_class = ProductOriginForm
-    template_name = 'product_origin_form.html'
+    template_name = 'product_management/product_origin_form.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
     
     def get_queryset(self):
@@ -733,7 +808,7 @@ class ProductOriginDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductOrigin
-    template_name = 'product_origin_confirm_delete.html'
+    template_name = 'product_management/product_origin_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_origin_list')
 
     def get_queryset(self):
@@ -750,7 +825,7 @@ class ProductListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Product
-    template_name = 'product_list.html'
+    template_name = 'product_management/product_list.html'
     context_object_name = 'products'
     paginate_by = 10
     
@@ -759,7 +834,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Product
     form_class = ProductForm
-    template_name = 'product_form.html'
+    template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
     
     def form_valid(self, form):
@@ -781,7 +856,7 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Product
     form_class = ProductForm
-    template_name = 'product_form.html'
+    template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
     
     def get_queryset(self):
@@ -804,7 +879,7 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Product
-    template_name = 'product_confirm_delete.html'
+    template_name = 'product_management/product_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_list')
 
     def get_queryset(self):
@@ -816,7 +891,7 @@ class TagListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Tag
-    template_name = 'tag_list.html'
+    template_name = 'base_settings/tag/tag_list.html'
     context_object_name = 'tags'
     paginate_by = 20
     
@@ -825,7 +900,7 @@ class TagCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Tag
     form_class = TagForm
-    template_name = 'tag_form.html'
+    template_name = 'base_settings/tag/tag_form.html'
     success_url = reverse_lazy('fipleapp:tag_list')
 
     def form_valid(self, form):
@@ -837,7 +912,7 @@ class TagUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Tag
     form_class = TagForm
-    template_name = 'tag_form.html'
+    template_name = 'base_settings/tag/tag_form.html'
     success_url = reverse_lazy('fipleapp:tag_list')
     
     def get_queryset(self):
@@ -847,7 +922,7 @@ class TagDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Tag
-    template_name = 'tag_confirm_delete.html'
+    template_name = 'base_settings/tag/tag_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:tag_list')
 
     def get_queryset(self):
@@ -859,7 +934,7 @@ class ProductTagListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductTag
-    template_name = 'product_tag_list.html'
+    template_name = 'product_management/product_tag_list.html'
     context_object_name = 'product_tags'
     paginate_by = 20
     
@@ -868,7 +943,7 @@ class ProductTagCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductTag
     form_class = ProductTagForm
-    template_name = 'product_tag_form.html'
+    template_name = 'product_management/product_tag_form.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
 
     def form_valid(self, form):
@@ -880,7 +955,7 @@ class ProductTagUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductTag
     form_class = ProductTagForm
-    template_name = 'product_tag_form.html'
+    template_name = 'product_management/product_tag_form.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
     
     def get_queryset(self):
@@ -890,7 +965,7 @@ class ProductTagDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductTag
-    template_name = 'product_tag_confirm_delete.html'
+    template_name = 'product_management/product_tag_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_tag_list')
 
     def get_queryset(self):
@@ -902,7 +977,7 @@ class ProductImageListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductImage
-    template_name = 'product_image_list.html'
+    template_name = 'product_management/product_image_list.html'
     context_object_name = 'product_images'
     paginate_by = 20
     
@@ -911,7 +986,7 @@ class ProductImageCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = ProductImage
     form_class = ProductImageForm
-    template_name = 'product_image_form.html'
+    template_name = 'product_management/product_image_form.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
 
     def form_valid(self, form):
@@ -923,7 +998,7 @@ class ProductImageUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = ProductImage
     form_class = ProductImageForm
-    template_name = 'product_image_form.html'
+    template_name = 'product_management/product_image_form.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
     
     def get_queryset(self):
@@ -933,23 +1008,54 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = ProductImage
-    template_name = 'product_image_confirm_delete.html'
+    template_name = 'product_management/product_image_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:product_image_list')
 
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
-    
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
 
-User = get_user_model()
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
+    authentication_classes = [JWTAuthentication]  # JWT認証
+
+    def post(self, request):
+        # リクエストデータを取得
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # バリデーション: 全てのフィールドが入力されているか確認
+        if not current_password or not new_password or not confirm_password:
+            return Response(
+                {"error": "全てのフィールドを入力してください。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # バリデーション: 新しいパスワードと確認用パスワードが一致しているか確認
+        if new_password != confirm_password:
+            return Response(
+                {"error": "新しいパスワードが一致しません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 現在のパスワードが正しいか確認
+        user = request.user
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "現在のパスワードが正しくありません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 新しいパスワードを設定
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "パスワードが正常に変更されました。"},
+            status=status.HTTP_200_OK
+        )
+
 
 class PasswordResetRequestView(APIView):
     def post(self, request):
@@ -971,17 +1077,52 @@ class PasswordResetRequestView(APIView):
             # リセットリンクの作成
             reset_link = f'http://localhost:3000/accounts/password/reset/{token}'
 
-            # メール送信
-            send_mail(
-                '【サイト名】パスワードリセット',
-                f'以下のリンクからパスワードをリセットしてください：\n\n{reset_link}\n\nこのリンクは24時間有効です。',
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            # ユーザー名取得（ディフォルト空）
+            user_name = user.get_full_name() or "お客様"
 
+            # HTMLメール内容
+            html_content = f'''
+                <html>
+                    <body style=" margin: 0; padding: 0;">
+                        <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px;">
+                            <div style="text-align: center; padding: 20px;">
+                                <h1 style="font-size: 1rem;">パスワードリセットのご案内</h1>
+                                <hr>
+                            </div>
+                            <div style="text-align: center; padding: 20px;">
+                                <p>{user_name} 様</p>
+                                <p>いつも【サイト名】をご利用いただきありがとうございます!</p>
+                                <p>パスワードリセットのリクエストを承りました。以下のリンクをクリックして、パスワードを再設定してください。</p>
+                                <button style="">
+                                    <p><a href="{reset_link}">▶ パスワードの再設定はこちら</a></p>
+                                </button>
+                                <p>※このリンクは、発行から24時間のみ有効です。<br>
+                                    ※もし本メールに心当たりがない場合は、お手数ですが本メールを破棄してください。</p>
+                            </div>
+                            <div style="text-align: center; padding: 20px;">
+                                <p>━━━━━━━━━━━━━━━<br>
+                                【サイト名】サポートチーム<br>
+                                URL: <a href="https://www.example.com" style="color: #007bff; text-decoration: none;">https://www.example.com</a><br>
+                                メール: support@example.com<br>
+                                ━━━━━━━━━━━━━━━</p>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            '''
+
+            # メール送信
+            email_message = EmailMessage(
+                subject='【サイト名】パスワードリセットのご案内',
+                body=html_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+            email_message.content_subtype = "html"  # HTML形式で送信
+            email_message.send(fail_silently=False)
         # セキュリティのため、ユーザーが存在しない場合でも同じレスポンスを返す
         return Response({'message': 'パスワードリセット手順をメールで送信しました。'})
+    
 
 class PasswordResetConfirmView(APIView):
     def post(self, request):
@@ -1099,11 +1240,6 @@ def edit_faq(request, faq_id):
 def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
-# views.py
-from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
-
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -1111,11 +1247,6 @@ class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
-
-#問い合わせ一覧表示
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -1125,9 +1256,6 @@ def contact_detail(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
     return render(request, 'contact/contact_detail.html', {'contact': contact})
 
-# backend/app/views.py
-from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1143,10 +1271,6 @@ def add_contact_category(request):
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')
 
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
 
 @csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
 def submit_contact_form(request):

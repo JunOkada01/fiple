@@ -76,7 +76,7 @@ const Register = () => {
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
-            <h1 className="text-4xl font-bold mt-[100px] mb-5">SIGNUP</h1>
+            <h1 className="text-4xl mt-[50px] mb-5">SIGNUP</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" />
         
             <div className="flex flex-col items-center w-full max-w-lg">

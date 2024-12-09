@@ -25,25 +25,28 @@ class UserSerializer(serializers.ModelSerializer):
         
         return user
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'category_name']
 
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = ['id', 'subcategory_name']
+        
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'category_name', 'subcategories']
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
-        fields = ['id', 'color_name']
+        fields = ['id', 'color_name', 'color_code']
 
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
-        fields = ['id', 'size_name']
+        fields = ['id', 'size_name', 'order']
         
 class ProductOriginSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -101,6 +104,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return ProductVariantSerializer(variants, many=True).data
 
 class ProductListSerializer(serializers.ModelSerializer):
+    product_origin = ProductOriginSerializer()
     category = CategorySerializer(source='product_origin.category')
     subcategory = SubCategorySerializer(source='product_origin.subcategory')
     images = ProductImageSerializer(source='productimage_set', many=True)
@@ -109,7 +113,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id']
+        fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id', 'product_origin']
         
 
 class ProductSerializer(serializers.ModelSerializer):

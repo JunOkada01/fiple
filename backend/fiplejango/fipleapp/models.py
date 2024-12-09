@@ -80,12 +80,13 @@ class SubCategory(models.Model):
     
 class Color(models.Model):
     color_name = models.CharField(max_length=255, unique=True)  # 色名
+    color_code = models.CharField(max_length=7, default='#000000')  # 色コード
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
-        return self.color_name  # 色名を返す
+        return f"{self.color_name} - ({self.color_code})"  # 色名を返す
 
     
 class Size(models.Model):
@@ -93,6 +94,14 @@ class Size(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
+    order = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        # orderが指定されていない場合、既存の最大値+1を設定
+        if self.order == 0:
+            max_order = Size.objects.aggregate(max_order=models.Max('order'))['max_order'] or 0
+            self.order = max_order + 1
+        super().save(*args, **kwargs)  # 親クラスのsaveを呼び出す
     
     def __str__(self):
         return self.size_name  # サイズ名を返す
@@ -248,32 +257,6 @@ class DeliveryAddress(models.Model):
         super().save(*args, **kwargs)
     
 
-# class Purchase(models.Model):
-#     SHIPPING_CHOICES = [
-#         ('配送エラー', '配送エラー'),
-#         ('配送中', '配送中'),
-#         ('配送済み', '配送済み'),
-#     ]
-    
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
-#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
-#     purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
-#     payment_method = models.CharField(max_length=255)
-#     delivery_address = models.CharField(max_length=255)  # 配送先
-#     shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
-
-#     def __str__(self):
-#         return f"{self.id} - {self.user.username}"
-
-# class PurchaseItem(models.Model):
-#     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)  # 購入ID
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
-#     quantity = models.PositiveIntegerField()  # 数量
-#     amount = models.DecimalField(max_digits=10, decimal_places=2)  # 金額
-
-#     def __str__(self):
-#         return f"{self.id} - {self.purchase.id}"
-
     """
     注文情報を管理するモデル
     """
@@ -319,3 +302,14 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
     
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    subject_id = models.CharField(max_length=254)
+    review_detail = models.CharField(max_length=255)
+    RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
+    rating = models.IntegerField(choices=RATING_CHOICES, default=5)
+    datetime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user} on {self.product}"

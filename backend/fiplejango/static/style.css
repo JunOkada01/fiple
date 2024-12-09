@@ -1,0 +1,195 @@
+/* 全体の基本設定 */
+body {
+    font-family: Arial, sans-serif; /* テキストフォントの統一 */
+    margin: 0; /* マージンのリセット */
+    padding: 0; /* パディングのリセット */
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+}
+
+.dashboard-header .admin-user-state {
+    display: flex;
+    align-items: center; /* アイコンと名前を垂直方向に中央揃え */
+    justify-content: center; /* 水平方向の中央揃え */
+}
+
+.dashboard-header .admin-user-state i {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.dashboard-header .top-link a,
+.dashboard-header .logout-link a{
+    text-decoration: none; /* 下線をなくす */
+    color: rgb(53, 53, 53);
+    font-size: 25px; /* 文字サイズを少し小さくする */
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: all 0.3s ease;
+}
+
+.dashboard-header .top-link a:hover,
+.dashboard-header .logout-link a:hover {
+    color: gray;
+}
+
+/* - - - - - - - - - - - - - */
+
+.admin-table {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto; /* 水平方向に中央寄せ */
+    text-align: center;
+}
+
+.admin-table .register-title,
+.admin-table .login-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.admin-table .register-form,
+.admin-table .login-form {
+    margin-bottom: 20px;
+}
+
+.admin-table .register-form label,
+.admin-table .login-form label {
+    display: inline-block; /* ラベルをインラインブロックに */
+    width: 100px; /* ラベルの固定幅 */
+    text-align: left; /* テキストを右寄せ */
+    margin-right: 2px; /* ラベルと入力フィールドの間隔 */
+    color: #606060;
+}
+
+.admin-table .register-form input[type="text"],
+.admin-table .register-form input[type="password"],
+.admin-table .register-form input[type="password"],
+.admin-table .login-form input[type="text"],
+.admin-table .login-form input[type="password"] {
+    width: calc(100% - 120px); /* ラベルの幅に応じて入力フィールドの幅を調整 */
+    display: inline-block; /* インラインブロックで横並び */
+    padding: 5px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.admin-table .register-button,
+.admin-table .login-button {
+    width: 100%; /* ボタンの幅を親要素に合わせる */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    background-size: 200% 200%; /* 背景サイズを広げる */
+    background-color: [object object];
+    background-image: linear-gradient(130deg, rgb(161, 224, 255) 10%, rgb(115, 201, 255) 32%, rgba(48, 177, 255, 1) 56%, rgb(73, 131, 255) 76%, rgba(56, 119, 255, 1) 92%);
+}
+
+.admin-table .register-button:hover,
+.admin-table .login-button:hover {
+    background-position: 100% 0%; /* 背景の位置変更で切り替えるアニメーション効果 */
+    transform: scale(1.03); /* 少し拡大 */
+}
+
+.admin-table .admin-link {
+    display: inline-block; /* リンクをブロック状にする */
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.admin-table .admin-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+
+/* - - - - - - - - - - - - - */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.step-links a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007bff;
+}
+.step-links .current {
+    margin: 0 5px;
+    font-weight: bold;
+}
+
+.box-title {
+    font-size: 20px;
+}
+
+.box-title-underbar {
+    margin: 2px;
+    height: 3px;
+}
+
+.icon-link {
+    text-decoration: none; /* 下線を無くす */
+}
+
+.icon-tile p {
+    color: #606060;
+}
+
+.icon-tile,
+.text-tile {
+    width: 200px; /* 幅 */
+    height: 200px; /* 高さ */
+    border: 1px solid #ddd;
+    text-align: center;
+    margin: 15px auto; /* 水平・垂直に中央寄せ */
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column; /* アイコンとテキストを縦並び */
+    justify-content: center; /* 垂直方向中央寄せ */
+    align-items: center; /* 水平方向中央寄せ */
+}
+
+.icon-tile:hover, .text-tile:hover {
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.icon-tile .icons {
+    font-size: 60px;
+    margin-bottom: 5px;
+}
+
+.icon-tile img {
+    width: 50px;
+    margin-bottom: 10px;
+}
+.text-tile {
+    padding: 30px 20px;
+    font-size: 1.2rem;
+}
+.text-tile .value {
+    font-size: 2rem;
+    font-weight: bold;
+}

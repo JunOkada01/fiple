@@ -1,16 +1,19 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>管理者ログイン</title>
-</head>
-<body>
-    <h1>管理者ログイン</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">ログイン</button>
-    </form>
-    <h3><a href="{% url 'fipleapp:admin_create' %}">管理者登録</h3>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}管理者ログイン{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-table">
+        <h1 class="login-title">管理者ログイン</h1>
+        <div class="login-form">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="login-button">ログイン</button>
+            </form>
+        </div>
+        <a href="{% url 'fipleapp:admin_create' %}" class="admin-link">管理者登録</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,57 +1,72 @@
-// src/components/Footer.js
 import Link from 'next/link';
-import styles from '../styles/Footer.module.css';
+import Image from 'next/image';
 
 const Footer = () => {
-  return (
-    <footer className={styles.footer}>
-      <div className={styles.container}>
-        {/* ロゴと紹介文 */}
-        <div className={styles.section}>
-          <b><h2>fiple</h2></b>
-          <p>シンプルで直感的な買い物体験を</p>
-        </div>
-        
-        {/* サイトリンクセクション */}
-        <div className={styles.section}>
-          <b><h3>クイックリンク</h3></b>
-          <ul>
-            <li><Link href="/">商品一覧</Link></li>
-            <li><Link href="#">会社概要</Link></li>
-            <li><Link href="/contact/contact">お問い合わせ</Link></li>
-            <li><Link href="#">よくある質問</Link></li>
-            <li><Link href="#">利用規約</Link></li>
-            <li><Link href="#">プライバシーポリシー</Link></li>
-          </ul>
-        </div>
+    const footerLinks = [
+        {
+            title: 'About',
+            items: [
+                { label: '会社概要', href: '/footer/company' },
+                { label: 'プライバシーポリシー', href: '/footer/privacypolicy' },
+                { label: '利用規約', href: '/footer/ToU' },
+            ]
+        },
+        {
+            title: 'Support',
+            items: [
+                { label: 'お問い合わせ', href: '/contact/' },
+                { label: 'よくある質問', href: '#' },
+                { label: '特定商取引法', href: '/footer/tokushoho' },
+            ]
+        },
+        {
+            title: 'Size Guide',
+            items: [
+                { label: 'MENS', href: '#' },
+                { label: 'LADIES', href: '#' },
+                { label: 'KIDS', href: '#' },
+            ]
+        },
+    ];
 
-        {/* カスタマーサービスセクション */}
-        <div className={styles.section}>
-          <b><h3>カスタマーサービス</h3></b>
-          <ul>
-            <li><Link href="/shipping">配送情報</Link></li>
-            <li><Link href="/returns">返品について</Link></li>
-            <li><Link href="/tracking">注文追跡</Link></li>
-          </ul>
-        </div>
+    return (
+        <footer className="w-full bg-white mt-20 border-t border-gray-200">
+            <div className="max-w-screen-xl mx-auto px-4 py-10">
+                {/* ロゴ */}
+                <div className="flex justify-center mb-10">
+                    <Link href="/" className="text-2xl font-light tracking-widest">
+                        <Image src="/fipleheader.png" alt="fipleheader" width="200" height="50" />
+                    </Link>
+                </div>
 
-        {/* ソーシャルメディア */}
-        <div className={styles.section}>
-        <b><h3>フォローする</h3></b>
-          <div className={styles.socialIcons}>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-          </div>
-        </div>
-      </div>
+                {/* リンクセクション */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                    {footerLinks.map((section, idx) => (
+                        <div key={idx} className="text-center">
+                            <h3 className="text-lg font-medium mb-4 tracking-wider text-gray-800">{section.title}</h3>
+                            <ul className="space-y-3">
+                                {section.items.map((item, itemIdx) => (
+                                    <li key={itemIdx}>
+                                        <Link
+                                            href={item.href}
+                                            className="text-sm text-gray-600 hover:text-black transition-colors"
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
 
-      {/* 著作権表示 */}
-      <div className={styles.copyright}>
-        <p>&copy; {new Date().getFullYear()} Fiple. All Rights Reserved.</p>
-      </div>
-    </footer>
-  );
+                {/* コピーライト */}
+                <div className="text-center text-xs text-gray-500 mt-6">
+                    <p>© 2024 FIPLE All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+    );
 };
 
 export default Footer;

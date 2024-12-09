@@ -7,179 +7,128 @@
     --background: #0a0a0a;  
     --foreground: #ededed;  
   }  
-}  
+}
 
+/* globals.css */
 body {  
   color: var(--foreground);  
   background: var(--background);  
-  font-family: Arial, Helvetica, sans-serif;  
-}  
+  font-family: 'Julius Sans One', sans-serif; /* デフォルトフォントを設定 */
+}
 
 /* レイアウトコンテナ */  
-.container {  
-  max-width: 1200px;  
+.container {
   margin: 0 auto;  
-}  
+  padding: 0 auto; /* サイドのパディングを追加 */
+}
 
-/* ナビゲーション */  
-.target-nav {  
+/* ナビゲーション */
+.nav-container {  
   display: flex;  
   justify-content: center;  
   align-items: center;  
-  margin: 50px 0;  
-}  
-.target-nav li {  
-  padding: 0 15px;  
-  border-left: 0.5px solid #333;  
-  border-right: 0.5px solid #333;  
-}  
-.target-nav li + li {  
-  border-left: 0;  
-}  
+  gap: 2rem; /* Tailwind CSSのgap */
+  padding: 1rem 0; /* 上下のパディング */
+  border-bottom: 1px solid #ccc; /* ボーダーの追加 */
+}
 
-/* 商品コンテナ */  
-.product-contaner {  
-  display: flex;  
-  justify-content: center;  
-  align-items: center;  
-  flex: 1;  
-  width: 100%;  
-}  
-.centered-container {  
-  display: flex;  
-  flex-direction: column;  
-  align-items: center;  
-}  
-
-.scrolllane {  
-  display: flex;  
-  overflow-x: auto;  
-  max-width: 800px;  
-  padding: 10px 0;  
-}  
+.nav-container input {
+  border: none;
+  border-bottom: 2px solid #333;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 250px; /* 最大幅の設定 */
+}
 
 /* 商品カード */  
-.productCard {  
-  width: 150px;  
-  height: 250px;  
-  padding: 10px;  
-  border: 0.2px solid #a6a6a6;  
-  flex: 0 0 auto;  
-}  
-.productImg {  
-  width: 200px;  
-  height: 250px;  
-}  
+.product-card {  
+  @apply bg-white rounded-sm border border-gray-300 p-2 w-full max-w-sm; /* Tailwindを使用 */
+}
+
+.product-card .image-container {  
+  position: relative;  
+  width: 100%;  
+  aspect-ratio: 3 / 4; /* アスペクト比の設定 */
+}
+
+.product-card img {  
+  width: 100%;  
+  height: auto;  
+  object-fit: cover;  
+}
+
+.product-card .details {  
+  @apply p-4;  
+}
+
+.product-card .details p {  
+  @apply text-gray-500 text-xs; /* カテゴリテキストのスタイル */
+}
+
+.product-card .price {  
+  @apply text-gray-900 text-lg mt-1; /* 価格のスタイル */
+}
+
+.product-card .buttons {  
+  @apply flex justify-end mt-2 space-x-4; /* ボタンエリア */
+}
 
 /* ページタイトル */  
 .page-title {  
   font-size: 24px;  
   text-align: center;  
   padding: 50px;  
-}  
+}
 
 /* カートと注文 */  
 .content {  
   display: flex;  
   justify-content: space-between;  
   width: 80%;  
-  margin-top: 0px;  
-}  
+  margin-top: 0;  
+}
+
 .cartItems,  
 .orderSummary,  
 .productList {  
   width: 60%;  
-  padding: 10px;  
-  border: 1px solid #000;  
+  padding: 0px;  
+  border: 1.5px solid #000;  
 }  
+
 .summary,  
 .paymentSummary {  
   width: 30%;  
-  padding: 10px;  
-  border: 1px solid #000;  
-  align-items: center;  
-}  
-
-/* 商品アイテム */  
-.productItem {  
-  display: flex;  
-  margin-top: 10px;  
-}  
-.itemImage {  
-  width: 100px;  
-  height: auto;  
-  margin-right: 10px;  
-}  
-.itemDetails {  
-  display: flex;  
-  flex-direction: column;  
-}  
-
-/* ボタン */  
-.quantityButton,  
-.removeButton,  
-.confirmButton,  
-.editButton {  
-  margin-top: 10px;  
-  padding: 5px 10px;  
-}  
-.editButton {  
-  background-color: #ddd;  
-  border: none;  
-  cursor: pointer;  
-}  
-.checkoutButton {  
-  background-color: black;  
-  color: #fff;  
-  padding: 5px 70px;  
-}  
-
-/* リンク */  
-.continueLink {  
-  display: block;  
-  text-align: center;  
-  margin-top: 10px;  
-}  
-
-/* 注文カード */  
-.orderCard {  
-  width: 60%;  
   padding: 20px;  
-  border: 1px solid #000;  
-  background-color: #ffffff;  
-}  
-
-/* 支払い概要 */  
-.paymentSummary {  
-  width: 30%;  
-  padding: 10px;  
-  border: 1px solid #000;  
-  background-color: #ffffff;  
-}  
+  border: 1.5px solid #000;  
+  align-items: center;  
+}
 
 /* お気に入りリスト */  
 .favorites-list {  
   display: grid;  
-  grid-template-columns: repeat(5, 1fr);  
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* 自動で幅を調整 */
   gap: 20px;  
   padding: 0 30px;  
   width: 100%;  
-}  
+}
 
 /* 注文確認画面 */  
 .confirmation-container {  
   width: 80%;  
   margin: 0 auto;  
   text-align: center;  
-}  
+}
+
 .comp-title {  
   font-size: 32px;  
   margin-top: 20px;  
-}  
+}
+
 .comp-subtitle {  
   font-size: 18px;  
   margin: 10px 0;  
-}  
+}
 
 /* 注文概要 */  
 .order-summary {  
@@ -187,110 +136,55 @@ body {
   padding: 20px;  
   border: 1px solid #000;  
   background-color: #ffffff;  
-}  
+}
+
 .summary-title {  
   text-align: left;  
   margin-bottom: 10px;  
-}  
-
-.order-table {  
-  width: 100%;  
-  border-collapse: collapse;  
-}  
-.order-table th,  
-.order-table td {  
-  border-bottom: 1px solid #ddd;  
-  padding: 10px;  
-  text-align: left;  
-}  
-
-.product-item {  
-  display: flex;  
-  align-items: center;  
-}  
-.product-image {  
-  width: 100px;  
-  margin-right: 10px;  
-}  
-.product-info p {  
-  margin: 0;  
-}  
-
-/* 注釈 */  
-.note {  
-  margin-top: 20px;  
-  font-size: 14px;  
-  color: #555;  
 }
 
-/* styles/globals.css または任意のCSSファイル */  
+/* スクロールバー非表示 */  
 .scrollbar-hide {  
   -ms-overflow-style: none;  /* Internet Explorer and Edge */  
   scrollbar-width: none;  /* Firefox */  
 }  
 .scrollbar-hide::-webkit-scrollbar {  
   display: none;  /* Safari and Chrome */  
-}  
-@layer base {
-  :root {  
-    --background: 0 0% 100%;  
-    --foreground: 0 0% 3.9%;  
-    --card: 0 0% 100%;  
-    --card-foreground: 0 0% 3.9%;  
-    --popover: 0 0% 100%;  
-    --popover-foreground: 0 0% 3.9%;  
-    --primary: 0 0% 9%;  
-    --primary-foreground: 0 0% 98%;  
-    --secondary: 0 0% 96.1%;  
-    --secondary-foreground: 0 0% 9%;  
-    --muted: 0 0% 96.1%;  
-    --muted-foreground: 0 0% 45.1%;  
-    --accent: 0 0% 96.1%;  
-    --accent-foreground: 0 0% 9%;  
-    --destructive: 0 84.2% 60.2%;  
-    --destructive-foreground: 0 0% 98%;  
-    --border: 0 0% 89.8%;  
-    --input: 0 0% 89.8%;  
-    --ring: 0 0% 3.9%;  
-    --chart-1: 12 76% 61%;  
-    --chart-2: 173 58% 39%;  
-    --chart-3: 197 37% 24%;  
-    --chart-4: 43 74% 66%;  
-    --chart-5: 27 87% 67%;  
-    --radius: 0.5rem;  
-  }
-  .dark {  
-    --background: 0 0% 3.9%;  
-    --foreground: 0 0% 98%;  
-    --card: 0 0% 3.9%;  
-    --card-foreground: 0 0% 98%;  
-    --popover: 0 0% 3.9%;  
-    --popover-foreground: 0 0% 98%;  
-    --primary: 0 0% 98%;  
-    --primary-foreground: 0 0% 9%;  
-    --secondary: 0 0% 14.9%;  
-    --secondary-foreground: 0 0% 98%;  
-    --muted: 0 0% 14.9%;  
-    --muted-foreground: 0 0% 63.9%;  
-    --accent: 0 0% 14.9%;  
-    --accent-foreground: 0 0% 98%;  
-    --destructive: 0 62.8% 30.6%;  
-    --destructive-foreground: 0 0% 98%;  
-    --border: 0 0% 14.9%;  
-    --input: 0 0% 14.9%;  
-    --ring: 0 0% 83.1%;  
-    --chart-1: 220 70% 50%;  
-    --chart-2: 160 60% 45%;  
-    --chart-3: 30 80% 55%;  
-    --chart-4: 280 65% 60%;  
-    --chart-5: 340 75% 55%;  
-  }  
-}  
-@layer base {
-  * {
-    @apply border-border;  
-  }
-  body {
-    @apply bg-background text-foreground;  
-  }  
+}
+
+/* ローディングアニメーション */
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(188, 188, 188, 0.8); /* 半透明の背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* - - - - 試着中商品リストスクロールバー - - - - */
+
+/* スクロールバー全体 */
+.items-scrollbar::-webkit-scrollbar {
+  width: 6px;  /* 横幅を狭く設定 */
+}
+
+/* スクロールバーのトラック部分（背景） */
+.items-scrollbar::-webkit-scrollbar-track {
+  background: transparent;  /* 背景を透明に設定 */
+}
+
+/* スクロールバーのつまみ部分 */
+.items-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c9c9c9;  /* つまみ部分の色 */
+  border-radius: 20px;  /* つまみの角を丸く */
+}
+
+/* スクロールバーのつまみ部分がホバーした時の色 */
+.items-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #555;  /* ホバー時の色 */
 }

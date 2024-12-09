@@ -1,4 +1,4 @@
-import { useState, useEffect  } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,29 +10,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const router = useRouter();
-
-    useEffect(() => {
-        // クエリパラメータからエラーメッセージを取得
-        const { error, message } = router.query;
-    
-        if (error === 'authentication' && message) {
-          setErrorMessage(message as string);
-          
-          // オプション: 一定時間後にエラーメッセージを消去
-          const timer = setTimeout(() => {
-            setErrorMessage(null);
-            // クエリパラメータをクリア
-            router.replace('/accounts/login', undefined, { shallow: true });
-          }, 5000); // 5秒後にメッセージを消去
-    
-          // クリーンアップ
-          return () => clearTimeout(timer);
-        }
-      }, [router.query]);
-    
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,46 +27,38 @@ const Login = () => {
             router.push('/'); // ホームページにリダイレクト
         } catch (error) {
             console.error(error);
-            alert('メールアドレスかパスワードが間違っています');
+            alert('Login failed. Please check your credentials.');
         }
     };
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-4">
-            
-            {/* エラーメッセージ表示 */}
-            {errorMessage && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <span className="block sm:inline">{errorMessage}</span>
-            </div>
-            )}
-
             {/* タイトル部分 */}
-            <h1 className="text-4xl font-bold mt-[100px] mb-5">LOGIN</h1>
+            <h1 className="text-4xl mt-[50px] mb-5">LOGIN</h1>
             <hr className="w-3/4 max-w-2xl border-t-2 border-black mb-5" /> {/* 区切り線の幅をさらに広く */}
 
-            <div className="flex w-full max-w-2xl justify-between items-stretch"> {/* 最大幅を調整 */}
+            <div className="flex w-full max-w-xl justify-between items-stretch"> {/* 最大幅を調整 */}
                 {/* ログインフォーム */}
                 <form className="w-1/2 flex flex-col space-y-8" onSubmit={handleSubmit}>
-                    <h2 className="text-[20px] font-semibold text-center mt-5 mb-5">
+                    <h2 className="text-[20px] text-center mt-5 mb-5">
                         会員登録されている方
                     </h2>
-                    <div className="flex items-center border-b-2 border-gray-400 mb-4">
+                    <div className="flex items-center border-b-2 border-gray-500 mb-4">
                         <label className="flex items-center text-sm">
-                            <FontAwesomeIcon icon={faEnvelope} className='mr-2 text-xl' />
+                            <FontAwesomeIcon icon={faEnvelope} className='mr-1 text-lg' />
                         </label>
                         <input
                             type="text"
-                            className="mt-1 w-full p-2 text-m focus:outline-none"
+                            className="mt-1 w-full p-2 text-sm focus:outline-none"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder='メールアドレスを入力してください'
                             required
                         />
                     </div>
-                    <div className="flex items-center border-b-2 border-gray-400 mb-4">
-                        <label className="flex items-center text-m">
-                            <FontAwesomeIcon icon={faKey} className='mr-2 text-xl' />
+                    <div className="flex items-center border-b-2 border-gray-500 mb-4">
+                        <label className="flex items-center text-sm">
+                            <FontAwesomeIcon icon={faKey} className='mr-1 text-lg' />
                         </label>
                         <input
                             type="password"
@@ -102,7 +72,7 @@ const Login = () => {
                     <button className="px-20 py-2 bg-black text-white hover:bg-gray-800">
                         ログイン
                     </button>
-                    <Link href="#" className="text-black underline text-center">
+                    <Link href="/accounts/password/forget" className="text-black underline text-center">
                         パスワードを忘れた？
                     </Link>
                 </form>
@@ -112,11 +82,11 @@ const Login = () => {
 
                 {/* 新規登録リンク */}
                 <div className="w-1/2 flex flex-col items-center space-y-6">
-                    <h2 className="text-[20px] font-semibold text-center mt-5 mb-5">
+                    <h2 className="text-[20px] text-center mt-5 mb-5">
                         会員登録されていない方
                     </h2>
                     <Link href="/accounts/signup">
-                        <button className="relative px-20 py-2 text-black font-semibold border-2 border-black hover:text-white hover:bg-black transition-all">
+                        <button className="relative px-20 py-2 text-black border-2 border-black hover:text-white hover:bg-black transition-all">
                             新規登録
                             {/* アウトラン風アウトライン */}
                             <span className="absolute inset-0 border-2 border-pink-500 -z-10 opacity-75 blur-md"></span>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import Router from 'next/router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 interface CartItem {
     id: number;
@@ -156,122 +158,151 @@ const Cart: React.FC = () => {
         );
     }
 
-    return (
-        <div className="container mx-auto max-w-screen-xl px-4">
-            <h1 className="text-3xl font-bold text-center my-8">SHOPPING CART</h1>
+    return (  
+        <div className="container mx-auto p-4">  
+            <h1 className="text-3xl text-center my-8">SHOPPING CART</h1>  
             
-            {error && (
-                <div className="text-center py-8 text-red-500">
-                    {error}
-                </div>
-            )}
-
-            <div className="content">
-                {cartItems.length === 0 ? (
-                    <div className="text-center py-8">
-                        <p className="text-xl mb-4">カートに商品がありません</p>
-                        <Link href="/">
-                            <span className="text-blue-500 underline cursor-pointer">
-                                商品一覧へ戻る
-                            </span>
-                        </Link>
+            {/* 商品がない場合 */}  
+            {error && (  
+                <div className="text-center py-8 text-red-500">  
+                    {error}  
+                </div>  
+            )}  
+    
+            <div className="flex flex-col md:flex-row">  
+                {/* 商品リスト */}  
+                <div className="cartItems md:mr-4 overflow-y-auto h-[450px] scrollbar-hide">  
+                    <div className="sticky top-0 bg-white border-b p-4 z-10">  
+                        <h2 className="text-lg text-center">カートに入っている商品</h2>  
                     </div>
-                ) : (
-                    <>
-                        <div className="cartItems mb-8">
-                            <h2 className="text-2xl font-semibold mb-4">カートに入っている商品</h2>
-                            {cartItems.map((item) => (
-                                <div key={item.id} className="cartItem flex items-center justify-between border-b border-gray-300 py-4">
+                    {cartItems.length === 0 ? (  
+                        <div className="text-center py-8">  
+                            <p className="text-xl mb-4">カートに商品がありません</p>  
+                            <Link href="/">  
+                                <span className="text-blue-500 underline cursor-pointer">  
+                                    商品一覧へ戻る  
+                                </span>  
+                            </Link>  
+                        </div>  
+                    ) : (  
+                        cartItems.map((item) => (
+                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4">
+                                <div className="w-full border-b border-gray-300 mx-4 flex items-center">
+                                    {/* 商品画像 */}
                                     <Link href={`/products/${item.product.product_origin.id}`}>
-                                    <img 
-                                        alt={item.product.product_origin.product_name}
-                                        src={`${item.product.images[0]?.image}`}
-                                        className="itemImage w-24 h-24 object-cover mr-4"
-                                    />
+                                        <img   
+                                            alt={item.product.product_origin.product_name}  
+                                            src={`${item.product.images[0]?.image}`}
+                                            className="itemImage w-auto h-[150px] object-cover"   
+                                        />
                                     </Link>
-                                    <div className="itemDetails flex-1">
-                                        <Link href={`/products/${item.product.product_origin.id}`}><p className="font-medium text-blue-600 hover:underline">
-                                            {item.product.product_origin.product_name}
-                                        </p></Link>
-                                        <p className="text-gray-500">
-                                            カテゴリー: {item.product.product_origin.category.category_name} / 
-                                            {item.product.product_origin.subcategory.subcategory_name}
+
+                                    {/* 商品詳細 */}
+                                    <div className="itemDetails flex-1 mx-4 space-y-1">
+                                        {/* 商品名 */}
+                                        <Link href={`/products/${item.product.product_origin.id}`}>
+                                            <p className="text-md font-semibold">  
+                                                {item.product.product_origin.product_name}  
+                                            </p>
+                                        </Link>
+                                        {/* カテゴリ */}
+                                        <p className="text-gray-500 text-sm">  
+                                            カテゴリー: {item.product.product_origin.category.category_name} /   
+                                            {item.product.product_origin.subcategory.subcategory_name}  
                                         </p>
-                                        <p className="text-gray-500">
-                                            色: {item.product.color.color_name}
+                                        {/* カラー */}
+                                        <p className="text-gray-500 text-sm">  
+                                            色: {item.product.color.color_name}  
                                         </p>
-                                        <p className="text-gray-500">
-                                            サイズ: {item.product.size.size_name}
+                                        {/* サイズ */}
+                                        <p className="text-gray-500 text-sm">  
+                                            サイズ: {item.product.size.size_name}  
                                         </p>
-                                        <p className="text-gray-500">
-                                            在庫: {item.product.stock}点
-                                        </p>
+                                        {/* 在庫 */}
+                                        <p className="text-gray-500 text-sm">  
+                                            在庫: {item.product.stock}点  
+                                        </p>  
                                     </div>
-                                    <div className="itemActions text-right">
-                                        <p className="text-xl font-bold">¥{item.product.price.toLocaleString()}</p>
-                                        <div className="flex items-center mt-2">
-                                            <div className="quantity-controls flex items-center border rounded p-1">
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                                    disabled={item.quantity <= 1}
-                                                    className="px-2 disabled:opacity-50"
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="mx-2">{item.quantity}</span>
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                                    disabled={item.quantity >= item.product.stock}
-                                                    className="px-2 disabled:opacity-50"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                            <button
-                                                onClick={() => handleRemoveItem(item.id)}
-                                                className="ml-4 text-red-500 hover:text-red-700"
-                                            >
-                                                削除
+
+                                    {/* 商品価格 */}
+                                    <p className="text-xl font-bold mx-4 text-right">¥{item.product.price.toLocaleString()}</p>
+
+                                    {/* 商品アクション */}
+                                    <div className="itemActions text-right flex items-center mx-2">
+                                        {/* 商品増減ボタン */}
+                                        <div className="quantity-controls flex flex-col items-center border rounded mx-4">
+                                            {/* 増 */}
+                                            <button  
+                                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}  
+                                                disabled={item.quantity >= item.product.stock}  
+                                                className="px-3 py-1 w-full disabled:opacity-50 bg-gray-200"
+                                            >  
+                                                <FontAwesomeIcon icon={faPlus} className='text-sm text-gray-500'/>
+                                            </button>
+                                            {/* 数 */}
+                                            <span className="text-md px-3 py-2">{item.quantity}</span>
+                                            {/* 減 */}
+                                            <button  
+                                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}  
+                                                disabled={item.quantity <= 1}  
+                                                className="px-3 py-1 w-full disabled:opacity-50 bg-gray-200"
+                                            >  
+                                                <FontAwesomeIcon icon={faMinus} className='text-sm text-gray-500'/>
                                             </button>
                                         </div>
+
+                                        {/* 商品削除ボタン */}
+                                        <button  
+                                            onClick={() => handleRemoveItem(item.id)}  
+                                            className="m-4 text-red-500 text-sm hover:text-red-700"  
+                                        >  
+                                            削除  
+                                        </button>  
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="summary bg-gray-50 p-6 rounded-lg">
-                            <table className="w-full text-left">
-                                <tbody>
-                                    <tr className="border-b">
-                                        <td className="py-2 font-semibold">商品合計</td>
-                                        <td className="py-2 text-right">¥{calculateTotal().toLocaleString()}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="py-2 font-semibold">合計（税込）</td>
-                                        <td className="py-2 text-right text-xl font-bold">
-                                            ¥{Math.floor((calculateTotal() * 1.1)).toLocaleString()}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            
-                            <div className="flex flex-col items-center mt-6">
-                                <Link href="/cart/checkout">
-                                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
-                                        レジに進む
-                                    </button>
-                                </Link>
-                                <Link href="/">
-                                    <span className="mt-4 text-blue-600 hover:text-blue-800 cursor-pointer">
-                                        ショッピングを続ける
-                                    </span>
-                                </Link>
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
+                            </div>  
+                        ))  
+                    )}  
+                </div>  
+                
+                {/* 商品合計金額 */}  
+                <div className="summary p-4  h-[220px]">  
+                    <table className="w-full text-left">  
+                        <tbody>  
+                            <tr className="border-b">  
+                                <td className="py-2">商品合計</td>  
+                                <td className="py-2 text-right">¥{calculateTotal().toLocaleString()}</td>  
+                            </tr>  
+                            <tr>  
+                                <td className="py-2 font-semibold">合計（税込）</td>  
+                                <td className="py-2 text-right text-xl font-bold">  
+                                    ¥{Math.floor((calculateTotal() * 1.1)).toLocaleString()}  
+                                </td>  
+                            </tr>  
+                        </tbody>  
+                    </table>  
+                    
+                    <div className="flex flex-col space-y-4 items-center mt-6">  
+                    <Link href={cartItems.length === 0 ? "#" : "/cart/checkout"}>
+                        <button
+                            className={`w-full max-w-md px-20 py-1 border-2 font-bold transition-all
+                                ${cartItems.length === 0
+                                    ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
+                                    : 'text-black border-black hover:text-white hover:bg-black hover:shadow-lg'}`}
+                            disabled={cartItems.length === 0}
+                        >
+                            レジに進む
+                        </button>
+                    </Link>
+                        <Link href="/">  
+                            <span className="mt-4 text-black hover:text-gray-500 cursor-pointer">  
+                                ショッピングを続ける  
+                            </span>  
+                        </Link>  
+                    </div>  
+                </div>  
+            </div>  
+        </div>  
     );
 };
 
