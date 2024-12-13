@@ -1,8 +1,11 @@
 /* 全体の基本設定 */
-body {
-    font-family: Arial, sans-serif; /* テキストフォントの統一 */
-    margin: 0; /* マージンのリセット */
-    padding: 0; /* パディングのリセット */
+html, body {
+    height: 100%;         /* ページ全体の高さを100%に設定 */
+    margin: 0;            /* ブラウザデフォルトの余白をリセット */
+    padding: 0;           /* パディングをリセット */
+    box-sizing: border-box; /* 全体のボックスサイズ計算を標準化 */
+    font-family: Arial, sans-serif; /* 統一したフォント */
+    overflow-x: hidden;  /* 横スクロールを防止 */
 }
 
 .dashboard-header {
@@ -55,6 +58,24 @@ body {
     left: 0; /* 左側に固定 */
     top: 0; /* 上部に固定 */
     z-index: 1000; /* 他の要素の上に表示 */
+    transition: transform 0.5s ease, width 0.5s ease;
+    transform: translateX(0); /* 開いた状態 */
+}
+.sidebar.closed {
+    transform: translateX(-100%); /* 閉じた状態 */
+}
+/* サイドバーを閉じた際に余白を削除 */
+.sidebar.closed + .container {
+    margin-left: 0;
+}
+/* mainを画面の幅全体に設定 */
+main.sidebar-closed {
+    margin-left: 0;
+}
+/* サイドバー開閉による画面の切り替えを設定 */
+.sidebar.closed ~ main {
+    margin-left: 0;
+    width: 100%;
 }
 
 /* サイドバーのヘッダー部分 */
@@ -120,6 +141,7 @@ body {
     padding: 0;
     margin: 0;
     overflow-y: auto;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* --------------------------------------------------- */
@@ -155,7 +177,6 @@ body {
 }
 
 .sidebar .side-main li {
-    margin: 5px 0;
 }
 
 .sidebar .side-main li a {
@@ -163,13 +184,12 @@ body {
     align-items: center;
     text-decoration: none;
     color: #495057;
-    padding: 5px 20px;
+    padding: 10px 10px;
     transition: background-color 0.2s;
-    border-radius: 5px;
 }
 
 /* ホバーエフェクト */
-.sidebar .side-main .side-item-top a:hover,
+.sidebar .side-main .side-item-top .item-top:hover,
 .sidebar .side-main .side-item-main:hover {
     background-color: #e9ecef;
 }
@@ -177,7 +197,9 @@ body {
 /* アイコンとテキスト間隔 */
 .sidebar .side-main li a i {
     font-size: 20px;
+    margin-left: 10px;
     margin-right: 10px;
+    padding: 5px;
 }
 
 /* --------------------------------------------------- */
@@ -186,7 +208,8 @@ body {
 .side-item-top ul,
 .side-item-top .side-item {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
+    padding-left: 30px;
 }
 
 /* --------------------------------------------------- */
@@ -195,11 +218,12 @@ body {
 .side-item-top .toggle-submenu {
     margin-left: auto;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s ease;
 }
 .side-item-top .toggle-submenu i {
     font-size: 10px;
     margin-left: 10px;
+    transition: transform 0.5s ease;
 }
 
 .side-item-top.active .toggle-submenu i {
@@ -209,7 +233,8 @@ body {
 .side-item-top .submenu {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.5s ease;
+    background-color: whitesmoke;
 }
 
 .side-item-top.active .submenu {
@@ -217,17 +242,42 @@ body {
 }
 /* --------------------------------------------------- */
 
-.submenu-item ul {
-    list-style: none;
-    padding-left: 20px;
-}
-
 /* --------------------------------------------------- */
 /* その他コンテンツ要素                           */
 /* --------------------------------------------------- */
 
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* 縦配置 */
+    transition: margin-left 0.5s ease;
+}
+
+.content-header {
+    width: 100%; /* 必要に応じて調整 */
+    height: auto;
+    padding: 0 10px;
+    padding-top: 10px;
+}
+/* サイドバー開閉ボタン */
+.content-header .sidebar-toggle {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.content-header .sidebar-toggle i {
+    transition: transform 0.5s ease;
+}
+
+.sidebar.closed + .content-header .sidebar-toggle i {
+    transform: rotate(180deg); /* アイコンを回転 */
+}
+
 .content {
-    width: 250px;
+    width: 100%;
     height: auto;
     text-align: center;
     margin: 0;
@@ -237,89 +287,10 @@ body {
 main {
     display: flex;
     margin-left: 250px;
+    transition: margin-left 0.5s ease, width 0.5s ease;
 }
 
 /* - - - - - - - - - - - - - */
-
-.admin-table {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 0 auto; /* 水平方向に中央寄せ */
-    text-align: center;
-}
-
-.admin-table .register-title,
-.admin-table .login-title {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.admin-table .register-form,
-.admin-table .login-form {
-    margin-bottom: 20px;
-}
-
-.admin-table .register-form label,
-.admin-table .login-form label {
-    display: inline-block; /* ラベルをインラインブロックに */
-    width: 100px; /* ラベルの固定幅 */
-    text-align: left; /* テキストを右寄せ */
-    margin-right: 2px; /* ラベルと入力フィールドの間隔 */
-    color: #606060;
-}
-
-.admin-table .register-form input[type="text"],
-.admin-table .register-form input[type="password"],
-.admin-table .register-form input[type="password"],
-.admin-table .login-form input[type="text"],
-.admin-table .login-form input[type="password"] {
-    width: calc(100% - 120px); /* ラベルの幅に応じて入力フィールドの幅を調整 */
-    display: inline-block; /* インラインブロックで横並び */
-    padding: 5px;
-    margin: 10px 0;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.admin-table .register-button,
-.admin-table .login-button {
-    width: 100%; /* ボタンの幅を親要素に合わせる */
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.5s ease;
-    background-size: 200% 200%; /* 背景サイズを広げる */
-    background-color: [object object];
-    background-image: linear-gradient(130deg, rgb(161, 224, 255) 10%, rgb(115, 201, 255) 32%, rgba(48, 177, 255, 1) 56%, rgb(73, 131, 255) 76%, rgba(56, 119, 255, 1) 92%);
-}
-
-.admin-table .register-button:hover,
-.admin-table .login-button:hover {
-    background-position: 100% 0%; /* 背景の位置変更で切り替えるアニメーション効果 */
-    transform: scale(1.03); /* 少し拡大 */
-}
-
-.admin-table .admin-link {
-    display: inline-block; /* リンクをブロック状にする */
-    margin-top: 10px;
-    font-size: 1rem;
-    color: #007bff;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.admin-table .admin-link:hover {
-    color: #0056b3;
-    text-decoration: underline;
-}
 
 
 /* - - - - - - - - - - - - - */
@@ -356,34 +327,28 @@ main {
     display: flex;
     flex-wrap: wrap; /* 折り返しを許可 */
     justify-content: left; /* 横方向中央揃え */
-    gap: 10px; /* 各タイルの間隔 */
+    gap: 20px;
 }
 
-.icon-link {
-    text-decoration: none; /* 下線を無くす */
-    color: inherit;
-}
-
-.icon-tile p {
-    color: #606060;
-}
-
-.icon-tile,
-.text-tile {
-    width: 200px; /* 幅 */
-    height: 200px; /* 高さ */
+.icon-tile {
+    width: 200px;
+    height: 200px;
+    padding: 15px;
+    box-sizing: border-box;
     border: 1px solid #ddd;
     text-align: center;
-    margin: 15px auto; /* 水平・垂直に中央寄せ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     border-radius: 5px;
     transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column; /* アイコンとテキストを縦並び */
-    justify-content: center; /* 垂直方向中央寄せ */
-    align-items: center; /* 水平方向中央寄せ */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
-.icon-tile:hover, .text-tile:hover {
+.icon-tile:hover {
     background-color: #f9f9f9;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -392,30 +357,27 @@ main {
     font-size: 60px;
     margin-bottom: 5px;
 }
-
-.icon-tile img {
-    width: 50px;
-    margin-bottom: 10px;
-}
-.text-tile {
-    padding: 30px 20px;
-    font-size: 1.2rem;
-}
-.text-tile .value {
-    font-size: 2rem;
-    font-weight: bold;
+.icon-link {
+    text-decoration: none; /* 下線を無くす */
+    color: inherit;
+    width: 100%;
+    padding: 0 10px; /* 各カラム間のスペース */
+    margin-bottom: 20px; /* 縦方向の間隔 */
+    box-sizing: border-box;
 }
 
-@media (max-width: 576px) {
-    .icon-tile {
-        padding: 10px;
+.icon-tile p {
+    color: #606060;
+}
+
+@media (max-width: 768px) {
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
     
-    .icon-tile i {
-        font-size: 1.5rem;
-    }
-    
-    .icon-tile p {
-        font-size: 0.8rem;
+    .sidebar {
+        width: 100%;
+        max-width: 250px;
     }
 }

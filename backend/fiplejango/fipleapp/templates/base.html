@@ -37,34 +37,31 @@
         </header>
 
         <main>
-            {% if request.user.is_authenticated %}
+            {% if request.user.is_authenticated and current_path != '/admin_login/' and current_path != '/admin_create/' %}
             <aside>
-                <nav class="sidebar">
+                <nav class="sidebar" id="sidebar">
                     <div class="side-header">
-                        <img class="sidebar-logo" src="{% static 'images/Fiple-simple.png' %}" alt="Fiple-simple-logo">
+                        <a href="{% url 'fipleapp:admin_top' %}">
+                            <img class="sidebar-logo" src="{% static 'images/Fiple-simple.png' %}" alt="Fiple-simple-logo">
+                        </a>
                     </div>
                     
                     <div class="admin-user-bord">
                         <div class="admin-user">
                             <i class="fa-solid fa-user-tie" style="font-size: 50px;"></i>
-                            {% if request.user.is_authenticated %}
                                 <span class="admin-username">{{ user }}</span>
-                            {% endif %}
-
-                            {% if request.user.is_authenticated %}
                             <div class="logout-link-btn">
                                 <a href="{% url 'fipleapp:admin_logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
                             </div>
-                            {% endif %}
                         </div>
                     </div>
                     <div class="side-content">
                         <ul class="side-main">
-                            <li class="side-item-main"><a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME</a></li>
+                            <li class="side-item-main border-bottom"><a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME</a></li>
                             <!-- 基盤設定 -->
                             <li class="side-item-top">
-                                <a href="{% url 'fipleapp:base_settings' %}"><i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
-                                <ul class="submenu">
+                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top"><i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <ul class="submenu border-bottom">
                                     <li class="submenu-item">
                                         <a href="{% url 'fipleapp:category_top' %}">Category</a>
                                         <!--
@@ -81,8 +78,8 @@
                             </li>
                             <!-- 商品管理 -->
                             <li class="side-item-top">
-                                <a href="{% url 'fipleapp:product_management' %}"><i class="fa-solid fa-box" style="font-size: 15px;"></i>商品管理<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
-                                <ul class="submenu">
+                                <a href="{% url 'fipleapp:product_management' %}" class="item-top"><i class="fa-solid fa-box" style="font-size: 15px;"></i>商品管理<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <ul class="submenu border-bottom">
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_image_list' %}">商品画像管理</a></li>
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_tag_list' %}">商品タグ管理</a></li>
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_origin_list' %}">商品元管理</a></li>
@@ -95,14 +92,39 @@
             </aside>
             {% endif %}
 
-            <div class="content container">
-                {% block content %}
-                <!-- コンテンツはここに表示されます -->
-                {% endblock %}
+            <div class="container">
+                <div class="content-header">
+                    {% if request.user.is_authenticated %}
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fa-solid fa-bars"></i> <!-- 開閉ボタンのアイコン -->
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    {% block content %}
+                    <!-- コンテンツはここに表示されます -->
+                    {% endblock %}
+                </div>
             </div>
         </main>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- サイドバー開閉ボタン処理 -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const sidebar = document.getElementById('sidebar');
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const mainContent = document.querySelector('main');
+
+                sidebarToggle.addEventListener('click', function () {
+                    sidebar.classList.toggle('closed');
+                    mainContent.classList.toggle('sidebar-closed');
+                });
+            });
+        </script>
+
+        <!-- サイドバー内サイドメニューの開閉処理 -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const toggleButtons = document.querySelectorAll('.side-item-top > a .toggle-submenu');
@@ -115,6 +137,18 @@
                     });
                 });
             });
-            </script>
+        </script>
+
+        <!-- 管理者ログイン・新規登録でのサイドバー非表示処理 -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentPath = window.location.pathname;
+                const noSidebarPaths = ['/admin_login/', '/admin_create/'];
+
+                if (noSidebarPaths.includes(currentPath)) {
+                    document.querySelector('main').classList.add('no-sidebar');
+                }
+            });
+        </script>
     </body>
 </html>

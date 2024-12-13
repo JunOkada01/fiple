@@ -1,38 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}商品管理トップ{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-        <a href="{% url 'fipleapp:product_image_list' %}" class="icon-link">
-            <div class="icon-tile">
-                <i class="fa-regular fa-images icons" style="color: lightgreen;"></i>
-                <p>商品画像</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-        <a href="{% url 'fipleapp:product_tag_list' %}">
-            <div class="icon-tile">
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#20C997"><path d="M440-160v-60h171l195-260-195-260H140v260H80v-260q0-24.75 17.63-42.38Q115.25-800 140-800h471q14.25 0 27 6.37 12.75 6.38 21 17.63l222 296-221 296q-8.25 11.25-21 17.62-12.75 6.38-27 6.38H440Zm33-320ZM200-120v-120H80v-60h120v-120h60v120h120v60H260v120h-60Z"/></svg>
-                <p>商品タグ</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-        <a href="{% url 'fipleapp:product_origin_list' %}">
-            <div class="icon-tile">
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#6610F2"><path d="M450-280h60v-170h170v-60H510v-170h-60v170H280v60h170v170ZM180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm0-600v600-600Z"/></svg>
-                <p>商品元一覧・追加</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-        <a href="{% url 'fipleapp:product_list' %}">
-            <div class="icon-tile">
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
-                <p>商品一覧・追加</p>
-            </div>
-        </a>
+<div class="box-container">
+    <div class="row">
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:product_image_list' %}" class="icon-link">
+                <div class="icon-tile">
+                    <i class="fa-regular fa-images icons" style="color: lightgreen;"></i>
+                    <p>商品画像</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:product_tag_list' %}">
+                <div class="icon-tile">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#20C997"><path d="M440-160v-60h171l195-260-195-260H140v260H80v-260q0-24.75 17.63-42.38Q115.25-800 140-800h471q14.25 0 27 6.37 12.75 6.38 21 17.63l222 296-221 296q-8.25 11.25-21 17.62-12.75 6.38-27 6.38H440Zm33-320ZM200-120v-120H80v-60h120v-120h60v120h120v60H260v120h-60Z"/></svg>
+                    <p>商品タグ</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:product_origin_list' %}">
+                <div class="icon-tile">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#6610F2"><path d="M450-280h60v-170h170v-60H510v-170h-60v170H280v60h170v170ZM180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm0-600v600-600Z"/></svg>
+                    <p>商品元一覧・追加</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:product_list' %}">
+                <div class="icon-tile">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
+                    <p>商品一覧・追加</p>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
