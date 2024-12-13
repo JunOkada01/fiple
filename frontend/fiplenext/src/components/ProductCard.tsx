@@ -16,40 +16,6 @@ interface ProductCardProps {
     imageUrl: string;
 }
 
-/* セッションストレージに保存したい試着中商品のデータ
-export interface FittingItem {
-    id: number;
-    product_name: string;
-    category: {
-        id: number;
-        category_name: string;
-    };
-    subcategory: {
-        id: number;
-        subcategory_name: string;
-    };
-    variants: Array<{
-        id: number;
-        color: {
-            id: number;
-            color_name: string;
-        };
-        size: {
-            id: number;
-            size_name: string;
-            order: number;
-        };
-        price: number;
-        status: string;
-        images: Array<{
-            id: number;
-            image: string;
-            image_description: string | null;
-        }>;
-    }>;
-}
-*/
-
 const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl}) => {
     /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
@@ -71,50 +37,46 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         return items ? JSON.parse(items) : [];
     };
     // 試着ボタンを切り替え
-    const toggleTryingOn = () => {
+    const toggleTryingOn = async () => {
         const currentItems = getSessionFittingItems();
-
+        
         if (isTryingOn) {
-            // 試着リストから削除
             const updatedItems = currentItems.filter((item) => item.product_id !== product_id);
             updateSessionFittingItems(updatedItems);
             setIsTryingOn(false);
         } else {
-            // 試着リストに追加
-            const newItem = {
-                id,
-                product_id,
-                productName,
-                price,
-                categoryName,
-                subcategoryName,
-                imageUrl,
-            };
-            
-            // 同じカテゴリの商品が試着中か確認
-            const existingIndex = currentItems.findIndex(item => item.categoryName === newItem.categoryName);
-            if (isTryingOn) {
-                // 同じカテゴリ商品の場合、試着リストから削除
-                const updatedItems = currentItems.filter((item) => item.product_id !== product_id);
-                updateSessionFittingItems(updatedItems);
-                setIsTryingOn(false);
-            } else {
+            try {
+                // product_origin_idを使用して商品を追加
+                const newItem = {
+                    id: id, // product_origin_id
+                    product_id: product_id, // product_idを使用
+                    productName,
+                    price,
+                    categoryName,
+                    subcategoryName,
+                    imageUrl,
+                };
+                
+                const existingIndex = currentItems.findIndex(item => 
+                    item.categoryName === newItem.categoryName
+                );
+                
                 if (existingIndex !== -1) {
-                    // 同じカテゴリが存在する場合は上書きで置き換える
                     const updatedItems = [...currentItems];
                     updatedItems[existingIndex] = newItem;
                     updateSessionFittingItems(updatedItems);
                     setNotification(`${newItem.categoryName}の試着中商品を更新しました`);
                 } else {
-                    // 新しいアイテムを追加
                     updateSessionFittingItems([...currentItems, newItem]);
                     setNotification('試着しました');
                 }
                 setIsTryingOn(true);
+            } catch (error) {
+                console.error('Failed to add item to fitting:', error);
+                setNotification('商品の追加に失敗しました');
             }
-        // 通知を非表示にする
-        setTimeout(() => setNotification(null), 3000);
         }
+        setTimeout(() => setNotification(null), 3000);
     };
     // コンポーネントマウント時に現在の試着状態を確認
     useEffect(() => {

@@ -65,17 +65,17 @@ def data_view(request):
 
 class APIProductListView(APIView):
     def get(self, request):
-        # サブクエリで同じ product_origin 内で最小のサイズIDを取得
+        # サブクエリで同じ product_origin 内で最小のサイズIDと最小のカラーIDを取得
         subquery = Product.objects.filter(
             product_origin=OuterRef('product_origin')
-        ).order_by('size_id').values('size_id')[:1]
+        ).order_by('size_id', 'color_id').values('id')[:1]
 
         products = Product.objects.select_related(
             'product_origin', 'product_origin__category', 'color', 'size'
         ).prefetch_related(
             'productimage_set'
         ).filter(
-            size=Subquery(subquery)
+            id__in=Subquery(subquery)
         )
 
         serializer = ProductListSerializer(products, many=True)
@@ -689,6 +689,37 @@ class ColorListView(LoginRequiredMixin, ListView):
     template_name = 'base_settings/color/color_list.html'
     context_object_name = 'colors'
     paginate_by = 20
+    
+    def get_queryset(self):
+        # 初期クエリセット
+        queryset = Color.objects.all()
+        # 並び順指定の取得
+        sort_field = self.request.GET.get('sort_field', '')
+        sort_order = self.request.GET.get('sort_order', 'asc')
+        # 並び順指定と昇順・降順の切り替え処理
+        sort_mapping = {
+            'color_name': 'color_name',
+            'color_code': 'color_code',
+            'created_at': 'created_at',
+            'updated_at': 'updated_at',
+        }
+        if sort_field in sort_mapping:
+            order_prefix = '' if sort_order == 'asc' else '-'
+            queryset = queryset.order_by(f"{order_prefix}{sort_mapping[sort_field]}")
+        # 絞り込み条件の取得
+        filter_query = self.request.GET.get('filter', '')
+        if filter_query:
+            queryset = queryset.filter(
+                Q(color_name__icontains=filter_query) |
+                Q(color_code__icontains=filter_query)
+            )
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort_field'] = self.request.GET.get('sort_field', '')
+        context['sort_order'] = self.request.GET.get('sort_order', 'asc')
+        context['filter'] = self.request.GET.get('filter', '')
+        return context
     
 class ColorCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'

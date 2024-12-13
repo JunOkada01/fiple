@@ -52,10 +52,16 @@ class ColorForm(forms.ModelForm):
             'color_name': 'カラー名',
             'color_code': 'カラーコード',
         }
-        color_code = forms.CharField(
-            widget=forms.widgets.Input(attrs={'type': 'color', 'class': 'form-control'}),
-            label='カラーコード',
-        )
+        widgets = {
+            'color_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    color_code = forms.CharField(
+        widget=forms.widgets.Input(attrs={
+            'type': 'color',
+            'class': 'form-control'
+            }),
+        label='カラーコード',
+    )
         
 class SizeForm(forms.ModelForm):
     class Meta:
