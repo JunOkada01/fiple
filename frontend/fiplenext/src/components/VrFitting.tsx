@@ -24,6 +24,27 @@ const LoadingWave = () => (
   </div>
 );
 
+// 商品バリアントの型定義
+interface ProductVariant {
+  id: number;
+  color: {
+    id: number;
+    color_name: string;
+    color_code: string;
+  };
+  size: {
+    id: number;
+    size_name: string;
+    order: number;
+  };
+  price: number;
+  status: string;
+  images: Array<{
+    id: number;
+    image: string;
+    image_description: string | null;
+  }>;
+}
 export interface FittingItem {
   id: number;
   product_id: number;
@@ -32,19 +53,12 @@ export interface FittingItem {
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  selectedColor?: string;
+  selectedSize?: string;
+  variants: ProductVariant[];
 }
 
-export interface FittingAreaProps {
-  height: number;
-  weight: number;
-  fittingItems: FittingItem[];
-  onRemoveItem: (id: number) => void;
-  onAddToCart: () => void;
-}
-
-const FittingArea: React.FC<FittingAreaProps> = ({
-  onAddToCart,
-}) => {
+const FittingArea: React.FC = () => {
   const [height, setHeight] = useState<number>(180);
   const [weight, setWeight] = useState<number>(70);
   const [isOpen, setIsOpen] = useState(false);
@@ -245,7 +259,6 @@ const FittingArea: React.FC<FittingAreaProps> = ({
             {/* まとめてカート登録 */}
             <button
               className="text-black px-4 py-2 rounded-sm border border-black hover:text-white hover:bg-black transition-all"
-              onClick={onAddToCart}
             >
               カートに入れる
             </button>
@@ -254,46 +267,46 @@ const FittingArea: React.FC<FittingAreaProps> = ({
 
         {/* 試着中アイテムエリア */}
         <div>
-          <h2 className="text-md mx-2 my-2">試着中の商品</h2>
-            {fittingItems.length > 0 ? (
-              <div className="items-scrollbar max-h-[200px] overflow-y-auto">
-                <ul className="space-y-0">
-                {fittingItems.map((item) => {
-                  console.log("商品全体", item); // item全体を表示
-                  return (
-                    <li key={item.id} className="flex items-center justify-between border-t brder-b">
-                      <div className="flex items-center space-x-1">
-                        {item.imageUrl && (
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.productName}
-                            width={80}
-                            height={106}
-                            className="m-1 aspect-[3/4]"
-                            style={{ objectFit: 'cover' }}
-                          />
-                        )}
-                        <div className='flex flex-col'>
-                          <span className="text-[12px]">{item.productName}</span>
-                          <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
-                        </div>
+          {fittingItems.length > 0 ? (
+            <div className="items-scrollbar max-h-[200px] overflow-y-auto">
+              <ul className="space-y-0">
+              {fittingItems.map((item) => {
+                console.log("商品全体", item); // item全体を表示
+                return (
+                  <li key={item.id} className="flex items-center justify-between border-t brder-b">
+                    <div className="flex items-center space-x-1">
+                      {item.imageUrl && (
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.productName}
+                          width={80}
+                          height={106}
+                          className="m-1 aspect-[3/4]"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      )}
+                      <div className='flex flex-col'>
+                        <span className="text-[12px]">{item.productName}</span>
+                        <p className="text-[10px] text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
+                        <span className="text-gray-600">¥{item.price.toLocaleString()}</span>
                       </div>
-                      <div className="flex items-center">
-                        <button
-                          className="text-black-500 hover:text-black-700"
-                          onClick={() => removeFittingItem(item.id)}
-                        >
-                          <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
-                        </button>
-                      </div>
-                    </li>
-                  );
-                })}
-                </ul>
-              </div>
-            ) : (
-                <p className="text-gray-500 text-center mb-2">試着中の商品はありません</p>
-            )}
+                    </div>
+                    <div className="flex items-center">
+                      <button
+                        className="text-black-500 hover:text-black-700"
+                        onClick={() => removeFittingItem(item.id)}
+                      >
+                        <FontAwesomeIcon icon={faXmark} className='text-s m-2' />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+              </ul>
+            </div>
+          ) : (
+              <p className="text-gray-500 text-center mb-2">試着中の商品はありません</p>
+          )}
         </div>
       </div>
     </div>

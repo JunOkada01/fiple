@@ -3,42 +3,31 @@
 {% block title %}FAQ一覧{% endblock %}
 
 {% block content %}
-
-
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-  <h4>FAQ一覧</h4>
-  <table>
-    <thead>
-      <tr>
-        <th>質問</th>
-        <th>答え</th>
-        <th>カテゴリ</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for faq in faqs %}
-      <tr>
-        <td>{{ faq.question }}</td>
-        <td>{{ faq.answer }}</td>
-        <td>{{ faq.category.name }}</td>
-        <td>
-          <a href="{% url 'fipleapp:edit_faq' faq.id %}">編集</a>
-          |
-          <a href="{% url 'fipleapp:delete_faq' faq.id %}">削除</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <a href="{% url 'fipleapp:create_faq' %}">新しいFAQを作成</a>
-  <a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
-</body>
-</html>
-
+<h4>FAQ一覧</h4>
+<table>
+  <thead>
+    <tr>
+      <th>質問</th>
+      <th>答え</th>
+      <th>カテゴリ</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for faq in faqs %}
+    <tr>
+      <td>{{ faq.question }}</td>
+      <td>{{ faq.answer }}</td>
+      <td>{{ faq.category.name }}</td>
+      <td>
+        <a href="{% url 'fipleapp:edit_faq' faq.id %}">編集</a>
+        |
+        <a href="{% url 'fipleapp:delete_faq' faq.id %}">削除</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{% url 'fipleapp:create_faq' %}">新しいFAQを作成</a>
+<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
 {% endblock %}

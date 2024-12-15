@@ -16,7 +16,6 @@ router.register(r'contact-categories',ContactCategoryViewSet)
 app_name = 'fipleapp'
 
 urlpatterns = [
-    path('data/', data_view, name='data'),
     path('users/', views.user_list, name='user-list'),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),

@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}色削除確認{% endblock %}
 {% block content %}
-<h4>色削除</h4>
-<br>
-<p>本当に「{{ object.color_name }}」を削除しますか？</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">削除</button>
-</form>
-<br>
-<a href="{% url 'fipleapp:color_list' %}"><h5>キャンセル</h5></a>
+<div class="page-container">
+    <h4>色削除</h4>
+    <br>
+    <p>本当に「{{ object.color_name }}」を削除しますか？</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">削除</button>
+    </form>
+    <br>
+    <a href="{% url 'fipleapp:color_list' %}"><h5>キャンセル</h5></a>
+</div>
 {% endblock %}

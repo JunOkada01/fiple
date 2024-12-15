@@ -1,85 +1,87 @@
 {% extends 'base.html' %}
 {% block title %}サイズ一覧{% endblock %}
 {% block content %}
-<div class="container mb-3 text-center">
-	<a href="{% url 'fipleapp:size_add' %}" class="icon-link">
-		<div class="icon-tile">
-			<i class="fa-solid fa-ruler-combined icons" style="color: #e7a7a7;"></i>
-			<p>サイズ追加</p>
-		</div>
-	</a>
-</div>
-
-<div class="container d-flex justify-content-center">
-	<div class="size-list" style="max-width: 600px; width: 100%;">
-		<ul class="list-group">
-			{% for size in sizes %}
-				<li class="list-group-item d-flex justify-content-between align-items-center">
-					<div class="d-flex align-items-center">
-						<div>
-							<p class="mb-1"><strong>{{ size.size_name }}</strong></p>
-							<small class="text-muted d-block mt-1" style="font-size: 0.75em;">
-								<span class="me-2">
-									<i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ size.created_at }}
-								</span>
-								<span>
-									<i class="fa-solid fa-calendar-check me-1"></i>更新: {{ size.updated_at }}
-								</span>
-							</small>
-						</div>
-					</div>
-
-					<div class="d-flex flex-column">
-						<!-- 変更ボタン -->
-						<a href="{% url 'fipleapp:size_edit' size.id %}" class="icon-link d-flex align-items-center mt-1">
-							<i class="fa-regular fa-pen-to-square" style="color: gray; margin-right: 8px;"></i>
-							<span style="margin-left: auto; color: gray;">変更</span>
-						</a>
-						<!-- 削除ボタン -->
-						<a href="{% url 'fipleapp:size_delete' size.id %}" class="icon-link d-flex align-items-center mt-2">
-							<i class="fa-regular fa-trash-can" style="color: gray; margin-right: 8px;"></i>
-							<span style="margin-left: auto; color: gray;">削除</span>
-						</a>
-					</div>
-				</li>
-				{% empty %}
-				<li>サイズがありません。</li>
-			{% endfor %}
-		</ul>
+<div class="page-container">
+	<div class="mb-3 text-center">
+		<a href="{% url 'fipleapp:size_add' %}" class="icon-link">
+			<div class="icon-tile">
+				<i class="fa-solid fa-ruler-combined icons" style="color: #e7a7a7;"></i>
+				<p>サイズ追加</p>
+			</div>
+		</a>
 	</div>
-</div>
 
-<nav aria-label="ページネーション">
-	<ul class="pagination">
+	<div class="container d-flex justify-content-center">
+		<div class="size-list" style="max-width: 600px; width: 100%;">
+			<ul class="list-group">
+				{% for size in sizes %}
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div class="d-flex align-items-center">
+							<div>
+								<p class="mb-1"><strong>{{ size.size_name }}</strong></p>
+								<small class="text-muted d-block mt-1" style="font-size: 0.75em;">
+									<span class="me-2">
+										<i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ size.created_at }}
+									</span>
+									<span>
+										<i class="fa-solid fa-calendar-check me-1"></i>更新: {{ size.updated_at }}
+									</span>
+								</small>
+							</div>
+						</div>
 
-		{% if page_obj.has_previous %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-		{% endif %}
+						<div class="d-flex flex-column">
+							<!-- 変更ボタン -->
+							<a href="{% url 'fipleapp:size_edit' size.id %}" class="icon-link d-flex align-items-center mt-1">
+								<i class="fa-regular fa-pen-to-square" style="color: gray; margin-right: 8px;"></i>
+								<span style="margin-left: auto; color: gray;">変更</span>
+							</a>
+							<!-- 削除ボタン -->
+							<a href="{% url 'fipleapp:size_delete' size.id %}" class="icon-link d-flex align-items-center mt-2">
+								<i class="fa-regular fa-trash-can" style="color: gray; margin-right: 8px;"></i>
+								<span style="margin-left: auto; color: gray;">削除</span>
+							</a>
+						</div>
+					</li>
+					{% empty %}
+					<li>サイズがありません。</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
 
-		{% for page_num in page_obj.paginator.page_range %} 
-			{% if page_num == page_obj.number %}
-				<li class="page-item active">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% else %}
+	<nav aria-label="ページネーション">
+		<ul class="pagination">
+
+			{% if page_obj.has_previous %}
 				<li class="page-item">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
 				</li>
 			{% endif %}
-		{% endfor %}
 
-		{% if page_obj.has_next %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{% endif %}
+			{% for page_num in page_obj.paginator.page_range %} 
+				{% if page_num == page_obj.number %}
+					<li class="page-item active">
+						<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					</li>
+				{% else %}
+					<li class="page-item">
+						<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					</li>
+				{% endif %}
+			{% endfor %}
 
-	</ul>
-</nav>
+			{% if page_obj.has_next %}
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			{% endif %}
+
+		</ul>
+	</nav>
+</div>
 {% endblock %}

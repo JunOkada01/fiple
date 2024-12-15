@@ -37,37 +37,21 @@ from .forms import *
 # ユーザーモデルの取得
 User = get_user_model()
 
-
-
-def data_view(request):
-    return JsonResponse({"message": "Hello from Django!!!!"})
-
 class APIProductListView(APIView):
-    serializer_class = ProductListSerializer
-    queryset = ProductOrigin.objects.all()
     def get(self, request):
-        # サブクエリで同じ product_origin 内で最小のサイズIDを取得
+        # サブクエリで同じ product_origin 内で最小のサイズIDと最小のカラーIDを取得
         subquery = Product.objects.filter(
             product_origin=OuterRef('product_origin')
-        ).order_by('size_id').values('size_id')[:1]
+        ).order_by('size_id', 'color_id').values('id')[:1]
+
         products = Product.objects.select_related(
             'product_origin', 'product_origin__category', 'color', 'size'
         ).prefetch_related(
             'productimage_set'
         ).filter(
-            size=Subquery(subquery)
+            id__in=Subquery(subquery)
         )
-        # 商品元で絞り込む
-        #products2 = Product.objects.select_related(
-        #    'product_origin', 'product_origin__category', 'color', 'size'
-        #).prefetch_related(
-        #    'productimage_set'
-        #).filter(
-            # product_origin = 5
-            #ここをサイズで絞るのではなくて商品元origin?で絞る
-        #    product_origin='product_origin_id'
-        #)
-        print("商品だよ" ,products)
+
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
     
@@ -91,8 +75,18 @@ class ProductByCategoryView(APIView):
         try:
             # カテゴリ名でフィルタリング
             category = Category.objects.get(category_name=category_name)
-            products = Product.objects.filter(product_origin__category=category)
+            # サブクエリで同じ product_origin 内で最小の size_id を持つ商品のみを取得
+            subquery = Product.objects.filter(
+                product_origin=OuterRef('product_origin')
+            ).order_by('size_id').values('id')[:1]
 
+            products = Product.objects.filter(
+                product_origin__category=category,
+                id__in=Subquery(subquery)  # サブクエリで絞り込む
+            ).select_related(
+                'product_origin', 'product_origin__category', 'color', 'size'
+            ).prefetch_related('productimage_set')
+            
             # 商品が見つからない場合の処理
             if not products.exists():
                 return Response(
@@ -103,6 +97,7 @@ class ProductByCategoryView(APIView):
             # シリアライザーを使用してデータを変換
             serializer = ProductListSerializer(products, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+            
         except Category.DoesNotExist:
             return Response(
                 {"error": "カテゴリが見つかりません"},
