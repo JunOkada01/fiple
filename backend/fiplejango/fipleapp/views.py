@@ -123,6 +123,21 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+        
+class APIProductReviewView(generics.RetrieveAPIView):
+    serializer_class = ProductListSerializer
+    queryset = Product.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            product = self.get_object()
+            serializer = self.get_serializer(product)
+            return Response(serializer.data)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "商品が見つかりません"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
             
 # フロントエンドカート関連--------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
@@ -1819,6 +1834,50 @@ class ReviewWriteView(generics.ListCreateAPIView):
     
 User = get_user_model()
 
+# ----------------------レビュー全取得-------------------------
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_reviewed_products(request):
+    user = request.user
+    reviewed_product_ids = Review.objects.filter(user=user).values_list('product_id', flat=True)
+    return Response(list(reviewed_product_ids))
+
+# --------------------レビュー消去---------------------------------
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Review
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_review(request, product_id):
+    user = request.user
+    try:
+        review = Review.objects.get(product_id=product_id, user=user)
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Review.DoesNotExist:
+        return Response({'error': 'レビューが見つかりません'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+class UserReviewedProductsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # ログインユーザーがレビューした商品のIDリストを返す
+        reviewed_product_ids = Review.objects.filter(user=request.user).values_list('product_id', flat=True)
+        return Response(reviewed_product_ids)
+
+
 # パスワード変更ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
 class PasswordChangeView(APIView):
@@ -1861,3 +1920,28 @@ class PasswordChangeView(APIView):
             {"message": "パスワードが正常に変更されました。"},
             status=status.HTTP_200_OK
         )
+    
+# -------------------商品のおすすめ-------------------
+
+from django.http import JsonResponse
+from django.db.models import Count
+from .models import Review, Product
+
+def check_similar_fit_users(request, product_id):
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    # ログイン中のユーザの身長・体重を取得
+    user_height = user.height
+    user_weight = user.weight
+
+    # 商品の「ちょうどいい」レビューを持つユーザの数をカウント
+    similar_users_count = Review.objects.filter(
+        product_id=product_id,
+        fit='ちょうどいい',
+        user__height=user_height,
+        user__weight=user_weight
+    ).values('user').distinct().count()
+
+    return JsonResponse({'similar_users_count': similar_users_count})

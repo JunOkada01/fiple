@@ -72,7 +72,7 @@ const ProductReviews = () => {
             if (!productId) return;
             try {
                 setLoading(true);
-                const response = await axios.get(`http://127.0.0.1:8000/api/products/${productId}/`);
+                const response = await axios.get(`http://127.0.0.1:8000/api/products/review/${productId}/`);
                 setProduct(response.data);
             } catch (err) {
                 setError('商品情報の取得に失敗しました');
@@ -98,14 +98,14 @@ const ProductReviews = () => {
             />
 
             {/* レビューを書くボタン */}
-            <div className="text-right mb-4">
+            {/* <div className="text-right mb-4">
                 <button 
                     className="px-2 py-1 bg-gray-100 text-black rounded-md"
                     onClick={() => router.push(`/products/review/writereview/${productId}`)}
                 >
                     レビューを書く
                 </button>
-            </div>
+            </div> */}
 
             {reviews.length > 0 ? (
                 <ul className="space-y-3">

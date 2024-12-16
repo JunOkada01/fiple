@@ -76,6 +76,7 @@ urlpatterns = [
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
+    path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
     #カート
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
     path('api/cart/', CartListView.as_view(), name='cart-list'),
@@ -124,4 +125,8 @@ urlpatterns = [
     # レビュー関連
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
     path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
+    path('reviews/', list_reviewed_products, name='list_reviewed_products'),
+    path('reviews/<int:product_id>/', delete_review, name='delete_review'),
+    # 商品おすすめ
+    path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
 ]
