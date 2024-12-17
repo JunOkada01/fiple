@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 import FittingArea from '../components/VrFitting';
 import styles from '../styles/Home.module.css'
 
-
 interface Product {
   id: number;
   product_name: string;

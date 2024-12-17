@@ -1,5 +1,3 @@
-// pages/product/category/[categoryName].tsx
-
 import ProductCard from '@styles/components/ProductCard';
 import AllMensLadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import React, { useEffect, useState } from 'react';

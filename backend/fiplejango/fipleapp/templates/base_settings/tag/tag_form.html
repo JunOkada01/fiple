@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}タグ追加{% endblock %}
 {% block content %}
-<h4>タグ追加</h4>
-<br>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">追加</button>
-</form>
-<br>
-<a href="{% url 'fipleapp:tag_list' %}"><h5>戻る</h5></a>
-
+<div class="page-container">
+    <h4>タグ追加</h4>
+    <br>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">追加</button>
+    </form>
+    <br>
+    <a href="{% url 'fipleapp:tag_list' %}"><h5>戻る</h5></a>
+</div>
 {% endblock %}

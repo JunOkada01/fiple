@@ -44,7 +44,6 @@ const Cart: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
     const token = localStorage.getItem('access_token');
     
     if (!token) {
@@ -59,7 +58,6 @@ const Cart: React.FC = () => {
         });
         return;
     }
-
     const fetchCartItems = async (token?: string) => {
         try {
             const response = await axios.get('http://localhost:8000/api/cart/', {

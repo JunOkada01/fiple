@@ -101,7 +101,7 @@ const Profile: React.FC = () => {
     const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
 
     return (
-        <div className="container mx-auto flex flex-col items-center pt-10">
+        <div className="container mx-auto flex flex-col items-center pt-5">
             {/* アカウントアイコンとタイトル部分 */}
             <div className="profile-head text-center">
                 <div className="accounts-icon flex justify-center pb-5">

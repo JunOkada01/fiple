@@ -3,12 +3,7 @@
 {% block title %}お問い合わせ一覧{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
+<div class="page-container">
     <h4>・お問い合わせ一覧</h4>
     <table>
         <thead>
@@ -33,6 +28,5 @@
         </tbody>
     </table>
     <a href="{% url 'fipleapp:contact_manager' %}">お問い合わせ管理ページへ</a>
-</body>
-</html>
+</div>
 {% endblock %}

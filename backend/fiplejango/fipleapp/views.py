@@ -492,7 +492,9 @@ class LoginView(generics.GenericAPIView):
         password = request.data.get('password')
         user = authenticate(email=email, password=password)
         if user is not None:
-            
+            print("- - - - - ユーザー情報 - - - - -")
+            print(vars(user))
+
             # JWTトークンを生成
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
@@ -505,8 +507,8 @@ class LoginView(generics.GenericAPIView):
                 "access": access_token,
                 "refresh": str(refresh)
             })
-        return Response({"error": "メールアドレスかパスワードが間違っています。"}, status=400)
-    
+        return Response({"error": "Invalid credentials"}, status=400)
+
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]  # 認証されたユーザーのみアクセス可能
     authentication_classes = [JWTAuthentication]  # JWT認証を使用
@@ -520,12 +522,11 @@ class CurrentUserView(APIView):
         serializer = UserSerializer(user)
         # シリアライズしたデータを返す
         return Response(serializer.data)
-        
+
 class LogoutView(APIView):
     def post(self, request):
         logout(request)  # ユーザーをログアウトさせる
         return Response({"message": "Logout successful!"}, status=status.HTTP_200_OK)
-        
 
 
 def admin_create(request):
@@ -539,7 +540,7 @@ def admin_create(request):
             return redirect('fipleapp:admin_login')
     else:
         form = AdminCreationForm()
-    return render(request, 'admin_create.html', {'form': form})
+    return render(request, 'admin/admin_create.html', {'form': form, 'current_path': request.path})
 
 def admin_login(request):
     if request.method == 'POST':
@@ -562,7 +563,7 @@ def admin_login(request):
                 messages.error(request, '管理者が見つかりません')
     else:
         form = AdminLoginForm()
-    return render(request, 'admin_login.html', {'form': form})
+    return render(request, 'admin/admin_login.html', {'form': form, 'current_path': request.path})
 
 
 class AdminTop(LoginRequiredMixin, TemplateView):
@@ -585,6 +586,11 @@ def admin_logout(request):
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
     
+class BaseSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/top.html'
+
 class BaseSettingView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -690,37 +696,6 @@ class ColorListView(LoginRequiredMixin, ListView):
     context_object_name = 'colors'
     paginate_by = 20
     
-    def get_queryset(self):
-        # 初期クエリセット
-        queryset = Color.objects.all()
-        # 並び順指定の取得
-        sort_field = self.request.GET.get('sort_field', '')
-        sort_order = self.request.GET.get('sort_order', 'asc')
-        # 並び順指定と昇順・降順の切り替え処理
-        sort_mapping = {
-            'color_name': 'color_name',
-            'color_code': 'color_code',
-            'created_at': 'created_at',
-            'updated_at': 'updated_at',
-        }
-        if sort_field in sort_mapping:
-            order_prefix = '' if sort_order == 'asc' else '-'
-            queryset = queryset.order_by(f"{order_prefix}{sort_mapping[sort_field]}")
-        # 絞り込み条件の取得
-        filter_query = self.request.GET.get('filter', '')
-        if filter_query:
-            queryset = queryset.filter(
-                Q(color_name__icontains=filter_query) |
-                Q(color_code__icontains=filter_query)
-            )
-        return queryset
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sort_field'] = self.request.GET.get('sort_field', '')
-        context['sort_order'] = self.request.GET.get('sort_order', 'asc')
-        context['filter'] = self.request.GET.get('filter', '')
-        return context
-    
 class ColorCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -797,6 +772,56 @@ class SizeDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return Size.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成したカテゴリのみ
     
+# タグ関連------------------------------------------------------------------------------------------------------
+
+class TagListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    template_name = 'base_settings/tag/tag_list.html'
+    context_object_name = 'tags'
+    paginate_by = 20
+    
+class TagCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    form_class = TagForm
+    template_name = 'base_settings/tag/tag_form.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        return super().form_valid(form)
+
+class TagUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    form_class = TagForm
+    template_name = 'base_settings/tag/tag_form.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+    
+    def get_queryset(self):
+        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+class TagDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Tag
+    template_name = 'base_settings/tag/tag_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:tag_list')
+
+    def get_queryset(self):
+        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
+    
+# 商品管理----------------------------------------------------------------------------------------
+
+class ProductManagementView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'product_management/top.html'
+
 # 商品元関連----------------------------------------------------------------------------------------
 class ProductManagementView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
@@ -922,7 +947,7 @@ class TagListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Tag
-    template_name = 'base_settings/tag/tag_list.html'
+    template_name = 'tag_list.html'
     context_object_name = 'tags'
     paginate_by = 20
     
@@ -931,7 +956,7 @@ class TagCreateView(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     model = Tag
     form_class = TagForm
-    template_name = 'base_settings/tag/tag_form.html'
+    template_name = 'tag_form.html'
     success_url = reverse_lazy('fipleapp:tag_list')
 
     def form_valid(self, form):
@@ -943,7 +968,7 @@ class TagUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Tag
     form_class = TagForm
-    template_name = 'base_settings/tag/tag_form.html'
+    template_name = 'tag_form.html'
     success_url = reverse_lazy('fipleapp:tag_list')
     
     def get_queryset(self):
@@ -953,7 +978,7 @@ class TagDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Tag
-    template_name = 'base_settings/tag/tag_confirm_delete.html'
+    template_name = 'tag_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:tag_list')
 
     def get_queryset(self):

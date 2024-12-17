@@ -3,23 +3,15 @@
 {% block title %}カテゴリ編集{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-  <h4>FAQカテゴリ編集</h4>
+<h4>FAQカテゴリ編集</h4>
 
-  <form method="POST">
-    {% csrf_token %}
-    <label for="name">カテゴリ名:</label>
-    <input type="text" name="name" id="name" value="{{ category.name }}" required>
-    
-    <button type="submit">更新</button>
-  </form>
+<form method="POST">
+  {% csrf_token %}
+  <label for="name">カテゴリ名:</label>
+  <input type="text" name="name" id="name" value="{{ category.name }}" required>
   
-  <a href="{% url 'fipleapp:question_category_list' %}">戻る</a>
-</body>
-</html>
+  <button type="submit">更新</button>
+</form>
+
+<a href="{% url 'fipleapp:question_category_list' %}">戻る</a>
 {% endblock %}
