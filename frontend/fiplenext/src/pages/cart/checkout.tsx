@@ -259,34 +259,33 @@ interface CartItem {
     const totalWithTax = calculateTotalWithTax(cartItems);
 
     return (
-        <div className="container mx-auto max-w-screen-xl px-4 py-8">
-        
-        {/* 商品一覧部分は変更なし */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h1 className="text-3xl text-center my-8">注文内容の確認</h1>
+        <div className="container mx-auto max-w-screen-md px-4 py-8">
             
-            <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+            {/* 商品一覧部分 */}
+            <div className="bg-white shadow-md rounded-lg p-6 mb-6 border border-gray-200">
+                <h1 className="text-3xl text-center my-4 font-bold">注文内容の確認</h1>
+    
                 {cartItems.map((item, index) => (
-                <div key={index} className="flex justify-between py-2 border-b">
-                    <img 
-                        alt={item.product.product_origin.product_name}
-                        src={`${item.product.images[0]?.image}`}
-                        className="itemImage w-24 h-24 object-cover mr-4"
-                    />
-                    <div>
-                    <p className="font-medium">{item.product.product_origin.product_name}</p>
-                    <p className="text-gray-600">数量: {item.quantity}</p>
+                    <div key={index} className="flex justify-between py-2 border-b">
+                        <img 
+                            alt={item.product.product_origin.product_name}
+                            src={`${item.product.images[0]?.image}`}
+                            className="w-24 h-24 object-cover mr-4 border-2"
+                        />
+                        <div>
+                            <p className="font-medium">{item.product.product_origin.product_name}</p>
+                            <p className="text-gray-600">数量: {item.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="font-medium">¥{(item.product.price * item.quantity).toLocaleString()}</p>
+                            <p className="text-sm text-gray-600">
+                                (税込 ¥{(calculateItemPriceWithTax(item.product.price) * item.quantity).toLocaleString()})
+                            </p>
+                        </div>
                     </div>
-                    <div className="text-right">
-                    <p className="font-medium">¥{(item.product.price * item.quantity).toLocaleString()}</p>
-                    <p className="text-sm text-gray-600">
-                        (税込 ¥{(calculateItemPriceWithTax(item.product.price) * item.quantity).toLocaleString()})
-                    </p>
-                    </div>
-                </div>
                 ))}
-                
-                <div className="mt-4 pt-4 border-t">
+    
+                <div className="mt-4 pt-4">
                     <div className="flex justify-between mb-2">
                         <span>小計</span>
                         <span>¥{subtotal.toLocaleString()}</span>
@@ -301,38 +300,39 @@ interface CartItem {
                     </div>
                 </div>
             </div>
-
-        </div>
-
-        {/* 決済方法選択 */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">決済方法の選択</h2>
-            <div className="space-y-4">
-            {PAYMENT_METHODS.map((method) => (
-                <label key={method.id} className="flex items-center space-x-3 cursor-pointer">
-                <input
-                    type="radio"
-                    name="payment"
-                    value={method.id}
-                    checked={selectedPayment === method.id}
-                    onChange={(e) => setSelectedPayment(e.target.value)}
-                    className="form-radio h-5 w-5 text-blue-600"
-                />
-                <span className="text-gray-900">{method.label}</span>
-                </label>
-            ))}
+    
+            {/* 決済方法選択 */}
+            <div className="bg-white shadow-md rounded-lg p-6 mb-6 border border-gray-200">
+                <h2 className="text-xl font-semibold mb-4">決済方法の選択</h2>
+                <div className="space-y-4">
+                    {PAYMENT_METHODS.map((method) => (
+                        <label key={method.id} className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="payment"
+                                value={method.id}
+                                checked={selectedPayment === method.id}
+                                onChange={(e) => setSelectedPayment(e.target.value)}
+                                className="form-radio h-5 w-5 text-blue-600"
+                            />
+                            <span className="text-gray-900">{method.label}</span>
+                        </label>
+                    ))}
+                </div>
             </div>
-
-        </div>
-
-        <div className="text-center">
-            <button
-            onClick={handleCheckout}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full max-w-md"
-            >
-            決済に進む
-            </button>
-        </div>
+    
+            {/* 決済ボタン */}
+            <div className="text-center">
+                <button
+                    onClick={handleCheckout}
+                    className="relative border border-black bg-white text-black font-bold px-10 py-4 my-5 rounded-lg overflow-hidden group w-full max-w-md mx-auto"
+                >
+                    <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
+                    <span className="relative transition-colors duration-300 ease-in-out group-hover:text-white">
+                        決済に進む
+                    </span>
+                </button>
+            </div>
         </div>
     );
 };

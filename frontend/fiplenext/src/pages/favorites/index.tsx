@@ -75,7 +75,7 @@ const FavoriteList: React.FC = () => {
 
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
-            <h1 className="text-3xl text-center my-8">YOUR LIKED ITEMS</h1>
+            <h1 className="text-3xl text-center my-4">YOUR LIKED ITEMS</h1>
             <p className="text-center mb-8">お気に入りのアイテムをたくさん追加しましょう！</p>
 
             <div className="flex flex-col items-center">

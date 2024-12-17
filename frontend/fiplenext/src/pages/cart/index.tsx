@@ -21,6 +21,7 @@ interface CartItem {
         };
         color: {
             color_name: string;
+            color_code: string;
         };
         size: {
             size_name: string;
@@ -172,14 +173,14 @@ const Cart: React.FC = () => {
                         </div>  
                     ) : (  
                         cartItems.map((item) => (
-                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4">
-                                <div className="w-full border-b border-gray-300 mx-4 flex items-center">
+                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4 border-b border-gray-300">
+                                <div className="w-full mx-4 flex items-center">
                                     {/* 商品画像 */}
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
                                             src={`${item.product.images[0]?.image}`}
-                                            className="itemImage w-auto h-[150px] object-cover"   
+                                            className="itemImage w-auto h-[150px] aspect-[3/4] object-cover border"   
                                         />
                                     </Link>
 
@@ -193,20 +194,20 @@ const Cart: React.FC = () => {
                                         </Link>
                                         {/* カテゴリ */}
                                         <p className="text-gray-500 text-sm">  
-                                            カテゴリー: {item.product.product_origin.category.category_name} /   
+                                            {item.product.product_origin.category.category_name} /   
                                             {item.product.product_origin.subcategory.subcategory_name}  
                                         </p>
                                         {/* カラー */}
                                         <p className="text-gray-500 text-sm">  
-                                            色: {item.product.color.color_name}  
+                                            {item.product.color.color_name}
                                         </p>
                                         {/* サイズ */}
                                         <p className="text-gray-500 text-sm">  
-                                            サイズ: {item.product.size.size_name}  
+                                            {item.product.size.size_name} サイズ
                                         </p>
                                         {/* 在庫 */}
                                         <p className="text-gray-500 text-sm">  
-                                            在庫: {item.product.stock}点  
+                                            残り {item.product.stock} 点  
                                         </p>  
                                     </div>
 
