@@ -941,49 +941,7 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
-# タグ関連------------------------------------------------------------------------------------------------------
 
-class TagListView(LoginRequiredMixin, ListView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    template_name = 'tag_list.html'
-    context_object_name = 'tags'
-    paginate_by = 20
-    
-class TagCreateView(LoginRequiredMixin, CreateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    form_class = TagForm
-    template_name = 'tag_form.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-
-    def form_valid(self, form):
-        form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
-        return super().form_valid(form)
-
-class TagUpdateView(LoginRequiredMixin, UpdateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    form_class = TagForm
-    template_name = 'tag_form.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-    
-    def get_queryset(self):
-        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
-class TagDeleteView(LoginRequiredMixin, DeleteView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    model = Tag
-    template_name = 'tag_confirm_delete.html'
-    success_url = reverse_lazy('fipleapp:tag_list')
-
-    def get_queryset(self):
-        return Tag.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
 # 商品タグ関連------------------------------------------------------------------------------------------------------------------------
 
 class ProductTagListView(LoginRequiredMixin, ListView):

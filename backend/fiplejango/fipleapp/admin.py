@@ -33,12 +33,6 @@ admin.site.register(AdminUser)
 admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(Color)
-
-
-
-
-
-admin.site.register(Color)
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
     list_display = ('size_name', 'order', 'created_at', 'updated_at', 'admin_user')

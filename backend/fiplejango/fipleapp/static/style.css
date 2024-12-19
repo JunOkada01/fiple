@@ -400,3 +400,21 @@ main {
         max-width: 250px;
     }
 }
+
+/* 基盤設定　機能画面 */
+.list-group-item .btn-group {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+}
+.list-group-item .btn-group a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+.list-group-item .btn-group i {
+    color: gray;
+    margin-right: 8px;
+}
+
+/*                  */
