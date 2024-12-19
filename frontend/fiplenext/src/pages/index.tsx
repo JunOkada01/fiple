@@ -137,31 +137,6 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
      
-      {/* 身長と体重入力フォーム */}
-      <div className="flex flex-col sm:flex-row justify-center items-center my-8 space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex items-center">
-          <label className="text-sm font-medium mr-4">身長 (cm)</label>
-          <input
-            type="number"
-            value={height}
-            onChange={(e) => setHeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="50"
-            max="300"
-          />
-        </div>
-        <div className="flex items-center">
-          <label className="text-sm font-medium mx-4">体重 (kg)</label>
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(Number(e.target.value))}
-            className="border rounded-lg px-2 py-1 text-center shadow-sm"
-            min="20"
-            max="300"
-          />
-        </div>
-      </div>
  
       {/* 商品表示エリア */}
       <div className="flex justify-center items-center flex-col">
