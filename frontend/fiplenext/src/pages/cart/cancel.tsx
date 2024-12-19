@@ -22,8 +22,8 @@ const PaymentCancelPage = () => {
   );
 };
 
-export default PaymentCancelPage;
-=======
+// export default PaymentCancelPage;
+
 const CancelPage = () => {
     return (
         <div>
@@ -35,4 +35,4 @@ const CancelPage = () => {
 };
 
 export default CancelPage;
->>>>>>> origin/fiple11/22
+
