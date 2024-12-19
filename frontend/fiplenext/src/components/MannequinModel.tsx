@@ -23,16 +23,16 @@ function Model({ height, weight }: MannequinModelProps) {
 }
 
 const MannequinModel: React.FC<MannequinModelProps> = ({ height, weight }) => {
-    return (
-        <Canvas style={{ height: '100%', width: '100%' }} camera={{ position: [0, 1, 2] }}>
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[0, 5, 5]} intensity={1} />
-            <Suspense fallback={null}>
-                <Model height={height} weight={weight} />
-            </Suspense>
-            <OrbitControls />
-        </Canvas>
-    );
+  return (
+    <Canvas style={{ height: '100%', width: '100%', }} camera={{ position: [0, 1, 2] }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[0, 5, 5]} intensity={1} />
+      <Suspense fallback={null}>
+        <Model height={height} weight={weight} />
+      </Suspense>
+      <OrbitControls />
+    </Canvas>
+  );
 };
 
 // モデルのプリロード

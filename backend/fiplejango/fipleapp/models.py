@@ -10,9 +10,9 @@ class CustomUser(AbstractUser):
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
     
     class SexChoices(models.TextChoices):
-        MALE = 'M', 'Male'
-        FEMALE = 'F', 'Female'
-        OTHER = 'O', 'Other'
+        MALE = 'M', '男性'
+        FEMALE = 'F', '女性'
+        OTHER = 'O', 'その他'
     sex = models.CharField(max_length=1, choices=SexChoices.choices, default=SexChoices.OTHER)  # 性別
     
     phone = models.CharField(max_length=15, default='')  # 電話番号
@@ -87,7 +87,7 @@ class Color(models.Model):
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     def __str__(self):
-        return f"{self.color_name} ({self.color_code})"  # 色名を返す
+        return f"{self.color_name} - ({self.color_code})"  # 色名を返す
 
     
 class Size(models.Model):
@@ -103,7 +103,7 @@ class Size(models.Model):
             max_order = Size.objects.aggregate(max_order=models.Max('order'))['max_order'] or 0
             self.order = max_order + 1
         super().save(*args, **kwargs)  # 親クラスのsaveを呼び出す
-
+    
     def __str__(self):
         return self.size_name  # サイズ名を返す
 
@@ -260,32 +260,6 @@ class DeliveryAddress(models.Model):
             raise ValidationError("ユーザーは最大3つの住所しか登録できません。")
         super().save(*args, **kwargs)
     
-
-# class Purchase(models.Model):
-#     SHIPPING_CHOICES = [
-#         ('配送エラー', '配送エラー'),
-#         ('配送中', '配送中'),
-#         ('配送済み', '配送済み'),
-#     ]
-    
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # ユーザーID
-#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 合計金額
-#     purchase_date = models.DateTimeField(auto_now_add=True)  # 購入日時
-#     payment_method = models.CharField(max_length=255)
-#     delivery_address = models.CharField(max_length=255)  # 配送先
-#     shipping_status = models.CharField(max_length=50, choices=SHIPPING_CHOICES)  # 発送状態
-
-#     def __str__(self):
-#         return f"{self.id} - {self.user.username}"
-
-# class PurchaseItem(models.Model):
-#     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)  # 購入ID
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
-#     quantity = models.PositiveIntegerField()  # 数量
-#     amount = models.DecimalField(max_digits=10, decimal_places=2)  # 金額
-
-#     def __str__(self):
-#         return f"{self.id} - {self.purchase.id}"
 
     """
     注文情報を管理するモデル

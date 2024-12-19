@@ -21,6 +21,9 @@ from .views import PasswordResetRequestView, PasswordResetConfirmView
 
 urlpatterns = [
     path('users/', views.user_list, name='user-list'),
+    
+    path('users_list/', UserListView.as_view(), name='admin_user_list'),
+    path('users_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
     path('register/', RegisterView.as_view(), name='register'),
     path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
  
@@ -75,6 +78,14 @@ urlpatterns = [
     path('password-change/', PasswordChangeView.as_view(), name='password_change'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+
+    # トークン
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # ログイン中のユーザーの情報を表示
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
@@ -116,7 +127,42 @@ urlpatterns = [
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
     
-    path('api/user/', UserView.as_view({'get': 'list'}), name='user_view'),
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),
+    path('api/products/', APIProductListView.as_view(), name='api_product-list'),
+    path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
+    path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
+    path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
+    path('api/cart/', CartListView.as_view(), name='cart-list'),
+    path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
+    path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
+    path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
+    path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
+    path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
+    
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    
+    #FAQ関連
+    path('faq-manager/', views.faq_manager, name='faq_manager'),
+    path('api/faqs/', views.faq_list, name='faq_list'),
+    path('create-question-category/', views.create_question_category, name='create_question_category'),
+    path('create-faq/', views.create_faq, name='create_faq'),
+    path('delete-question-category/<int:category_id>/', views.delete_question_category, name='delete_question_category'),
+    path('delete-faq/<int:faq_id>/', views.delete_faq, name='delete_faq'),
+    path('question-category-list/', views.question_category_list, name='question_category_list'),
+    path('faq-list/', views.faq_list_view, name='faq_list_view'),
+    path('edit-question-category/<int:category_id>/', views.edit_question_category, name='edit_question_category'),
+    path('edit-faq/<int:faq_id>/', views.edit_faq, name='edit_faq'),
+    
+    #Contact関連
+    path('api/', include(router.urls)),
+    path('contact-manager/', views.contact_manager, name='contact_manager'),
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
+    path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
+    path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
     
     # 配達先関連
     path('api/', include(router.urls)),

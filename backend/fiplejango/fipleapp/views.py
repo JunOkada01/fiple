@@ -80,14 +80,31 @@ import time
 from django.db.models import OuterRef, Subquery
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Contact, ContactCategory
+from django.views.generic import (
+    TemplateView, ListView, CreateView, 
+    UpdateView, DeleteView, DetailView
+)
+
+from rest_framework import (
+    generics, status, viewsets, permissions
+)
+from rest_framework.decorators import (
+    api_view, action, permission_classes
+)
+from rest_framework.exceptions import NotFound
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated
+)
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# プロジェクト内のモジュール
 from .models import *
 from .serializers import *
 from .forms import *
+
 # ユーザーモデルの取得
 User = get_user_model()
 
@@ -135,7 +152,36 @@ class APIProductDetailView(generics.RetrieveAPIView):
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-        
+
+class ProductByCategoryView(APIView):
+    def get(self, request, category_name):
+        try:
+            # カテゴリ名でフィルタリング
+            category = Category.objects.get(category_name=category_name)
+            products = Product.objects.filter(product_origin__category=category)
+
+            # 商品が見つからない場合の処理
+            if not products.exists():
+                return Response(
+                    {"message": "このカテゴリには商品がありません"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
+            # シリアライザーを使用してデータを変換
+            serializer = ProductListSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "カテゴリが見つかりません"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+class APICategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.prefetch_related('subcategories').all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
 class APIProductReviewView(generics.RetrieveAPIView):
     serializer_class = ProductListSerializer
     queryset = Product.objects.all()
@@ -471,14 +517,73 @@ def user_list(request):
     users = CustomUser.objects.all().values('id', 'username', 'email')  # 必要なフィールドだけを取得
     return JsonResponse(list(users), safe=False)
 
-# class RegisterView(APIView):
-#     def post(self, request):
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserListView(LoginRequiredMixin, ListView):
+    """
+    ユーザー一覧ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'user_list.html'
+    context_object_name = 'users'
+    paginate_by = 20
+    model = CustomUser
 
+    def get_queryset(self):
+        """
+        検索機能の実装
+        """
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search', '')
+        
+        if search_query:
+            queryset = queryset.filter(
+                Q(username__icontains=search_query) | 
+                Q(email__icontains=search_query) | 
+                Q(hurigana__icontains=search_query)
+            )
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        検索クエリをコンテキストに追加
+        """
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+class UserDetailView(LoginRequiredMixin, DetailView):
+    """
+    ユーザー詳細ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = CustomUser
+    template_name = 'user_detail.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'user_id'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        """
+        ユーザーの注文履歴を追加
+        """
+        context = super().get_context_data(**kwargs)
+        orders = Order.objects.filter(user=self.object).order_by('-order_date')
+        
+        # ページネーションの追加
+        paginator = Paginator(orders, 10)  # 1ページあたり10件
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context['orders'] = page_obj
+        context['order_items'] = OrderItem.objects.filter(order__in=page_obj).select_related('product')
+        context['page_obj'] = page_obj  # ページオブジェクトをコンテキストに追加
+        
+        return context
+    
 
 class RegisterView(APIView):
     def post(self, request):
@@ -598,6 +703,11 @@ def admin_logout(request):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
+    
+class BaseSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'base_settings/top.html'
 
 class BaseSettingView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
@@ -704,42 +814,6 @@ class ColorListView(LoginRequiredMixin, ListView):
     context_object_name = 'colors'
     paginate_by = 20
     
-    def get_queryset(self):
-        # 初期クエリセット
-        queryset = Color.objects.all()
-
-        # 並び順指定の取得
-        sort_field = self.request.GET.get('sort_field', '')
-        sort_order = self.request.GET.get('sort_order', 'asc')
-
-        # 並び順指定と昇順・降順の切り替え処理
-        sort_mapping = {
-            'color_name': 'color_name',
-            'color_code': 'color_code',
-            'created_at': 'created_at',
-            'updated_at': 'updated_at',
-        }
-        if sort_field in sort_mapping:
-            order_prefix = '' if sort_order == 'asc' else '-'
-            queryset = queryset.order_by(f"{order_prefix}{sort_mapping[sort_field]}")
-
-        # 絞り込み条件の取得
-        filter_query = self.request.GET.get('filter', '')
-        if filter_query:
-            queryset = queryset.filter(
-                Q(color_name__icontains=filter_query) |
-                Q(color_code__icontains=filter_query)
-            )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sort_field'] = self.request.GET.get('sort_field', '')
-        context['sort_order'] = self.request.GET.get('sort_order', 'asc')
-        context['filter'] = self.request.GET.get('filter', '')
-        return context
-
-
 class ColorCreateView(LoginRequiredMixin, CreateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -867,6 +941,11 @@ class ProductManagementView(LoginRequiredMixin, TemplateView):
     template_name = 'product_management/top.html'
 
 # 商品元関連----------------------------------------------------------------------------------------
+class ProductManagementView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'product_management/top.html'
+
 
 class ProductOriginListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
@@ -980,6 +1059,7 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
+
 # 商品タグ関連------------------------------------------------------------------------------------------------------------------------
 
 class ProductTagListView(LoginRequiredMixin, ListView):
@@ -1562,6 +1642,7 @@ class PasswordResetRequestView(APIView):
             email_message.send(fail_silently=False)
         # セキュリティのため、ユーザーが存在しない場合でも同じレスポンスを返す
         return Response({'message': 'パスワードリセット手順をメールで送信しました。'})
+    
 
 class PasswordResetConfirmView(APIView):
     def post(self, request):

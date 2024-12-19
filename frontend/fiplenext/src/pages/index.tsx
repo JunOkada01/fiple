@@ -39,7 +39,10 @@ interface ProductListProps {
  
 interface FittingItem {
   id: number;
-  name: string;
+  product_id: number;
+  productName: string;
+  categoryName: string;
+  subcategoryName: string;
   price: number;
   imageUrl?: string;
 }

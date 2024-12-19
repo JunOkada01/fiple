@@ -66,6 +66,10 @@ const Cart: React.FC = () => {
                     Authorization: `Bearer ${token || localStorage.getItem('access_token')}`
                 }
             });
+
+            console.log(response.data)
+            console.log(Array.isArray(response.data.results)); 
+            
             setCartItems(response.data);
             setError(null);
         } catch (error) {
@@ -124,7 +128,6 @@ const Cart: React.FC = () => {
         }
     };
 
-    {/* カートから商品を削除 */}
     const handleRemoveItem = async (itemId: number) => {
         try {
             await axios.delete(`http://localhost:8000/api/cart/${itemId}/delete/`, {
@@ -140,10 +143,19 @@ const Cart: React.FC = () => {
         }
     };
 
-    {/* 合計金額 */}
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + item.total_price, 0);
     };
+
+    if (loading) {
+        return (
+            <div className="container mx-auto max-w-screen-xl px-4">
+                <div className="flex justify-center items-center min-h-[400px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (  
         <div className="container mx-auto p-4">  
@@ -173,14 +185,14 @@ const Cart: React.FC = () => {
                         </div>  
                     ) : (  
                         cartItems.map((item) => (
-                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4 border-b border-gray-300">
-                                <div className="w-full mx-4 flex items-center">
+                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4">
+                                <div className="w-full border-b border-gray-300 mx-4 flex items-center">
                                     {/* 商品画像 */}
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
                                             src={`${item.product.images[0]?.image}`}
-                                            className="itemImage w-auto h-[150px] aspect-[3/4] object-cover border"   
+                                            className="itemImage w-auto h-[150px] object-cover"   
                                         />
                                     </Link>
 
@@ -194,20 +206,20 @@ const Cart: React.FC = () => {
                                         </Link>
                                         {/* カテゴリ */}
                                         <p className="text-gray-500 text-sm">  
-                                            {item.product.product_origin.category.category_name} /   
+                                            カテゴリー: {item.product.product_origin.category.category_name} /   
                                             {item.product.product_origin.subcategory.subcategory_name}  
                                         </p>
                                         {/* カラー */}
                                         <p className="text-gray-500 text-sm">  
-                                            {item.product.color.color_name}
+                                            色: {item.product.color.color_name}  
                                         </p>
                                         {/* サイズ */}
                                         <p className="text-gray-500 text-sm">  
-                                            {item.product.size.size_name} サイズ
+                                            サイズ: {item.product.size.size_name}  
                                         </p>
                                         {/* 在庫 */}
                                         <p className="text-gray-500 text-sm">  
-                                            残り {item.product.stock} 点  
+                                            在庫: {item.product.stock}点  
                                         </p>  
                                     </div>
 

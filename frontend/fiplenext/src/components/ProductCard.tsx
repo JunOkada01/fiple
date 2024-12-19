@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
 // import { color } from 'framer-motion';
 
-export interface ProductCardProps {
+interface ProductCardProps {
     id: number;
     product_id: number;
     productName: string;

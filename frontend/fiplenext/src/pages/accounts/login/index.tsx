@@ -27,7 +27,7 @@ const Login = () => {
             router.push('/'); // ホームページにリダイレクト
         } catch (error) {
             console.error(error);
-            alert('メールアドレスかパスワードが間違っています');
+            alert('Login failed. Please check your credentials.');
         }
     };
 
