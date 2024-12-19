@@ -4,72 +4,40 @@
 
 {% block content %}
 <!-- Icon Tiles -->
-        <div class="row">
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:category_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#EA3323"><path d="m261-526 220-354 220 354H261ZM706-80q-74 0-124-50t-50-124q0-74 50-124t124-50q74 0 124 50t50 124q0 74-50 124T706-80Zm-586-25v-304h304v304H120Zm586.08-35Q754-140 787-173.08q33-33.09 33-81Q820-302 786.92-335q-33.09-33-81-33Q658-368 625-334.92q-33 33.09-33 81Q592-206 625.08-173q33.09 33 81 33ZM180-165h184v-184H180v184Zm189-421h224L481-767 369-586Zm112 0ZM364-349Zm342 95Z"/></svg>
-                    <p>カテゴリ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:subcategory_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#007BFF"><path d="M80-145v-304h304v304H80Zm60-60h184v-184H140v184Zm81-361 220-354 220 354H221Zm108-60h224L441-807 329-626ZM870-51 769-152q-22 15-48.11 23.5T666-120q-74 0-124-50t-50-124q0-74 50-124t124-50q74 0 124 50t50 124q0 28-7.52 52.5T811-196L913-94l-43 43ZM666.08-180Q714-180 747-213.08q33-33.09 33-81Q780-342 746.92-375q-33.09-33-81-33Q618-408 585-374.92q-33 33.09-33 81Q552-246 585.08-213q33.09 33 81 33ZM324-389Zm117-237Z"/></svg>
-                    <p>サブカテゴリ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:color_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#28A745"><path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-85 32-158t87.5-127q55.5-54 130-84.5T489-880q79 0 150 26.5T763.5-780q53.5 47 85 111.5T880-527q0 108-63 170.5T650-294h-75q-18 0-31 14t-13 31q0 27 14.5 46t14.5 44q0 38-21 58.5T480-80Zm0-400Zm-233 26q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm126-170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm214 0q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm131 170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15ZM480-140q11 0 15.5-4.5T500-159q0-14-14.5-26T471-238q0-46 30-81t76-35h73q76 0 123-44.5T820-527q0-132-100-212.5T489-820q-146 0-247.5 98.5T140-480q0 141 99.5 240.5T480-140Z"/></svg>
-                    <p>色一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:size_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#FFC107"><path d="M80-80q0-107 31-185t79-129.5q48-51.5 106.5-80T410-511v-139q-137-17-233.5-79.5T80-880h800q0 88-96.5 150.5T550-650v139q55 8 113.5 36.5t106.5 80Q818-343 849-265t31 185H640v-60h177q-18-152-111-234.5T480-457q-133 0-226 82.5T143-140h177v60H80Zm400-625q106 0 196-36.5T795-820H165q29 42 119 78.5T480-705Zm0 625q-33 0-56.5-23.5T400-160q0-17 6.5-31t17.5-25q24-24 82.5-50T640-320q-29 75-54.5 133.5T536-104q-11 11-25 17.5T480-80Zm0-625Z"/></svg>
-                    <p>サイズ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:product_image_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#6F42C1"><path d="M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm56-97h489L578-473 446-302l-93-127-117 152Zm-56 97v-600 600Z"/></svg>
-                    <p>商品画像一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:tag_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#DC3545"><path d="M140-160q-24.75 0-42.37-17.63Q80-195.25 80-220v-520q0-24.75 17.63-42.38Q115.25-800 140-800h471q14.25 0 27 6.37 12.75 6.38 21 17.63l222 296-221 296q-8.25 11.25-21 17.62-12.75 6.38-27 6.38H140Zm0-60h471l195-260-195-260H140v520Zm236-260Z"/></svg>
-                    <p>タグ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:product_tag_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#20C997"><path d="M440-160v-60h171l195-260-195-260H140v260H80v-260q0-24.75 17.63-42.38Q115.25-800 140-800h471q14.25 0 27 6.37 12.75 6.38 21 17.63l222 296-221 296q-8.25 11.25-21 17.62-12.75 6.38-27 6.38H440Zm33-320ZM200-120v-120H80v-60h120v-120h60v120h120v60H260v120h-60Z"/></svg>
-                    <p>商品のタグ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:product_origin_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#6610F2"><path d="M450-280h60v-170h170v-60H510v-170h-60v170H280v60h170v170ZM180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm0-600v600-600Z"/></svg>
-                    <p>商品元一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:product_list' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
-                    <p>商品一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:contact_manager' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
-                    <p>問合わせ一覧・追加</p>
-                </div></a>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <a href="{% url 'fipleapp:faq_manager' %}"><div class="icon-tile">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
-                    <p>FAQ一覧・追加</p>
-                </div></a>
-            </div>
-
+<div class="box-container">
+    <div class="row">
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:base_settings' %}" class="icon-link">
+                <div class="icon-tile">
+                    <i class="fa-solid fa-layer-group faa-float animated-hover icons" style="color: #A7C7E7;"></i>
+                    <p>基盤設定</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:product_management' %}" class="icon-link">
+                <div class="icon-tile">
+                    <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #A8D8A1;"></i>
+                    <p>商品管理</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:contact_manager' %}" class="icon-link">
+                <div class="icon-tile">
+                    <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #F8C8A3;"></i>
+                    <p>お問い合わせ</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'fipleapp:faq_manager' %}" class="icon-link">
+                <div class="icon-tile">
+                    <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
+                    <p>FAQ</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

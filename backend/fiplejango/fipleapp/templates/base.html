@@ -1,96 +1,160 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .step-links a {
-            margin: 0 5px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .step-links .current {
-            margin: 0 5px;
-            font-weight: bold;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Google Material IconsのCDN -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- Font Awesomeの最新版CDN -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.2.1/font-awesome-animation.css" type="text/css" media="all" />
+    </head>
 
-        .icon-tile, .text-tile {
-            border: 1px solid #ddd;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        .icon-tile:hover, .text-tile:hover {
-            background-color: #f8f9fa;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .icon-tile img {
-            width: 50px;
-            margin-bottom: 10px;
-        }
-        .text-tile {
-            padding: 30px 20px;
-            font-size: 1.2rem;
-        }
-        .text-tile .value {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .dashboard-header h1 {
-            margin: 0;
-        }
-        a {
-            text-decoration: none; /* 下線をなくす */
-            color: black; /* 文字色を黒にする */
-            font-size: 0.8rem; /* 文字サイズを少し小さくする */
-        }
-        
-        a:hover {
-            color: #0056ff; /* ホバー時の色を変更（任意） */
-        }
-    </style>
-    
-</head>
-<body>
-    <header>
-        <div class="container mt-4">
-            <!-- Dashboard Header -->
-            <div class="dashboard-header">
-                <a href="{% url 'fipleapp:admin_top' %}"><h5>トップへ</h5></a>
-                <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#000000"><path d="M480-481q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM160-160v-94q0-38 19-65t49-41q67-30 128.5-45T480-420q62 0 123 15.5t127.92 44.69q31.3 14.13 50.19 40.97Q800-292 800-254v94H160Zm60-60h520v-34q0-16-9.5-30.5T707-306q-64-31-117-42.5T480-360q-57 0-111 11.5T252-306q-14 7-23 21.5t-9 30.5v34Zm260-321q39 0 64.5-25.5T570-631q0-39-25.5-64.5T480-721q-39 0-64.5 25.5T390-631q0 39 25.5 64.5T480-541Zm0-90Zm0 411Z"/></svg>
+    <body>
+        <header>
+            <!--
+            <div class="dashboard-header m-3">
+                <div class="top-link">
+                    <a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house"></i></a>
+                </div>
+                <div class="admin-user-state">
+                    <i class="fa-solid fa-user-tie" style="font-size: 25px;"></i>
+                    {% if request.user.is_authenticated %}
                     <span class="me-3">{{ user }} さん</span>
+                    {% endif %}
                 </div>
                 {% if request.user.is_authenticated %}
-                <div>
-                    <a href="{% url 'fipleapp:admin_logout' %}"><h5>ログアウト</h5></a>
+                <div class="logout-link">
+                    <a href="{% url 'fipleapp:admin_logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
                 </div>
                 {% endif %}
             </div>
-            <hr>
-    </header>
+            -->
+        </header>
 
-    <main class="container mt-4">
-        {% block content %}
-        <!-- コンテンツはここに表示されます -->
-        {% endblock %}
-    </main>
+        <main>
+            {% if request.user.is_authenticated and current_path != '/admin_login/' and current_path != '/admin_create/' %}
+            <aside>
+                <nav class="sidebar" id="sidebar">
+                    <div class="side-header">
+                        <a href="{% url 'fipleapp:admin_top' %}">
+                            <img class="sidebar-logo" src="{% static 'images/Fiple-simple.png' %}" alt="Fiple-simple-logo">
+                        </a>
+                    </div>
+                    
+                    <div class="admin-user-bord">
+                        <div class="admin-user">
+                            <i class="fa-solid fa-user-tie" style="font-size: 50px;"></i>
+                                <span class="admin-username">{{ user }}</span>
+                            <div class="logout-link-btn">
+                                <a href="{% url 'fipleapp:admin_logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="side-content">
+                        <ul class="side-main">
+                            <li class="side-item-main border-bottom"><a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME</a></li>
+                            <!-- 基盤設定 -->
+                            <li class="side-item-top">
+                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top"><i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <ul class="submenu border-bottom">
+                                    <li class="submenu-item">
+                                        <a href="{% url 'fipleapp:category_top' %}">Category</a>
+                                        <!--
+                                        <ul>
+                                            <li class="side-item-submenu"><a href="{% url 'fipleapp:category_list' %}">カテゴリー</a></li>
+                                            <li class="side-item-submenu"><a href="{% url 'fipleapp:subcategory_list' %}">サブカテゴリー</a></li>
+                                        </ul>
+                                        -->
+                                    </li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:color_list' %}">Color</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:size_list' %}">Size</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:tag_list' %}">Tag</a></li>
+                                </ul>
+                            </li>
+                            <!-- 商品管理 -->
+                            <li class="side-item-top">
+                                <a href="{% url 'fipleapp:product_management' %}" class="item-top"><i class="fa-solid fa-box" style="font-size: 15px;"></i>商品管理<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <ul class="submenu border-bottom">
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:product_image_list' %}">商品画像管理</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:product_tag_list' %}">商品タグ管理</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:product_origin_list' %}">商品元管理</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:product_list' %}">商品管理</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+            {% endif %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+            <div class="container">
+                <div class="content-header">
+                    {% if request.user.is_authenticated %}
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fa-solid fa-bars"></i> <!-- 開閉ボタンのアイコン -->
+                    </button>
+                    <button class="back-button" id="backButton" type="button" onclick="window.history.back()" value="戻る">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button class="forward-button" id="forwardButton" type="button" onclick="window.history.forward()" value="進む">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    {% block content %}
+                    <!-- コンテンツはここに表示されます -->
+                    {% endblock %}
+                </div>
+            </div>
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- サイドバー開閉ボタン処理 -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const sidebar = document.getElementById('sidebar');
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const mainContent = document.querySelector('main');
+
+                sidebarToggle.addEventListener('click', function () {
+                    sidebar.classList.toggle('closed');
+                    mainContent.classList.toggle('sidebar-closed');
+                });
+            });
+        </script>
+
+        <!-- サイドバー内サイドメニューの開閉処理 -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.side-item-top > a .toggle-submenu');
+                
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault(); // リンクのデフォルト動作を防ぐ
+                        const parentItem = this.closest('.side-item-top');
+                        parentItem.classList.toggle('active');
+                    });
+                });
+            });
+        </script>
+
+        <!-- 管理者ログイン・新規登録でのサイドバー非表示処理 -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentPath = window.location.pathname;
+                const noSidebarPaths = ['/admin_login/', '/admin_create/'];
+
+                if (noSidebarPaths.includes(currentPath)) {
+                    document.querySelector('main').classList.add('no-sidebar');
+                }
+            });
+        </script>
+    </body>
 </html>

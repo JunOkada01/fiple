@@ -87,10 +87,21 @@ class SubCategoryForm(forms.ModelForm):
 class ColorForm(forms.ModelForm):
     class Meta:
         model = Color
-        fields = ['color_name']
+        fields = ['color_name', 'color_code']
         labels = {
-            'color_name': '色名',
+            'color_name': 'カラー名',
+            'color_code': 'カラーコード',
         }
+        widgets = {
+            'color_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    color_code = forms.CharField(
+        widget=forms.widgets.Input(attrs={
+            'type': 'color',
+            'class': 'form-control'
+            }),
+        label='カラーコード',
+    )
         
 class SizeForm(forms.ModelForm):
     class Meta:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import Router from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,6 +21,7 @@ interface CartItem {
         };
         color: {
             color_name: string;
+            color_code: string;
         };
         size: {
             size_name: string;
@@ -43,7 +45,20 @@ const Cart: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        Router.push({
+        pathname: '/accounts/login',
+        query: { 
+            error: 'authentication', 
+            message: 'セッションが期限切れです。再度ログインしてください。' 
+        }
+        });
+        return;
+    }
     const fetchCartItems = async (token?: string) => {
         try {
             const response = await axios.get('http://localhost:8000/api/cart/', {
@@ -158,14 +173,14 @@ const Cart: React.FC = () => {
                         </div>  
                     ) : (  
                         cartItems.map((item) => (
-                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4">
-                                <div className="w-full border-b border-gray-300 mx-4 flex items-center">
+                            <div key={item.id} className="cartItem flex items-center justify-between py-4 px-4 border-b border-gray-300">
+                                <div className="w-full mx-4 flex items-center">
                                     {/* 商品画像 */}
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
-                                            src={`http://localhost:8000/${item.product.images[0]?.image}`}
-                                            className="itemImage w-auto h-[150px] object-cover"   
+                                            src={`${item.product.images[0]?.image}`}
+                                            className="itemImage w-auto h-[150px] aspect-[3/4] object-cover border"   
                                         />
                                     </Link>
 
@@ -179,20 +194,20 @@ const Cart: React.FC = () => {
                                         </Link>
                                         {/* カテゴリ */}
                                         <p className="text-gray-500 text-sm">  
-                                            カテゴリー: {item.product.product_origin.category.category_name} /   
+                                            {item.product.product_origin.category.category_name} /   
                                             {item.product.product_origin.subcategory.subcategory_name}  
                                         </p>
                                         {/* カラー */}
                                         <p className="text-gray-500 text-sm">  
-                                            色: {item.product.color.color_name}  
+                                            {item.product.color.color_name}
                                         </p>
                                         {/* サイズ */}
                                         <p className="text-gray-500 text-sm">  
-                                            サイズ: {item.product.size.size_name}  
+                                            {item.product.size.size_name} サイズ
                                         </p>
                                         {/* 在庫 */}
                                         <p className="text-gray-500 text-sm">  
-                                            在庫: {item.product.stock}点  
+                                            残り {item.product.stock} 点  
                                         </p>  
                                     </div>
 

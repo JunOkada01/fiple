@@ -1,0 +1,471 @@
+/* 全体の基本設定 */
+html, body {
+    height: 100%;         /* ページ全体の高さを100%に設定 */
+    margin: 0;            /* ブラウザデフォルトの余白をリセット */
+    padding: 0;           /* パディングをリセット */
+    box-sizing: border-box; /* 全体のボックスサイズ計算を標準化 */
+    font-family: Arial, sans-serif; /* 統一したフォント */
+    overflow-x: hidden;  /* 横スクロールを防止 */
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+}
+
+.dashboard-header .admin-user-state {
+    display: flex;
+    align-items: center; /* アイコンと名前を垂直方向に中央揃え */
+    justify-content: center; /* 水平方向の中央揃え */
+}
+
+.dashboard-header .admin-user-state i {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.dashboard-header .top-link a,
+.dashboard-header .logout-link a{
+    text-decoration: none; /* 下線をなくす */
+    color: rgb(53, 53, 53);
+    font-size: 25px; /* 文字サイズを少し小さくする */
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: all 0.3s ease;
+}
+
+.dashboard-header .top-link a:hover,
+.dashboard-header .logout-link a:hover {
+    color: gray;
+}
+
+/* --------------------------------------------------- */
+/* サイドバーの基本スタイル                       */
+/* --------------------------------------------------- */
+.sidebar {
+    background-color: #f8f9fa;
+    width: 250px;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: fixed; /* 画面に固定 */
+    left: 0; /* 左側に固定 */
+    top: 0; /* 上部に固定 */
+    z-index: 1000; /* 他の要素の上に表示 */
+    transition: transform 0.5s ease, width 0.5s ease;
+    transform: translateX(0); /* 開いた状態 */
+}
+.sidebar.closed {
+    transform: translateX(-100%); /* 閉じた状態 */
+}
+/* サイドバーを閉じた際に余白を削除 */
+.sidebar.closed + .container {
+    margin-left: 0;
+}
+/* mainを画面の幅全体に設定 */
+main.sidebar-closed {
+    margin-left: 0;
+}
+/* サイドバー開閉による画面の切り替えを設定 */
+.sidebar.closed ~ main {
+    margin-left: 0;
+    width: 100%;
+}
+
+/* サイドバーのヘッダー部分 */
+.side-header {
+    background-color: white;
+    position: sticky; /* 固定 */
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.side-header .sidebar-logo {
+    align-items: center;
+    width: 250px;
+    height: 80px;
+    object-fit: cover;
+    margin-top: 5px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* --------------------------------------------------- */
+/* ユーザー情報部分                               */
+/* --------------------------------------------------- */
+.sidebar .admin-user-bord {
+    width: 250px;
+    height: auto;
+    text-align: center;
+}
+
+.sidebar .admin-user-bord .admin-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    background-color: #f7f7f7;
+}
+
+.sidebar .admin-user-bord .admin-user i {
+    margin: 10px 20px;
+}
+
+.sidebar .admin-user-bord .admin-username {
+    margin: 5px 10px;
+}
+
+.sidebar .admin-user-bord .logout-link-btn {
+    padding: 0;
+}
+
+.sidebar .admin-user-bord .logout-link-btn i {
+    color: #333;
+    font-size: 15px;
+}
+
+/* --------------------------------------------------- */
+/* サイドバーコンテンツ                            */
+/* --------------------------------------------------- */
+.side-content {
+    flex-grow: 1; /* ヘッダー以外の内容をスクロール可能にする */
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --------------------------------------------------- */
+/* スクロールバーのレイアウト                     */
+/* --------------------------------------------------- */
+.side-content::-webkit-scrollbar {
+    width: 0;
+    background: white;
+}
+
+.side-content:hover::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* スクロールバーのつまみ部分 */
+.side-content::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 5px;
+}
+
+/* つまみ部分ホバー時の色変更 */
+.side-content:hover::-webkit-scrollbar-thumb:hover {
+    background-color: #999999;
+}
+
+/* --------------------------------------------------- */
+/* サイドバーメニューリンクのスタイル             */
+/* --------------------------------------------------- */
+.sidebar .side-main {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar .side-main li {
+}
+
+.sidebar .side-main li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #495057;
+    padding: 10px 10px;
+    transition: background-color 0.2s;
+}
+
+/* ホバーエフェクト */
+.sidebar .side-main .side-item-top .item-top:hover,
+.sidebar .side-main .side-item-main:hover {
+    background-color: #e9ecef;
+}
+
+/* アイコンとテキスト間隔 */
+.sidebar .side-main li a i {
+    font-size: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+}
+
+/* --------------------------------------------------- */
+/* サイドバー内のリスト構造                       */
+/* --------------------------------------------------- */
+.side-item-top ul,
+.side-item-top .side-item {
+    list-style: none;
+    padding: 0;
+    padding-left: 30px;
+}
+
+/* リンクのホバー時に下線エフェクト */
+.submenu .submenu-item a {
+    color: gray;
+    position: relative;
+    text-decoration: none; /* デフォルトの下線を無効化 */
+    transition: color 0.3s ease;
+}
+
+/* 下線エフェクト */
+.submenu .submenu-item a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background-color: #202020;
+    transition: width 0.3s ease-in-out;
+}
+
+/* ホバー時に下線が左から右に伸びるエフェクト */
+.submenu .submenu-item a:hover::after {
+    width: 100%;
+}
+
+/* ホバー時のテキスト色変更 */
+.submenu .submenu-item a:hover {
+    color: #202020;
+}
+
+/* --------------------------------------------------- */
+/* サイドバーメニュー開閉ボタン                       */
+/* --------------------------------------------------- */
+.side-item-top .toggle-submenu {
+    margin-left: auto;
+    cursor: pointer;
+    transition: transform 0.5s ease;
+}
+.side-item-top .toggle-submenu i {
+    font-size: 10px;
+    margin-left: 10px;
+    transition: transform 0.5s ease;
+}
+
+.side-item-top.active .toggle-submenu i {
+    transform: rotate(90deg);
+}
+
+.side-item-top .submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    background-color: rgb(246, 246, 246);
+}
+
+.side-item-top.active .submenu {
+    max-height: 500px;
+}
+/* --------------------------------------------------- */
+
+/* --------------------------------------------------- */
+/* その他コンテンツ要素                           */
+/* --------------------------------------------------- */
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* 縦配置 */
+    transition: margin-left 0.5s ease;
+}
+
+.content-header {
+    width: 100%; /* 必要に応じて調整 */
+    height: auto;
+    padding: 0 10px;
+    padding-top: 10px;
+}
+/* サイドバー開閉ボタン */
+.content-header .sidebar-toggle {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.content-header .sidebar-toggle i {
+    transition: transform 0.5s ease;
+}
+
+.sidebar.closed + .content-header .sidebar-toggle i {
+    transform: rotate(180deg); /* アイコンを回転 */
+}
+
+.content-header .back-button,
+.content-header .forward-button {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 10px;
+    color: #495057;
+    transition: color 0.5s ease;
+}
+
+.content-header .back-button:hover,
+.content-header .forward-button:hover {
+    color: #9b9b9b; /* ホバー時の色。好みに合わせて調整してください */
+}
+
+.content {
+    width: 100%;
+    height: auto;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    display: flex;
+    margin-left: 250px;
+    transition: margin-left 0.5s ease, width 0.5s ease;
+}
+
+/* - - - - - - - - - - - - - */
+
+
+/* - - - - - - - - - - - - - */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.step-links a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007bff;
+}
+.step-links .current {
+    margin: 0 5px;
+    font-weight: bold;
+}
+
+.box-title {
+    font-size: 20px;
+}
+
+.box-title-underbar {
+    margin: 2px;
+    height: 3px;
+}
+
+.box-container {
+    width: 100%;
+    padding: 20px;
+}
+.page-container {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap; /* 折り返しを許可 */
+    justify-content: left; /* 横方向中央揃え */
+    gap: 20px;
+}
+
+.icon-link {
+    display: inline-block; /* ブロック要素として扱う */
+    width: 200px; /* 親のタイルと同じ幅 */
+    text-decoration: none; /* 下線をなくす */
+    color: inherit; /* テキスト色を継承する */
+}
+.icon-tile {
+    width: 100%; /* 親のリンクの幅に合わせる */
+    height: 200px;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.icon-tile:hover {
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.icon-tile .icons {
+    font-size: 60px;
+    margin-bottom: 5px;
+}
+
+.icon-tile p {
+    color: #606060;
+}
+
+@media (max-width: 768px) {
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    .sidebar {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+/* 基盤設定　機能画面 */
+.list-group-item .btn-group {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+}
+.list-group-item .btn-group a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+.list-group-item .btn-group i {
+    color: gray;
+    margin-right: 8px;
+}
+
+/* 商品画像管理 詳細トグル */
+
+.img-detail-btn .toggle-description {
+    text-decoration: none; /* 下線をなくす */
+    font-size: 0.9em; /* フォントサイズを少し小さく */
+}
+
+.img-detail-btn .toggle-description:hover {
+    text-decoration: none; /* ホバー時も下線を表示しない */
+}
+/* アイコンの回転アニメーション */
+.rotate-icon {
+    transition: transform 0.5s ease-in-out; /* アニメーションの滑らかさ */
+}
+a[aria-expanded="true"] .rotate-icon {
+    transform: rotate(90deg); /* 開いている時に90度回転 */
+}
+
+
+/*                  */

@@ -20,7 +20,6 @@ app_name = 'fipleapp'
 from .views import PasswordResetRequestView, PasswordResetConfirmView
 
 urlpatterns = [
-    path('data/', data_view, name='data'),
     path('users/', views.user_list, name='user-list'),
     path('register/', RegisterView.as_view(), name='register'),
     path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
@@ -33,6 +32,8 @@ urlpatterns = [
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
     # path('api/products/', ProductListView.as_view(), name='product-list'),
+    path('base_settings/', BaseSettingView.as_view(), name='base_settings'),
+    path('categories/top/', CategoryTopView.as_view(), name='category_top'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
     path('categories/add/', CategoryCreateView.as_view(), name='category_add'),
     path('categories/edit/<int:pk>/', CategoryUpdateView.as_view(), name='category_edit'),
@@ -52,6 +53,7 @@ urlpatterns = [
     path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),
     path('product-origins/add/', ProductOriginCreateView.as_view(), name='product_origin_add'),
     path('get-subcategories/', get_subcategories, name='get_subcategories'),
+    path('product_management/', ProductManagementView.as_view(), name='product_management'),
     path('product-origins/edit/<int:pk>/', ProductOriginUpdateView.as_view(), name='product_origin_edit'),
     path('product-origins/delete/<int:pk>/', ProductOriginDeleteView.as_view(), name='product_origin_delete'),
     path('products/', ProductListView.as_view(), name='product_list'),
@@ -77,6 +79,7 @@ urlpatterns = [
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
     path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
+    path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
     #カート
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
     path('api/cart/', CartListView.as_view(), name='cart-list'),

@@ -13,7 +13,7 @@ const AllMensLeadiesKidsFilter: React.FC<AllMensLeadiesKidsFilterProps> = ({ onG
 
     return (
         <>
-            {/* 性別カテゴリメニュー */}
+            {/* 性別カテゴリメニュー ホバー時にテキスト下部にした線が伸びる */}
             <ul className="flex justify-center items-center my-8 flex-wrap text-sm md:text-base">
                 <li 
                     className="px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 cursor-pointer"

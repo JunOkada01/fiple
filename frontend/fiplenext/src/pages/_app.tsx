@@ -1,4 +1,5 @@
 import "@styles/styles/globals.css";
+import { Poppins } from "next/font/google";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Header from '../components/Header';
@@ -55,7 +56,7 @@ function App({ Component, pageProps }: AppProps) {
   }, [router]);
 
   return (
-    <>
+    <div style={{ fontFamily: "'Poppins', sans-serif" }}>
       <Head>
         <Link rel="preconnect" href="https://fonts.googleapis.com"></Link>
         <Link rel="preconnect" href="https://fonts.gstatic.com"></Link>
@@ -66,7 +67,7 @@ function App({ Component, pageProps }: AppProps) {
       {/* ログイン・新規登録画面ではAuthHeader、それ以外では通常のHeader */}
       {isAuthPage ? <AuthHeader /> : <Header />}
       {/* ローディングアニメーション */}
-      <main style={{ padding: '0' }}>
+      <main  style={{ fontFamily: "'Poppins', sans-serif", padding: "0" }}>
         {loading && (
           <div className="loadingOverlay">
             <ClipLoader color="#000000" size={100} /> {/* スピナーの色とサイズを設定 */}
@@ -75,7 +76,7 @@ function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </main>
       <Footer/>
-    </>
+    </div>
   );
 }
  
