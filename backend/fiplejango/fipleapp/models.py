@@ -2,16 +2,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
 
+# --- CustomUser テーブル ---
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
-    
+
     class SexChoices(models.TextChoices):
         MALE = 'M', 'Male'
         FEMALE = 'F', 'Female'
         OTHER = 'O', 'Other'
     sex = models.CharField(max_length=1, choices=SexChoices.choices, default=SexChoices.OTHER)  # 性別
-    
+
     phone = models.CharField(max_length=15, default='')  # 電話番号
     postal_code = models.CharField(max_length=10, default='')  # 郵便番号
     birth = models.DateField(default=date(2000, 1, 1))  # 生年月日
@@ -20,9 +21,10 @@ class CustomUser(AbstractUser):
     weight = models.FloatField(default=0.0)  # 体重
     cancellation_day = models.DateField(null=True, blank=True, default=None)  # 退会日
     accounts_valid = models.BooleanField(default=True)  # アカウント有効
-    
+
     last_login = models.DateField(null=True, blank=True, default=None)  # 最終ログイン日
 
+# --- AdminUser とそのマネージャークラス ---
 class AdminUserManager(BaseUserManager):
     def create_user(self, name, password=None, **extra_fields):
         if not name:
@@ -35,7 +37,6 @@ class AdminUserManager(BaseUserManager):
     def create_superuser(self, name, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(name, password, **extra_fields)
-
 
 class AdminUser(AbstractBaseUser):
     name = models.CharField(max_length=255, unique=True)
@@ -55,8 +56,8 @@ class AdminUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_superuser
-    
-    
+
+# --- Category テーブル ---
 class Category(models.Model):
     category_name = models.CharField(max_length=255, unique=True)  # カテゴリ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
@@ -65,7 +66,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category_name
-    
+
+# --- SubCategory テーブル ---
 class SubCategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')  # カテゴリID（Categoryモデルへの外部キー）
     subcategory_name = models.CharField(max_length=255, unique=True)  # サブカテゴリ名
@@ -75,18 +77,19 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return self.subcategory_name
-    
+
+# --- Color テーブル ---
 class Color(models.Model):
     color_name = models.CharField(max_length=255, unique=True)  # 色名
     color_code = models.CharField(max_length=7, default='#000000')  # 色コード
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
-    
-    def __str__(self):
-        return f"{self.color_name} ({self.color_code})"  # 色名を返す
 
-    
+    def __str__(self):
+        return f"{self.color_name} ({self.color_code})"
+
+# --- Size テーブル ---
 class Size(models.Model):
     size_name = models.CharField(max_length=255, unique=True)  # サイズ名
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
@@ -99,12 +102,12 @@ class Size(models.Model):
         if self.order == 0:
             max_order = Size.objects.aggregate(max_order=models.Max('order'))['max_order'] or 0
             self.order = max_order + 1
-        super().save(*args, **kwargs)  # 親クラスのsaveを呼び出す
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.size_name  # サイズ名を返す
+        return self.size_name
 
-    
+# --- ProductOrigin テーブル ---
 class ProductOrigin(models.Model):
     GENDER_CHOICES = [
         ('男性', '男性'),
@@ -114,9 +117,9 @@ class ProductOrigin(models.Model):
 
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     product_name = models.CharField(max_length=255)  # 商品名
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # カテゴリID（Categoryモデルへの外部キー
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)  # サブカテゴリID（SubCategoryモデルへの外部キー
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)  # 性別（ラジオボタン）
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # カテゴリID
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)  # サブカテゴリID
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)  # 性別
     description = models.TextField()  # 詳細
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
@@ -124,62 +127,64 @@ class ProductOrigin(models.Model):
 
     def __str__(self):
         return self.product_name
-    
+
+# --- Product テーブル ---
 class Product(models.Model):
     STATUS_CHOICES = [
         ('予約販売', '予約販売'),
         ('販売中', '販売中'),
         ('在庫切れ', '在庫切れ'),
     ]
-    
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID
     product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID
     color = models.ForeignKey(Color, on_delete=models.CASCADE)  # 色ID
     size = models.ForeignKey(Size, on_delete=models.CASCADE)  # サイズID
     stock = models.PositiveIntegerField()  # 在庫数
     price = models.IntegerField()  # 価格
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES)  # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
 
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.color.color_name} - {self.size.size_name}"
-    
+
+# --- Tag と ProductTag テーブル ---
 class Tag(models.Model):
     tag_name = models.CharField(max_length=255)
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
-    
+
     def __str__(self):
         return self.tag_name
-    
+
 class ProductTag(models.Model):
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
-    product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID（ProductOriginモデルへの外部キー）
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)  # タグID（Tagモデルへの外部キー）
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID
+    product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)  # タグID
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     class Meta:
-        unique_together = ('product_origin', 'tag')  # 商品とタグの組み合わせがユニークであることを保証
+        unique_together = ('product_origin', 'tag')
 
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.tag.tag_name}"
-    
+
+# --- ProductImage テーブル ---
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID（Productモデルへの外部キー）
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
     image = models.ImageField(upload_to='product_images/')  # 画像ファイル
     image_description = models.TextField(blank=True, null=True)  # 画像説明
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     def __str__(self):
-        return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
-    
+        return f"{self.product.product_origin.product_name} - {self.id}"
 
-# cart
+# --- Cart テーブル ---
 class Cart(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -187,23 +192,23 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     product_status = models.CharField(max_length=255)
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.product.product_origin.product_name}"
 
-# お気に入り
+# --- Favorite テーブル ---
 class Favorite(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.product.product_origin.product_name}"
-    
+
+# --- Review テーブル ---
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
-    print("ここでproductIdです！！！！！！！！！！！！！！",product)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     subject_id = models.CharField(max_length=254)
     review_detail = models.CharField(max_length=255)
@@ -213,7 +218,8 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user} on {self.product}"
-    
+
+# --- QuestionCategory と FAQ テーブル ---
 class QuestionCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -228,6 +234,7 @@ class FAQ(models.Model):
     def __str__(self):
         return self.question
 
+# --- ContactCategory と Contact テーブル ---
 class ContactCategory(models.Model):
     name = models.CharField(max_length=100)
 
