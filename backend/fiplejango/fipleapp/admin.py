@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem
+from .models import (
+    CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, 
+    Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, 
+    ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem
+)
 
 # Register your models here.
 
@@ -25,20 +29,20 @@ class ContactCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('product', 'rating', 'user', 'subject', 'review_detail',)
+    list_display = ('product', 'rating', 'user', 'subject', 'review_detail')
 
-# Registering other models
-admin.site.register(CustomUser)
-admin.site.register(AdminUser)
-admin.site.register(Category)
-admin.site.register(SubCategory)
-admin.site.register(Color)
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
     list_display = ('size_name', 'order', 'created_at', 'updated_at', 'admin_user')
     ordering = ('order',)
     list_editable = ('order',)  # リスト画面で「order」を直接編集可能にする
 
+# Registering other models without customization
+admin.site.register(CustomUser)
+admin.site.register(AdminUser)
+admin.site.register(Category)
+admin.site.register(SubCategory)
+admin.site.register(Color)
 admin.site.register(ProductOrigin)
 admin.site.register(Product)
 admin.site.register(Tag)
@@ -46,8 +50,7 @@ admin.site.register(ProductTag)
 admin.site.register(ProductImage)
 admin.site.register(Cart)
 admin.site.register(Favorite)
-# admin.site.register(PaymentMethod)
+# admin.site.register(PaymentMethod)  # コメントアウトのまま維持
 admin.site.register(DeliveryAddress)
 admin.site.register(Order)
 admin.site.register(OrderItem)
-admin.site.register(Review)
