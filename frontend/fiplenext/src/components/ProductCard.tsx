@@ -4,7 +4,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
-import { color } from 'framer-motion';
+// import { color } from 'framer-motion';
 
 export interface ProductCardProps {
     id: number;

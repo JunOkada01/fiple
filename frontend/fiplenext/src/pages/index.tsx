@@ -185,7 +185,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                       subcategoryName={product.subcategory.subcategory_name}
                       price={product.price}
                       imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`}
-                      tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
+                      // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
                     />
                   ))}
                 </div>
