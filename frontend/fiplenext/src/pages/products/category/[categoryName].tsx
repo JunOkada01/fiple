@@ -1,8 +1,9 @@
 import ProductCard from '@styles/components/ProductCard';
-import AllMensLadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
+import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import React, { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import axios from 'axios';
+import Navigation from '../../../components/Navigation';
 import FittingArea from '../../../components/VrFitting';
 import Link from 'next/link';
 
@@ -104,8 +105,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
 
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
-            <AllMensLadiesKidsFilter />
-
+            {/* 性別カテゴリメニュー */}
+            <AllMensLeadiesKidsFilter />
             {/* 商品リスト */}
             <div className="flex justify-center items-center flex-col">
                 <h1 className="text-xl text-center mb-6">{categoryName}</h1>
@@ -145,13 +146,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
                 </Link>
             </div>
             {/* 右側: FittingArea コンポーネント */}
-            <FittingArea
-                height={height}
-                weight={weight}
-                fittingItems={fittingItems}
-                onRemoveItem={removeItemFromFitting}
-                onAddToCart={handleAddToCart}
-            />
+            <FittingArea/>
         </div>
     );
 };
