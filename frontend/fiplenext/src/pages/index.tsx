@@ -156,13 +156,15 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                     subcategoryName={product.subcategory.subcategory_name}
                     price={product.price}
                     imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                    // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
                   />
                 ))}
               </div>
             </div>
             {/* カテゴリごとの「もっと見る」リンク */}
             <div className="text-center m-4">
-              <Link href={`/products/category/${encodeURIComponent(categoryName)}`}>
+              {!searchQuery &&
+              (<Link href={`/products/category/${encodeURIComponent(categoryName)}`}>
                 <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
                   <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
                   <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
@@ -170,6 +172,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                   </span>
                 </button>
               </Link>
+              )}
             </div>
           </div>
         ))}
