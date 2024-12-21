@@ -133,53 +133,48 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   }
  
   return (
-    <div className="container mx-auto max-w-screen-xl px-4">
+<div className="container mx-auto max-w-screen-xl px-4">
       {/* Navigation コンポーネント */}
       <Navigation onSearch={setSearchQuery} />
-     
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
-     
- 
-      {/* 商品表示エリア */}
+      {/* その他のコンテンツ */}
       <div className="flex justify-center items-center flex-col">
-        {!Array.isArray(filteredProducts) || filteredProducts.length === 0 ? (
-          <div className="text-center py-4">商品が見つかりませんでした</div>
-        ) : (
-          Object.keys(categoriesMap).map(categoryName => (
-            <div key={categoryName} className="flex flex-col space-y-6 mt-5 w-full">
-              <p className="text-xl text-center">{categoryName}</p>
-             
-              {/* 商品カードのスクロールリスト（レスポンシブ対応） */}
-              <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">
-                <div className="flex space-x-4 max-w-[700px]">
-                  {categoriesMap[categoryName].map(product => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.product_origin_id}
-                      product_id={product.id}
-                      productName={product.product_name}
-                      categoryName={product.category.category_name}
-                      subcategoryName={product.subcategory.subcategory_name}
-                      price={product.price}
-                      imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`}
-                      // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
-                    />
-                  ))}
-                </div>
+        {Object.keys(categoriesMap).map(categoryName => (
+          <div key={categoryName} className="flex flex-col space-y-5 mt-5">  
+            <h1 className="text-xl text-center">{categoryName}</h1>  
+            {/* 商品カードのスクロールリスト（レスポンシブ対応） */}
+            <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">
+              <div className="flex space-x-4 max-w-[700px]"> {/* 商品カードの親要素 */}
+                {categoriesMap[categoryName].slice(0, 20).map(product => (
+                  <ProductCard 
+                    key={product.id}
+                    id={product.product_origin_id}
+                    product_id={product.id}
+                    productName={product.product_name}
+                    categoryName={product.category.category_name}
+                    subcategoryName={product.subcategory.subcategory_name}
+                    price={product.price}
+                    imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                  />
+                ))}
               </div>
- 
-              {/* カテゴリごとの「もっと見る」リンク */}
-              {!searchQuery && (
-                <Link href={`/products/category/${encodeURIComponent(categoryName)}`} className="text-right">
-                  <button>もっと見る</button>
-                </Link>
-              )}
             </div>
-          ))
-        )}
-       
-        {/* FittingArea コンポーネント */}
+            {/* カテゴリごとの「もっと見る」リンク */}
+            <div className="text-center m-4">
+              <Link href={`/products/category/${encodeURIComponent(categoryName)}`}>
+                <button className="relative border border-black px-6 py-2 my-5 overflow-hidden group">
+                  <span className="absolute inset-0 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out group-hover:translate-x-0"></span>
+                  <span className="relative text-black transition-colors duration-300 ease-in-out group-hover:text-white">
+                    VIEW MORE
+                  </span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        ))}
+        
+        {/* 右側: FittingArea コンポーネント */}
         <FittingArea/>
       </div>
     </div>
