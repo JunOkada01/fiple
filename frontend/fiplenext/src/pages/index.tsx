@@ -180,14 +180,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         )}
        
         {/* FittingArea コンポーネント */}
-        <FittingArea
-          height={height}
-          weight={weight}
-          fittingItems={fittingItems}
-          onRemoveItem={removeItemFromFitting}
-          onAddToCart={handleAddToCart}
-          onAddToFavorites={handleAddToFavorites}
-        />
+        <FittingArea/>
       </div>
     </div>
   );
