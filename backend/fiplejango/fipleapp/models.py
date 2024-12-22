@@ -305,6 +305,42 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
+    
+    """
+    売上管理用のモデル
+    """
+class SalesRecord(models.Model):
+    PAYMENT_METHODS = [
+        ('card', 'クレジットカード'),
+        ('paypay', 'PayPay'),
+        ('konbini', 'コンビニ決済'),
+        ('genkin', '現金引換え')
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)  # ユーザー情報
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)  # 商品情報
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='sales_records')  # 注文情報
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])  # 販売数量
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)  # 総額（商品単価×数量）
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 税額
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)  # 支払い方法
+    sale_date = models.DateField(default=date.today)  # 売上発生日
+    created_at = models.DateTimeField(auto_now_add=True)  # 作成日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
+
+    def __str__(self):
+        return f"Sales Record: {self.product.product_origin.product_name} ({self.quantity}個)"
+
+    def save(self, *args, **kwargs):
+        """保存時に税額を計算"""
+        if self.tax_amount == 0 or not self.tax_amount:
+            tax_rate = 0.1  # 例: 消費税率10%
+            self.tax_amount = round(self.total_price * tax_rate, 2)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Sales Record"
+        verbose_name_plural = "Sales Records"
 
 
 class Review(models.Model):

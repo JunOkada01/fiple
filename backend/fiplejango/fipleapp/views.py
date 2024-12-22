@@ -4,6 +4,7 @@ from django.db.models import *
 import json
 import jwt
 import uuid
+from decimal import Decimal
 # Djangoのインポート
 from django.conf import settings
 from django.contrib import messages
@@ -48,15 +49,12 @@ from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import *
-from .serializers import *
 from rest_framework import status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import *
 from .serializers import ProductListSerializer
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
@@ -84,7 +82,8 @@ from django.views.generic import (
     TemplateView, ListView, CreateView, 
     UpdateView, DeleteView, DetailView
 )
-
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     generics, status, viewsets, permissions
 )
@@ -419,6 +418,31 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
 
 # 注文関連---------------------------------------------------------------------------------------------------------------
 class CompletePaymentView(APIView):
+    def create_sales_record(self, order, order_items):
+        """
+        注文情報から売上の記録を作成
+        """
+        # 即時決済の支払方法（クレカとPayPay）
+        # コンビニ・現金引換えはどうするかは検討しないといけない（仮で時差登録するかなど）
+        # とりあえず全部登録
+        IMMEDIATE_PSYMENT_METHODS = ['card', 'paypay', 'konbini', 'genkin']
+        # 売り上げ記録作成
+        if order.payment_method in IMMEDIATE_PSYMENT_METHODS:
+            sales_records = []
+            for order_item in order_items:
+                sales_record = SalesRecord(
+                    user=order.user,
+                    product=order_item.product,
+                    order=order,
+                    quantity=order_item.quantity,
+                    total_price=order_item.unit_price * order_item.quantity,
+                    tax_amount=Decimal('0'),  # save()メソッドで自動計算
+                    payment_method=order.payment_method,
+                )
+                sales_records.append(sales_record)
+            # 一括作成
+            SalesRecord.objects.bulk_create(sales_records)
+
     def post(self, request):
         try:
             with transaction.atomic():
@@ -449,8 +473,12 @@ class CompletePaymentView(APIView):
                     )
                     order_items.append(order_item)
                 
-                OrderItem.objects.bulk_create(order_items)
+                create_order_items = OrderItem.objects.bulk_create(order_items)
+
+                # 注文情報から売上記録を作成
                 
+                self.create_sales_record(order, create_order_items)
+
                 # カートをクリア
                 cart_items.delete()
                 
@@ -470,7 +498,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # ログインユーザーの注文のみ取得
         return Order.objects.filter(user=self.request.user).order_by('-order_date')
-    
+
 class ProductByCategoryView(APIView):
     def get(self, request, category_name):
         try:
@@ -683,6 +711,9 @@ def admin_login(request):
         form = AdminLoginForm()
     return render(request, 'admin/admin_login.html', {'form': form, 'current_path': request.path})
 
+"""
+Django 管理画面用
+"""
 
 class AdminTop(LoginRequiredMixin, TemplateView):
     template_name = 'admin_top.html'
@@ -696,6 +727,12 @@ class AdminTop(LoginRequiredMixin, TemplateView):
             print(self.request.user.name)
         else:
             print('ユーザーが見つかりません')
+        
+        # 売上データを取得（全ての売上記録を取得）
+        sales_data = SalesRecord.objects.all()
+
+        # コンテキストに追加
+        context['sales_data'] = list(sales_data)
         return context
 
 def admin_logout(request):
@@ -1307,8 +1344,6 @@ def faq_manager(request):
 
 # views.py
 from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
 
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
@@ -1321,7 +1356,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 #問い合わせ一覧表示
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Contact
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -1333,7 +1367,6 @@ def contact_detail(request, contact_id):
 
 # backend/app/views.py
 from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1771,7 +1804,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 #問い合わせ一覧表示ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Contact
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -1833,8 +1865,6 @@ def submit_contact_form(request):
 from rest_framework import generics
 from rest_framework.response import Response
 from django.db.models import Q
-from .models import Product, ProductOrigin
-from .serializers import ProductSerializer
 
 class ProductSearchView(generics.ListAPIView):
     serializer_class = ProductSerializer
@@ -1985,7 +2015,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Review
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -2060,7 +2089,6 @@ class PasswordChangeView(APIView):
 
 from django.http import JsonResponse
 from django.db.models import Count
-from .models import Review, Product
 
 def check_similar_fit_users(request, product_id):
     user = request.user

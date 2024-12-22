@@ -5,8 +5,8 @@
 {% block content %}
 <!-- Icon Tiles -->
 <div class="box-container">
-    <div class="row">
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+    <div class="row row-cols-5 g-3">
+        <div class="col">
             <a href="{% url 'fipleapp:base_settings' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-layer-group faa-float animated-hover icons" style="color: #A7C7E7;"></i>
@@ -14,7 +14,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:product_management' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #A8D8A1;"></i>
@@ -22,7 +22,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:contact_manager' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #F8C8A3;"></i>
@@ -30,7 +30,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:faq_manager' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
@@ -40,4 +40,162 @@
         </div>
     </div>
 </div>
+
+<!-- 売上レート グラフの表示・売上管理へのリンク -->
+<div class="sales-container">
+    <div class="row">
+        <!-- 左側の売上数グラフ -->
+        <div class="col-md-6">
+            <div class="block shadow w-100 rounded-4">
+                <div class="block-header p-3 d-flex justify-content-between align-items-center bg-white">
+                    <div class="block-title">Sales Quantity</div>
+                    <a href="#" class="btn btn-link text-decoration-none">売上管理へ</a>
+                </div>
+                <div class="block-content p-1">
+                    <canvas id="salesQuantityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右側の売上額グラフ -->
+        <div class="col-md-6">
+            <div class="block shadow w-100 rounded-4">
+                <div class="block-header p-3 d-flex justify-content-between align-items-center bg-white">
+                    <div class="block-title">Sales Amount</div>
+                    <a href="#" class="btn btn-link text-decoration-none">売上管理へ</a>
+                </div>
+                <div class="block-content p-1">
+                    <canvas id="salesAmountChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 仮の売上数データ
+    const salesQuantity = [
+        { sale_date: '2024-01-01', quantity: 100 },
+        { sale_date: '2024-01-02', quantity: 120 },
+        { sale_date: '2024-01-03', quantity: 110 },
+        { sale_date: '2024-01-04', quantity: 140 },
+        { sale_date: '2024-01-05', quantity: 160 },
+        { sale_date: '2024-01-06', quantity: 180 },
+        { sale_date: '2024-01-07', quantity: 170 }
+    ];
+
+    // 仮の売上額データ
+    const salesAmount = [
+        { sale_date: '2024-01-01', total: 1500 },
+        { sale_date: '2024-01-02', total: 2000 },
+        { sale_date: '2024-01-03', total: 1800 },
+        { sale_date: '2024-01-04', total: 2200 },
+        { sale_date: '2024-01-05', total: 2500 },
+        { sale_date: '2024-01-06', total: 3000 },
+        { sale_date: '2024-01-07', total: 2700 }
+    ];
+
+    // 売上数グラフ
+    const ctxQuantity = document.getElementById('salesQuantityChart').getContext('2d');
+    const salesQuantityChart = new Chart(ctxQuantity, {
+        type: 'line', // グラフの種類を指定
+        data: {
+            labels: salesQuantity.map(s => s.sale_date), // 横軸に表示するラベル
+            datasets: [{
+                label: '売上数',
+                data: salesQuantity.map(s => s.quantity), // データポイント
+                borderColor: 'rgba(54, 162, 235, 1)',  // 線の色
+                backgroundColor: 'rgba(54, 162, 235, 0.2)', // 塗りつぶしの色
+                fill: true, // 線の下の領域を塗りつぶす
+                tension: 0.4, // 線を滑らかにする設定
+                pointRadius: 6, // データポイントのサイズ
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)', // データポイントの背景色
+                pointBorderColor: '#fff', // データポイントの境界色
+                pointBorderWidth: 2, // データポイントの境界線の太さ
+                hoverBackgroundColor: '#fff', // ホバー時の背景色
+                hoverBorderColor: 'rgba(54, 162, 235, 1)', // ホバー時の境界色
+                hoverRadius: 10, // ホバー時のポイントサイズ
+            }]
+        },
+        options: {
+            responsive: true, // レスポンシブ対応
+            scales: {
+                y: { beginAtZero: true, display: false }, // 縦軸の設定
+                x: { display: false } // 横軸の設定
+            },
+            interaction: {
+                mode: 'index', // ホバー時のデータ表示モード
+                intersect: false // ホバーがポイントに重ならなくてもデータを表示
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return tooltipItem[0].label; // ツールチップのタイトル
+                        },
+                        label: function(tooltipItem) {
+                            return ' ×' + tooltipItem.raw; // ツールチップのラベル
+                        }
+                    },
+                    caretPadding: 10, // ツールチップの矢印周囲の余白
+                    intersect: false,
+                    mode: 'nearest' // ツールチップ表示のモード
+                },
+                legend: { display: false } // 凡例を非表示
+            }
+        }
+    });
+
+    // 売上額グラフ
+    const ctxAmount = document.getElementById('salesAmountChart').getContext('2d');
+    const salesAmountChart = new Chart(ctxAmount, {
+        type: 'line', // グラフの種類を指定
+        data: {
+            labels: salesAmount.map(s => s.sale_date), // 横軸に表示するラベル
+            datasets: [{
+                label: '売上額',
+                data: salesAmount.map(s => s.total), // データポイント
+                borderColor: 'rgba(75, 192, 192, 1)',  // 線の色
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // 塗りつぶしの色
+                fill: true, // 線の下の領域を塗りつぶす
+                tension: 0.4, // 線を滑らかにする設定
+                pointRadius: 6, // データポイントのサイズ
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)', // データポイントの背景色
+                pointBorderColor: '#fff', // データポイントの境界色
+                pointBorderWidth: 2, // データポイントの境界線の太さ
+                hoverBackgroundColor: '#fff', // ホバー時の背景色
+                hoverBorderColor: 'rgba(75, 192, 192, 1)', // ホバー時の境界色
+                hoverRadius: 10, // ホバー時のポイントサイズ
+            }]
+        },
+        options: {
+            responsive: true, // レスポンシブ対応
+            scales: {
+                y: { beginAtZero: true, display: false }, // 縦軸の設定
+                x: { display: false } // 横軸の設定
+            },
+            interaction: {
+                mode: 'index', // ホバー時のデータ表示モード
+                intersect: false // ホバーがポイントに重ならなくてもデータを表示
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return tooltipItem[0].label; // ツールチップのタイトル
+                        },
+                        label: function(tooltipItem) {
+                            return ' ¥' + tooltipItem.raw; // ツールチップのラベル
+                        }
+                    },
+                    caretPadding: 10, // ツールチップの矢印周囲の余白
+                    intersect: false,
+                    mode: 'nearest' // ツールチップ表示のモード
+                },
+                legend: { display: false } // 凡例を非表示
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -2,8 +2,8 @@
 {% block title %}基盤設定トップ{% endblock %}
 {% block content %}
 <div class="box-container">
-    <div class="row">
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+    <div class="row row-cols-5 g-3">
+        <div class="col">
             <a href="{% url 'fipleapp:category_top' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-shapes icons" style="color: #a7e7aa;"></i>
@@ -11,7 +11,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:color_list' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-palette icons" style="color: #e7dea7;"></i>
@@ -19,7 +19,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:size_list' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-ruler-combined icons" style="color: #e7a7a7;"></i>
@@ -27,7 +27,7 @@
                 </div>
             </a>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="col">
             <a href="{% url 'fipleapp:tag_list' %}" class="icon-link">
                 <div class="icon-tile">
                     <i class="fa-solid fa-tags icons" style="color: #e7a7c7;"></i>

@@ -376,12 +376,6 @@ main {
     flex-direction: column;
     justify-content: center;
 }
-.row {
-    display: flex;
-    flex-wrap: wrap; /* 折り返しを許可 */
-    justify-content: left; /* 横方向中央揃え */
-    gap: 20px;
-}
 
 .icon-link {
     display: inline-block; /* ブロック要素として扱う */
@@ -469,3 +463,17 @@ a[aria-expanded="true"] .rotate-icon {
 
 
 /*                  */
+
+/* - - - - 売上グラフエリア - - - - */
+.sales-container {
+    padding: 20px;
+}
+/* .block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+.block-content {
+    padding: 1px;
+} */
