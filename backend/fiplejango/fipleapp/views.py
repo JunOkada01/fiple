@@ -729,7 +729,7 @@ class AdminTop(LoginRequiredMixin, TemplateView):
             print('ユーザーが見つかりません')
         
         # 売上データを取得（全ての売上記録を取得）
-        sales_data = SalesRecord.objects.all()
+        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity').order_by('sale_date')
 
         # コンテキストに追加
         context['sales_data'] = list(sales_data)
