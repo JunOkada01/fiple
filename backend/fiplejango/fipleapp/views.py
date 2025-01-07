@@ -405,6 +405,11 @@ def user_list(request):
     users = CustomUser.objects.all().values('id', 'username', 'email')  # 必要なフィールドだけを取得
     return JsonResponse(list(users), safe=False)
 
+class UserSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'users/top.html'
+
 class UserListView(LoginRequiredMixin, ListView):
     """
     ユーザー一覧ビュー
@@ -412,7 +417,7 @@ class UserListView(LoginRequiredMixin, ListView):
     """
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
-    template_name = 'user_list.html'
+    template_name = 'users/user_list.html'
     context_object_name = 'users'
     paginate_by = 20
     model = CustomUser
@@ -449,7 +454,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = CustomUser
-    template_name = 'user_detail.html'
+    template_name = 'users/user_detail.html'
     context_object_name = 'user'
     pk_url_kwarg = 'user_id'
     paginate_by = 10
@@ -591,10 +596,6 @@ class BaseSettingView(LoginRequiredMixin, TemplateView):
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/top.html'
 
-class BaseSettingView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/top.html'
 
 # カテゴリ関連-----------------------------------------------------------------------------------------
 class CategoryTopView(LoginRequiredMixin, TemplateView):
