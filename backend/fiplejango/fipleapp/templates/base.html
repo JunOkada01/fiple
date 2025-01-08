@@ -105,6 +105,10 @@
                     <button class="forward-button" id="forwardButton" type="button" onclick="window.history.forward()" value="進む">
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
+                    <div class="digital-clock">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="clock"></span>
+                    </div>
                     {% endif %}
                 </div>
                 <div class="content">
@@ -156,6 +160,22 @@
                     document.querySelector('main').classList.add('no-sidebar');
                 }
             });
+        </script>
+
+        <!-- デジタル時計の処理 -->
+        <script>
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours} : ${minutes} : ${seconds}`;
+            }
+
+            // 初回実行
+            updateClock();
+            // 1秒ごとに更新
+            setInterval(updateClock, 1000);
         </script>
     </body>
 </html>

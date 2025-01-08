@@ -288,6 +288,8 @@ main.sidebar-closed {
     height: auto;
     padding: 0 10px;
     padding-top: 10px;
+    display: flex;
+    align-items: center;
 }
 /* サイドバー開閉ボタン */
 .content-header .sidebar-toggle {
@@ -320,6 +322,18 @@ main.sidebar-closed {
 .content-header .back-button:hover,
 .content-header .forward-button:hover {
     color: #9b9b9b; /* ホバー時の色。好みに合わせて調整してください */
+}
+
+.content-header .digital-clock {
+    align-items: center;
+    margin-left: auto;
+    padding: 5px 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+.content-header .digital-clock i {
+    color: #666;
 }
 
 .content {
@@ -376,7 +390,13 @@ main {
     flex-direction: column;
     justify-content: center;
 }
-
+.icon-tile-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
 .icon-link {
     display: inline-block; /* ブロック要素として扱う */
     width: 200px; /* 親のタイルと同じ幅 */
@@ -388,7 +408,7 @@ main {
     height: 200px;
     padding: 15px;
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid #dee2e6;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -468,12 +488,7 @@ a[aria-expanded="true"] .rotate-icon {
 .sales-container {
     padding: 20px;
 }
-/* .block-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
+
+.bg-body-light {
+    background-color: #f6f7f9 !important;
 }
-.block-content {
-    padding: 1px;
-} */

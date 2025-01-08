@@ -84,6 +84,7 @@ from django.views.generic import (
 )
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import (
     generics, status, viewsets, permissions
 )
@@ -729,10 +730,20 @@ class AdminTop(LoginRequiredMixin, TemplateView):
             print('ユーザーが見つかりません')
         
         # 売上データを取得（全ての売上記録を取得）
-        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity').order_by('sale_date')
+        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity', 'total_price').order_by('sale_date')
+
+        # 日付を文字列形式に変換
+        formatted_sales_data = []
+        for record in sales_data:
+            formatted_sales_data.append({
+                'sale_date': record['sale_date'].strftime('%Y-%m-%d'),
+                'quantity': record['quantity'],
+                'total_price': float(record['total_price'])  # Decimal型をfloatに変換
+            })
 
         # コンテキストに追加
-        context['sales_data'] = list(sales_data)
+        # JavaScriptで使用できる形式に変換
+        context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
         return context
 
 def admin_logout(request):
@@ -740,16 +751,17 @@ def admin_logout(request):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
-    
-class BaseSettingView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/top.html'
 
 class BaseSettingView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/top.html'
+
+class SalesManegementView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'sales_management/top.html'
+    model = SalesRecord
 
 # カテゴリ関連-----------------------------------------------------------------------------------------
 class CategoryTopView(LoginRequiredMixin, TemplateView):

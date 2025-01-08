@@ -331,12 +331,12 @@ class SalesRecord(models.Model):
     def __str__(self):
         return f"Sales Record: {self.product.product_origin.product_name} ({self.quantity}個)"
 
-    def save(self, *args, **kwargs):
-        """保存時に税額を計算"""
-        if self.tax_amount == 0 or not self.tax_amount:
-            tax_rate = 0.1  # 例: 消費税率10%
-            self.tax_amount = round(self.total_price * tax_rate, 2)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """保存時に税額を計算"""
+    #     if self.tax_amount == 0 or not self.tax_amount:
+    #         tax_rate = 0.1  # 例: 消費税率10%
+    #         self.tax_amount = round(self.total_price * tax_rate, 2)
+    #     super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Sales Record"
