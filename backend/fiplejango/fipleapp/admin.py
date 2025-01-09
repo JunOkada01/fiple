@@ -52,5 +52,7 @@ admin.site.register(Cart)
 admin.site.register(Favorite)
 # admin.site.register(PaymentMethod)  # コメントアウトのまま維持
 admin.site.register(DeliveryAddress)
+admin.site.register(ProductTag)
+admin.site.register(Tag)
 admin.site.register(Order)
 admin.site.register(OrderItem)

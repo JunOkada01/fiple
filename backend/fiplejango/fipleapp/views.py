@@ -16,20 +16,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMessage, send_mail
 from django.db import transaction
-from django.db.models import (
-    Avg,
-    Count,
-    Prefetch,
-)
-from django.http import (
-    HttpResponse,
-    JsonResponse,
-)
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-    redirect,
-)
+from django.db.models import Avg, Count, Prefetch, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -53,27 +42,8 @@ from .serializers import *
 from rest_framework import status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import *
-from .serializers import ProductListSerializer
-from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from django.utils.decorators import method_decorator
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.db.models import Prefetch
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from django.db import transaction
-from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 import time
@@ -137,6 +107,21 @@ class APIProductListView(APIView):
 
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+# class APIProductListView(APIView):
+#     def get(self, request):
+#         gender = request.query_params.get('gender')  # クエリパラメータを取得
+#         products = Product.objects.select_related(
+#             'product_origin', 'product_origin__category', 
+#             'color', 'size'
+#         ).prefetch_related('productimage_set').all()
+
+#         # genderでフィルタリング
+#         if gender:
+#             products = products.filter(product_origin__gender=gender)
+
+#         serializer = ProductListSerializer(products, many=True)
+#         print(products.query)
+#         return Response(serializer.data)
     
 class APIProductDetailView(generics.RetrieveAPIView):
     serializer_class = ProductDetailSerializer
@@ -1145,17 +1130,6 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
-    
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
-import jwt
-from datetime import datetime, timedelta
-
 
 class PasswordResetRequestView(APIView):
     def post(self, request):
@@ -1306,10 +1280,6 @@ def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
 # views.py
-from rest_framework import viewsets
-from .models import Contact, ContactCategory
-from .serializers import ContactSerializer, ContactCategorySerializer
-
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -1319,9 +1289,6 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 #問い合わせ一覧表示
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -1332,8 +1299,6 @@ def contact_detail(request, contact_id):
     return render(request, 'contact/contact_detail.html', {'contact': contact})
 
 # backend/app/views.py
-from django.shortcuts import render, redirect
-from .forms import ContactCategoryForm
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1830,11 +1795,6 @@ def submit_contact_form(request):
 
 
 # 検索機能
-from rest_framework import generics
-from rest_framework.response import Response
-from django.db.models import Q
-from .models import Product, ProductOrigin
-from .serializers import ProductSerializer
 
 class ProductSearchView(generics.ListAPIView):
     serializer_class = ProductSerializer
@@ -1846,15 +1806,18 @@ class ProductSearchView(generics.ListAPIView):
 
         # ProductOriginに関連する検索条件
         origin_conditions = Q(product_origin__product_name__icontains=query) | \
-                          Q(product_origin__gender__icontains=query) | \
-                          Q(product_origin__description__icontains=query) | \
-                          Q(product_origin__category__category_name__icontains=query) | \
-                          Q(product_origin__subcategory__subcategory_name__icontains=query)
+                            Q(product_origin__gender__icontains=query) | \
+                            Q(product_origin__description__icontains=query) | \
+                            Q(product_origin__category__category_name__icontains=query) | \
+                            Q(product_origin__subcategory__subcategory_name__icontains=query)
 
         # Product自体の属性に関する検索条件
         product_conditions = Q(color__color_name__icontains=query) | \
-                           Q(size__size_name__icontains=query) | \
-                           Q(status__icontains=query)
+                             Q(size__size_name__icontains=query) | \
+                             Q(status__icontains=query)
+
+        # タグ関連の検索条件
+        tag_conditions = Q(product_tag__tag__tag_name__icontains=query)
 
         # 価格での検索（数値の場合）
         try:
@@ -1863,12 +1826,15 @@ class ProductSearchView(generics.ListAPIView):
         except ValueError:
             pass
 
+        # 条件をまとめて検索
         return Product.objects.filter(
-            origin_conditions | product_conditions
+            origin_conditions | product_conditions | tag_conditions
         ).select_related(
             'product_origin',
             'color',
             'size'
+        ).prefetch_related(
+            'product_tag__tag'
         ).distinct()
     
 
