@@ -243,8 +243,8 @@ export default function ProductList({ initialProducts }: ProductListProps) {
               <p className="text-xl text-center">{categoryName}</p>
               
               {/* 商品カードのスクロールリスト（レスポンシブ対応） */}
-              <div className="flex overflow-x-auto max-w-full gap-4 scrollbar-hide">
-                <div className="flex space-x-4 max-w-[700px]">
+              <div className="flex justify-center overflow-x-auto max-w-full gap-4 scrollbar-hide">
+              <div className="flex justify-center space-x-4 max-w-[700px]">
                   {categoriesMap[categoryName].map(product => (
                     <ProductCard 
                       key={product.id}
