@@ -298,7 +298,7 @@ const FittingArea = () => {
       checkFavoriteStatus(item.product_id);
     });
   }, [fittingItems]);
-
+  
   const renderFittingItem = (item: EnhancedFittingItem) => (
     <div key={item.id} className="flex space-x-4 pb-4 border-b border-gray-100 last:border-b-0">
       <div className="relative group">
