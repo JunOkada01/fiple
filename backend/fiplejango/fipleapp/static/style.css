@@ -212,6 +212,36 @@ main.sidebar-closed {
     padding-left: 30px;
 }
 
+/* リンクのホバー時に下線エフェクト */
+.submenu .submenu-item a {
+    color: gray;
+    position: relative;
+    text-decoration: none; /* デフォルトの下線を無効化 */
+    transition: color 0.3s ease;
+}
+
+/* 下線エフェクト */
+.submenu .submenu-item a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background-color: #202020;
+    transition: width 0.3s ease-in-out;
+}
+
+/* ホバー時に下線が左から右に伸びるエフェクト */
+.submenu .submenu-item a:hover::after {
+    width: 100%;
+}
+
+/* ホバー時のテキスト色変更 */
+.submenu .submenu-item a:hover {
+    color: #202020;
+}
+
 /* --------------------------------------------------- */
 /* サイドバーメニュー開閉ボタン                       */
 /* --------------------------------------------------- */
@@ -234,7 +264,7 @@ main.sidebar-closed {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease;
-    background-color: whitesmoke;
+    background-color: rgb(246, 246, 246);
 }
 
 .side-item-top.active .submenu {
@@ -258,6 +288,8 @@ main.sidebar-closed {
     height: auto;
     padding: 0 10px;
     padding-top: 10px;
+    display: flex;
+    align-items: center;
 }
 /* サイドバー開閉ボタン */
 .content-header .sidebar-toggle {
@@ -276,7 +308,8 @@ main.sidebar-closed {
     transform: rotate(180deg); /* アイコンを回転 */
 }
 
-.content-header .back-button {
+.content-header .back-button,
+.content-header .forward-button {
     background-color: transparent;
     border: none;
     font-size: 20px;
@@ -286,8 +319,21 @@ main.sidebar-closed {
     transition: color 0.5s ease;
 }
 
-.content-header .back-button:hover {
+.content-header .back-button:hover,
+.content-header .forward-button:hover {
     color: #9b9b9b; /* ホバー時の色。好みに合わせて調整してください */
+}
+
+.content-header .digital-clock {
+    align-items: center;
+    margin-left: auto;
+    padding: 5px 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+.content-header .digital-clock i {
+    color: #666;
 }
 
 .content {
@@ -344,13 +390,13 @@ main {
     flex-direction: column;
     justify-content: center;
 }
-.row {
+.icon-tile-area {
     display: flex;
-    flex-wrap: wrap; /* 折り返しを許可 */
-    justify-content: left; /* 横方向中央揃え */
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 20px;
 }
-
 .icon-link {
     display: inline-block; /* ブロック要素として扱う */
     width: 200px; /* 親のタイルと同じ幅 */
@@ -362,7 +408,7 @@ main {
     height: 200px;
     padding: 15px;
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid #dee2e6;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -417,4 +463,32 @@ main {
     margin-right: 8px;
 }
 
+/* 商品画像管理 詳細トグル */
+
+.img-detail-btn .toggle-description {
+    text-decoration: none; /* 下線をなくす */
+    font-size: 0.9em; /* フォントサイズを少し小さく */
+}
+
+.img-detail-btn .toggle-description:hover {
+    text-decoration: none; /* ホバー時も下線を表示しない */
+}
+/* アイコンの回転アニメーション */
+.rotate-icon {
+    transition: transform 0.5s ease-in-out; /* アニメーションの滑らかさ */
+}
+a[aria-expanded="true"] .rotate-icon {
+    transform: rotate(90deg); /* 開いている時に90度回転 */
+}
+
+
 /*                  */
+
+/* - - - - 売上グラフエリア - - - - */
+.sales-container {
+    padding: 20px;
+}
+
+.bg-body-light {
+    background-color: #f6f7f9 !important;
+}
