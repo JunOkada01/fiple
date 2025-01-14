@@ -144,6 +144,8 @@ class Product(models.Model):
     status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
+    front_image = models.ImageField(upload_to='products/front/', null=True, blank=True, verbose_name="表画像")
+    back_image = models.ImageField(upload_to='products/back/', null=True, blank=True, verbose_name="裏画像")
     
     class Meta:
         constraints = [

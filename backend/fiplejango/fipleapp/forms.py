@@ -82,11 +82,11 @@ class ProductOriginForm(forms.ModelForm):
             'gender': '性別',
             'description': '商品説明',
         }
-        
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status']
+        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status', 'front_image', 'back_image']
         labels = {
             'product_origin': '商品元',
             'color': '色',
@@ -94,19 +94,21 @@ class ProductForm(forms.ModelForm):
             'stock': '在庫数',
             'price': '価格',
             'status': '販売ステータス',
+            'front_image': '表画像',
+            'back_image': '裏画像',
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        product_origin = cleaned_data.get('product_origin')
+        color = cleaned_data.get('color')
+        size = cleaned_data.get('size')
         
-        def clean(self):
-            cleaned_data = super().clean()
-            product_origin = cleaned_data.get('product_origin')
-            color = cleaned_data.get('color')
-            size = cleaned_data.get('size')
-            
-            if Product.objects.filter(product_origin=product_origin, color=color, size=size).exists():
-                raise ValidationError("同じ商品元、色、サイズの組み合わせが既に存在します。")
+        if Product.objects.filter(product_origin=product_origin, color=color, size=size).exists():
+            raise ValidationError("同じ商品元、色、サイズの組み合わせが既に存在します。")
         
-            return cleaned_data
-        
+        return cleaned_data
+
 class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
