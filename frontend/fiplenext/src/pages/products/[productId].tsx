@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
+import ReviewList from '../../components/Review';
 
 export interface ProductDetailType {
     id: number;
@@ -45,6 +46,7 @@ export interface ProductDetailType {
     is_active: boolean;
 }
 
+
 const ProductDetail: React.FC = () => {
     const router = useRouter();
     const { productId } = router.query;
@@ -76,51 +78,47 @@ const ProductDetail: React.FC = () => {
         fetchProduct();
     }, [productId]);
     
-    if (loading) return <div className="container mx-auto p-4">読み込み中...</div>;
-    if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
-    if (!product) return null;
-    
-    /* 選択したカラーによる切り替え */
-    const groupedVariants = product.variants.reduce((acc, variant) => {
-        const colorName = variant.color.color_name;
-        if (!acc[colorName]) {
-            acc[colorName] = [];
-        }
-        acc[colorName].push(variant);
-        return acc;
-    }, {} as Record<string, typeof product.variants>);
-    
-    // サイズの昇順ソートを行う
-    Object.keys(groupedVariants).forEach(colorName => {
-        groupedVariants[colorName].sort((a, b) => a.size.order - b.size.order); // size.orderで昇順ソート
-    });
+   
 
-    const selectedVariants = selectedColor
-        ? groupedVariants[selectedColor]
-        : product.variants;
+  // 商品をカートに追加する関数
+  const addToCart = async (productId: number) => {
+    const access_token = localStorage.getItem('access_token');
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/cart/add/',
+        { product_id: productId, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+      setMessage(response.data.message); // 成功メッセージを表示
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setMessage(error.response.data.error || '商品の追加に失敗しました');
+      } else {
+        setMessage('エラーが発生しました');
+      }
+    }
+  };
 
-    // 商品をカートに追加する関数
-    const addToCart = async (productId: number) => {
-        const access_token = localStorage.getItem('access_token');
-        try {
-        const response = await axios.post(
-            'http://localhost:8000/api/cart/add/',
-            { product_id: productId, quantity: 1 },
-            {
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-            },
-            }
-        );
-        setMessage(response.data.message); // 成功メッセージを表示
-        } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            setMessage(error.response.data.error || '商品の追加に失敗しました');
-        } else {
-            setMessage('エラーが発生しました');
-        }
-        }
-    };
+  if (loading) return <div className="container mx-auto p-4">読み込み中...</div>;
+  if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
+  if (!product) return null;
+
+  const groupedVariants = product.variants.reduce((acc, variant) => {
+    const colorName = variant.color.color_name;
+    if (!acc[colorName]) {
+      acc[colorName] = [];
+    }
+    acc[colorName].push(variant);
+    return acc;
+  }, {} as Record<string, typeof product.variants>);
+
+  const selectedVariants = selectedColor
+    ? groupedVariants[selectedColor]
+    : product.variants;
 
     return (
         <div className="container mx-auto p-4">
@@ -304,11 +302,22 @@ const ProductDetail: React.FC = () => {
                                 <span className="w-32 text-gray-600">商品番号</span>
                                 <span>{product.id}</span>
                             </div>
+                            <div className="flex border-b py-2">
+                              <span className="w-32 text-gray-600">カテゴリー</span>
+                              <span>{product.category.category_name}</span>
+                            </div>
+                            <div className="flex border-b py-2">
+                              <span className="w-32 text-gray-600">サブカテゴリー</span>
+                              <span>{product.subcategory.subcategory_name}</span>
+                            </div>
+                          </div>
                         </div>
-                    </div>
+                        {/* {productId && <ReviewList productId={Number(productId)} />} */}
+                        <ReviewList productId={Number(productId)} />
+                       
                 </div>
             </div>
         </div>
-        );
+      );
     };
 export default ProductDetail;

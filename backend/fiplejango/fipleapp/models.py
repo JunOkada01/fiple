@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
@@ -302,14 +303,51 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
     
+class SalesRecord(models.Model):
+    PAYMENT_METHODS = [
+        ('card', 'クレジットカード'),
+        ('paypay', 'PayPay'),
+        ('konbini', 'コンビニ決済'),
+        ('genkin', '現金引換え')
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)  # ユーザー情報
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)  # 商品情報
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='sales_records')  # 注文情報
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])  # 販売数量
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)  # 総額（商品単価×数量）
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)  # 税額
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)  # 支払い方法
+    sale_date = models.DateField(default=date.today)  # 売上発生日
+    created_at = models.DateTimeField(auto_now_add=True)  # 作成日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
+
+    def __str__(self):
+        return f"売上: {self.product.product_origin.product_name} ({self.quantity}個)"
+
+    class Meta:
+        verbose_name = "Sales Record"
+        verbose_name_plural = "Sales Records"
+
+
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # productIdの代わりにForeignKeyを使用
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    subject_id = models.CharField(max_length=254)
+    fit_CHOICES = [
+        ('大きすぎた', '大きすぎた'),
+        ('ちょうどいい', 'ちょうどいい'),
+        ('ぱつぱつ', 'ぱつぱつ'),
+    ]
+
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=254)
     review_detail = models.CharField(max_length=255)
     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
     rating = models.IntegerField(choices=RATING_CHOICES, default=5)
     datetime = models.DateTimeField(auto_now_add=True)
+    fit = models.CharField(max_length=30, choices=fit_CHOICES)
+
+    class Meta:
+        unique_together = ('product', 'user')  # 同じユーザーが同じ商品に複数レビューできないように
 
     def __str__(self):
-        return f"Review by {self.user} on {self.product}"
+        return f"{self.user}さんが{self.product}を評価しました。"

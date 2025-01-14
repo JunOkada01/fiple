@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faHeart, faVest, faXmark, faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Draggable from 'react-draggable';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
@@ -30,6 +30,7 @@ interface ProductVariant {
   color: {
     id: number;
     color_name: string;
+    color_code: string;
   };
   size: {
     id: number;
@@ -46,7 +47,7 @@ interface ProductVariant {
 }
 
 // 試着アイテムの型定義を拡張
-interface EnhancedFittingItem {
+interface FittingItem {
   id: number;
   product_id: number;
   productName: string;
@@ -59,8 +60,8 @@ interface EnhancedFittingItem {
   variants: ProductVariant[];
 }
 
-const FittingArea = () => {
-  const [fittingItems, setFittingItems] = useState<EnhancedFittingItem[]>([]);
+const FittingArea: React.FC = () => {
+  const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
   const [selectedVariants, setSelectedVariants] = useState<{[key: number]: number}>({});
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -252,7 +253,7 @@ const FittingArea = () => {
   };
 
   // 個別商品のカート追加
-  const addItemToCart = async (item: EnhancedFittingItem) => {
+  const addItemToCart = async (item: FittingItem) => {
     const token = localStorage.getItem('access_token');
     if (!token) {
       setNotification('ログインが必要です');
@@ -298,18 +299,19 @@ const FittingArea = () => {
       checkFavoriteStatus(item.product_id);
     });
   }, [fittingItems]);
-  
-  const renderFittingItem = (item: EnhancedFittingItem) => (
+
+  const renderFittingItem = (item: FittingItem) => (
     <div key={item.id} className="flex space-x-4 pb-4 border-b border-gray-100 last:border-b-0">
       <div className="relative group">
         {item.imageUrl && (
-          <Image
-            src={item.imageUrl}
-            alt={item.productName}
-            width={80}
-            height={60}
-            className="rounded object-cover"
-          />
+          <div className='relative w-[90px] h-[120px] overflow-hidden rounded'>
+            <Image
+              src={item.imageUrl}
+              alt={item.productName}
+              fill
+              className="object-cover"
+            />
+          </div>
         )}
       </div>
       
@@ -317,11 +319,13 @@ const FittingArea = () => {
         <div className="flex justify-between items-start">
           <div>
             <h4 className="font-medium truncate pr-2">{item.productName}</h4>
-            <p className="text-sm text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
-            <p className="text-sm text-gray-600">¥{item.price.toLocaleString()}</p>
+            <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
+            <p className="text-md text-gray-600">¥ {item.price.toLocaleString()}</p>
+            {renderColorButtons(item)}
+            {renderSizeButtons(item)}
           </div>
           
-          <div className="flex space-x-2">
+          <div className="flex flex-col space-y-2">
             {/* お気に入りボタン */}
             <button
               onClick={() => toggleItemFavorite(item.product_id)}
@@ -358,9 +362,6 @@ const FittingArea = () => {
             </button>
           </div>
         </div>
-        
-        {renderColorButtons(item)}
-        {renderSizeButtons(item)}
       </div>
     </div>
   );
@@ -378,7 +379,7 @@ const FittingArea = () => {
         const savedVariants = storedVariants ? JSON.parse(storedVariants) : {};
   
         const enhancedItems = await Promise.all(
-          items.map(async (item: EnhancedFittingItem) => {
+          items.map(async (item: FittingItem) => {
             try {
               // product_origin_idを使用して商品詳細を取得
               const response = await fetch(`http://127.0.0.1:8000/api/products/${item.id}/`);
@@ -459,7 +460,7 @@ const FittingArea = () => {
             };
             // 更新された商品情報を永続化
             const currentItems = JSON.parse(sessionStorage.getItem("fittingItems") || "[]");
-            const updatedItems = currentItems.map((stored: EnhancedFittingItem) =>
+            const updatedItems = currentItems.map((stored: FittingItem) =>
               stored.id === itemId ? updatedItem : stored
             );
             sessionStorage.setItem("fittingItems", JSON.stringify(updatedItems));
@@ -489,55 +490,72 @@ const FittingArea = () => {
     ));
   };
 
-  // カラーボタンのレンダリング
-  const renderColorButtons = (item: EnhancedFittingItem) => {
+  const renderColorButtons = (item: FittingItem) => {
     if (!item.variants) return null;
-
+  
     const availableColors = getAvailableColors(item.variants, item.selectedSize || '');
-    const allColors = Array.from(new Set(item.variants.map(v => v.color.color_name)));
-
+    
+    // 重複を除いたカラー情報を取得
+    const uniqueColors = Array.from(
+      new Set(
+        item.variants
+          .filter(v => v.size.size_name === item.selectedSize)
+          .map(v => ({
+            name: v.color.color_name, 
+            code: v.color.color_code
+          }))
+          .map(color => JSON.stringify(color))
+      )
+    ).map(color => JSON.parse(color));
+  
     return (
       <div className="mt-2">
         <p className="text-xs text-gray-500">カラー</p>
-        <div className="flex flex-wrap gap-1 mt-1">
-          {allColors.map((colorName) => {
-            const isAvailable = availableColors.includes(colorName);
+        <div className="flex flex-wrap gap-2 mt-1">
+          {uniqueColors.map(({ name, code }) => {
+            const isAvailable = availableColors.some(availableColor => availableColor === name);
             return (
               <button
-                key={colorName}
-                className={`px-2 py-1 text-xs rounded transition-all
-                  ${item.selectedColor === colorName
-                    ? 'bg-black text-white'
-                    : isAvailable
-                      ? 'bg-gray-100 hover:bg-gray-200'
-                      : 'bg-gray-100 opacity-50 cursor-not-allowed'
-                  }`}
+                key={name}
+                className={`
+                  w-5 h-5 rounded-full border transition-all border-gray-500
+                  ${item.selectedColor === name 
+                    ? 'border-black scale-110' 
+                    : 'hover:border-gray-600'
+                  }
+                  ${!isAvailable ? 'opacity-30 cursor-not-allowed' : ''}
+                `}
+                style={{ 
+                  backgroundColor: code, 
+                  boxShadow: isAvailable ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
+                }}
                 onClick={() => {
                   if (!isAvailable) return;
                   const variant = item.variants.find(v => 
-                    v.color.color_name === colorName && 
+                    v.color.color_name === name && 
                     v.size.size_name === item.selectedSize
                   );
                   if (variant) handleVariantChange(item.id, variant.id);
                 }}
                 disabled={!isAvailable}
-              >
-                {colorName}
-                {!isAvailable && (
-                  <span className="block text-[10px] text-gray-500">
-                    在庫なし
-                  </span>
-                )}
-              </button>
+                title={`${name}${!isAvailable ? ' (在庫なし)' : ''}`}
+              />
             );
           })}
         </div>
       </div>
     );
   };
+  // マネキンの向きの状態を追加
+  const [isFrontView, setIsFrontView] = useState(true);
+
+  // マネキンの向きを切り替える関数
+  const toggleMannequinView = () => {
+    setIsFrontView(!isFrontView);
+  };
 
   // サイズボタンのレンダリング
-  const renderSizeButtons = (item: EnhancedFittingItem) => {
+  const renderSizeButtons = (item: FittingItem) => {
     if (!item.variants) return null;
 
     const availableSizes = getAvailableSizes(item.variants, item.selectedColor || '');
@@ -635,7 +653,7 @@ const FittingArea = () => {
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
           {/* 身長体重入力 */}
-          <div className="p-4">
+          <div className="p-2">
             <div className="flex justify-center space-x-4">
               <div className="flex items-center">
                 <input
@@ -664,11 +682,58 @@ const FittingArea = () => {
         </div>
 
         {/* マネキンエリア（固定） */}
-        <div className="flex-none h-[180px] border-b border-gray-200">
+        <div className="flex-none h-[300px] border-b border-gray-200  flex justify-center items-center relative">
+          {/* マネキン正面と裏面の切り替えボタン */}
+          <button
+            onClick={toggleMannequinView}
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center 
+                rounded-full transition-colors"
+            title={isFrontView ? "背面を表示" : "正面を表示"}
+          >
+            <FontAwesomeIcon 
+              icon={faRotate} 
+              className="text-gray-600"
+            />
+          </button>
           {isLoading ? (
             <LoadingWave />
           ) : (
-            <MannequinModel height={height} weight={weight} />
+            <div className="relative w-[250px] h-[300px]">
+              <div className="relative w-full h-full">
+                {/* 正面画像 */}
+                <div 
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    isFrontView ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src='/images/mannequin-front.svg' 
+                      alt='マネキン正面' 
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+                {/* 裏面画像 */}
+                <div 
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    isFrontView ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src='/images/mannequin-back.svg' 
+                      alt='マネキン裏面' 
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
@@ -677,17 +742,17 @@ const FittingArea = () => {
           
           <div className="flex-1 overflow-y-auto">
           {fittingItems.length > 0 ? (
-            <div className="p-4 space-y-4">
+            <div className="p-2 space-y-4">
               {fittingItems.map(renderFittingItem)}
             </div>
           ) : (
-            <p className="p-4 text-center text-gray-500">試着中のアイテムはありません</p>
+            <p className="p-2 text-center text-gray-500">試着中のアイテムはありません</p>
           )}
         </div>
         
         {/* 一括操作ボタン */}
         {fittingItems.length > 0 && (
-          <div className="flex-none border-t border-gray-200 p-4">
+          <div className="flex-none border-t border-gray-200 p-2">
             <div className="flex justify-between items-center">
               <button
                 onClick={handleBulkFavorite}
@@ -707,7 +772,6 @@ const FittingArea = () => {
             </div>
           </div>
         )}
-
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ urlpatterns = [
     path('users/', UserSettingView.as_view(), name='user_settings'),
     path('user_list/', UserListView.as_view(), name='admin_user_list'),
     path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
+    path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
@@ -156,4 +157,12 @@ urlpatterns = [
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
     
+    # レビュー関連
+    path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
+    path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
+    path('reviews/', list_reviewed_products, name='list_reviewed_products'),
+    path('reviews/<int:product_id>/', delete_review, name='delete_review'),
+    path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
+    # 商品おすすめ
+    path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
 ]

@@ -14,8 +14,8 @@ const Footer = () => {
         {
             title: 'Support',
             items: [
-                { label: 'お問い合わせ', href: '/contact/' },
-                { label: 'よくある質問', href: '#' },
+                { label: 'お問い合わせ', href: '/contact/contact' },
+                // { label: 'ご利用ガイド', href: '/guide' },
                 { label: '特定商取引法', href: '/footer/tokushoho' },
             ]
         },

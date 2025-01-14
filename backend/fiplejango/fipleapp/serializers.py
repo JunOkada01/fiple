@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import *
-from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone', 'postal_code', 'birth', 'address']
+        fields = [
+            'id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone',
+            'postal_code', 'birth', 'address', 'height', 'weight'
+        ]
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -19,7 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
             phone=validated_data['phone'],
             postal_code=validated_data['postal_code'],
             birth=validated_data['birth'],
-            address=validated_data['address']
+            address=validated_data['address'],
+            height=validated_data['height'],  # 身長
+            weight=validated_data['weight'],  # 体重
         )
         user.set_password(validated_data['password'])  # パスワードをハッシュ化して保存
         user.save()
@@ -54,9 +58,16 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'tag_name']
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'image_description']
+
+    def get_image(self, obj):
+        if obj.image:
+            return f"{obj.image.url}"
+        return None
 
 # 商品の詳細情報のシリアライズ
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -457,3 +468,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'status', 'payment_method', 'delivery_address', 
             'items'
         ]
+        
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
+        read_only_fields = ['user', 'datetime']  # userとdatetimeは読み取り専用

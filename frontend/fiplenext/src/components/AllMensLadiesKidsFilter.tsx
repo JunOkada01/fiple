@@ -1,41 +1,52 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPerson, faPersonDress, faChild } from "@fortawesome/free-solid-svg-icons";
+import React from 'react';
 
-const AllMensLeadiesKidsFilter: React.FC = () => {
+interface AllMensLeadiesKidsFilterProps {
+    onGenderSelect?: (gender: string) => void;
+}
+
+const AllMensLeadiesKidsFilter: React.FC<AllMensLeadiesKidsFilterProps> = ({ onGenderSelect }) => {
+    const handleGenderSelect = (gender: string) => {
+        if (onGenderSelect) {
+            onGenderSelect(gender);
+        }
+    };
+
     return (
         <>
             {/* 性別カテゴリメニュー ホバー時にテキスト下部にした線が伸びる */}
             <ul className="flex justify-center items-center my-8 flex-wrap text-sm md:text-base">
-                {/* ALL */}
-                <li className="group px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 relative">
-                    <span className="relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-300 group-hover:after:w-full">
-                        ALL
-                    </span>
+                <li 
+                    className="px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 cursor-pointer"
+                    onClick={() => handleGenderSelect('ALL')}
+                >
+                    <span>ALL</span>
                 </li>
-
-                {/* MENS */}
-                <li className="group px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 relative">
-                    <FontAwesomeIcon icon={faPerson} className="text-xl text-blue-500 mb-1 md:mb-0 md:mr-2" />
-                    <span className="relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-300 group-hover:after:w-full">
-                        MENS
-                    </span>
+                <li 
+                    className="px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 cursor-pointer"
+                    onClick={() => handleGenderSelect('MENS')}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#4169e1" className="mb-1 md:mb-0 md:mr-1">
+                        <path d="M400-80v-280h-80v-240q0-33 23.5-56.5T400-680h160q33 0 56.5 23.5T640-600v240h-80v280H400Zm80-640q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720Z"/>
+                    </svg>
+                    <span>MENS</span>
                 </li>
-
-                {/* LADIES */}
-                <li className="group px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 relative">
-                    <FontAwesomeIcon icon={faPersonDress} className="text-xl text-red-500 mb-1 md:mb-0 md:mr-2" />
-                    <span className="relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-300 group-hover:after:w-full">
-                        LADIES
-                    </span>
+                <li 
+                    className="px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 cursor-pointer"
+                    onClick={() => handleGenderSelect('LADIES')}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff0000" className="mb-1 md:mb-0 md:mr-1">
+                        <path d="M400-80v-240H280l122-308q10-24 31-38t47-14q26 0 47 14t31 38l122 308H560v240H400Zm80-640q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720Z"/>
+                    </svg>
+                    <span>LADIES</span>
                 </li>
-
-                {/* KIDS */}
-                <li className="group px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 relative">
-                    <FontAwesomeIcon icon={faChild} className="text-lg text-yellow-500 mb-1 md:mb-0 md:mr-2" />
-                    <span className="relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:bg-black after:transition-all after:duration-300 group-hover:after:w-full">
-                        KIDS
-                    </span>
+                <li 
+                    className="px-4 flex flex-col md:flex-row items-center border-l border-r border-gray-300 cursor-pointer"
+                    onClick={() => handleGenderSelect('KIDS')}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffe500" className="mb-1 md:mb-0 md:mr-1">
+                        <path d="M480-660q-29 0-49.5-20.5T410-730q0-29 20.5-49.5T480-800q29 0 49.5 20.5T550-730q0 29-20.5 49.5T480-660Zm-80 500v-200h-40v-180q0-33 23.5-56.5T440-620h80q33 0 56.5 23.5T600-540v180h-40v200H400Z"/>
+                    </svg>
+                    <span>KIDS</span>
                 </li>
             </ul>
         </>

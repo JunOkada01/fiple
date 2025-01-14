@@ -21,6 +21,7 @@ interface CartItem {
         };
         color: {
             color_name: string;
+            color_code: string;
         };
         size: {
             size_name: string;

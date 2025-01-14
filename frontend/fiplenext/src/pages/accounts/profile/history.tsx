@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface Order {
   id: number;
@@ -29,9 +30,11 @@ interface ApiResponse {
 }
 
 const OrderHistoryPage: React.FC = () => {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewedProducts, setReviewedProducts] = useState<number[]>([]); // レビュー済み商品IDを管理
 
   useEffect(() => {
     const fetchOrderHistory = async () => {
@@ -45,7 +48,6 @@ const OrderHistoryPage: React.FC = () => {
         if (response.data && Array.isArray(response.data.results)) {
           setOrders(response.data.results);
         } else if (Array.isArray(response.data)) {
-          // If the API returns an array directly
           setOrders(response.data);
         } else {
           console.error('Unexpected API response structure:', response.data);
@@ -59,8 +61,54 @@ const OrderHistoryPage: React.FC = () => {
       }
     };
 
+    const fetchReviewedProducts = async () => {
+      try {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) return;
+
+        const response = await axios.get<number[]>('http://localhost:8000/reviews/', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        setReviewedProducts(response.data); // レビュー済み商品IDリストを保存
+      } catch (err) {
+        console.error('レビュー済み商品リストの取得に失敗しました:', err);
+      }
+    };
+
     fetchOrderHistory();
+    fetchReviewedProducts();
   }, []);
+
+  const handleWriteReview = (productId: number) => {
+    router.push(`/products/review/writereview/${productId}`);
+  };
+
+  const handleDeleteReview = async (productId: number) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        alert('ログインが必要です。');
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:8000/reviews/${productId}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 204) {
+        alert('レビューを削除しました。');
+        setReviewedProducts((prev) => prev.filter((id) => id !== productId)); // 状態を更新
+      }
+    } catch (err) {
+      console.error('レビュー削除中にエラーが発生しました:', err);
+      alert('レビュー削除に失敗しました。');
+    }
+  };
 
   if (loading) {
     return <div className="text-center p-4">注文履歴を読み込んでいます...</div>;
@@ -99,21 +147,40 @@ const OrderHistoryPage: React.FC = () => {
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between items-center py-2 border-b">
                   <div className="flex items-center">
-                  <Link href={`products/${item.product.product_origin.id}`}>
-                    <img 
-                      src={`http://localhost:8000${item.product_image}`}
-                      alt={item.product.product_origin.product_name} 
-                      className="w-16 h-16 object-cover mr-4 rounded"
-                    />
+                    <Link href={`products/${item.product.product_origin.id}`}>
+                      <img 
+                        src={`http://localhost:8000${item.product_image}`}
+                        alt={item.product.product_origin.product_name} 
+                        className="w-16 h-16 object-cover mr-4 rounded"
+                      />
                     </Link>
                     <div>
                       <Link href={`products/${item.product.product_origin.id}`}>
-                      <p className="font-medium text-blue-600 hover:underline">{item.product.product_origin.product_name}</p>
+                        <p className="font-medium text-blue-600 hover:underline">
+                          {item.product.product_origin.product_name}
+                        </p>
                       </Link>
                       <p className="text-gray-600">数量: {item.quantity}</p>
                     </div>
                   </div>
-                  <p className="font-medium">¥{item.unit_price.toLocaleString()}</p>
+                  <div className="flex flex-col items-end">
+                    <p className="font-medium mb-2">¥{item.unit_price.toLocaleString()}</p>
+                    {reviewedProducts.includes(item.product.id) ? (
+                      <button
+                        onClick={() => handleDeleteReview(item.product.id)}
+                        className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                      >
+                        レビュー削除
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleWriteReview(item.product.id)}
+                        className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                      >
+                        レビューを書く
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -125,4 +192,3 @@ const OrderHistoryPage: React.FC = () => {
 };
 
 export default OrderHistoryPage;
-

@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta, timezone
-import json
-import time
-import uuid
-import jwt
-import requests
+import json,time,uuid,jwt,requests
+
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
@@ -45,6 +43,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.serializers.json import DjangoJSONEncoder
+
 from .models import *
 from .serializers import *
 from .forms import *
@@ -80,29 +82,6 @@ class APIProductListView(APIView):
 
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
-    
-class ProductByCategoryView(APIView):
-    def get(self, request, category_name):
-        try:
-            # カテゴリ名でフィルタリング
-            category = Category.objects.get(category_name=category_name)
-            products = Product.objects.filter(product_origin__category=category)
-
-            # 商品が見つからない場合の処理
-            if not products.exists():
-                return Response(
-                    {"message": "このカテゴリには商品がありません"},
-                    status=status.HTTP_204_NO_CONTENT
-                )
-
-            # シリアライザーを使用してデータを変換
-            serializer = ProductListSerializer(products, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Category.DoesNotExist:
-            return Response(
-                {"error": "カテゴリが見つかりません"},
-                status=status.HTTP_404_NOT_FOUND
-            )
             
 class APICategoryListView(APIView):
     def get(self, request):
@@ -120,6 +99,21 @@ class APIProductDetailView(generics.RetrieveAPIView):
             serializer = self.get_serializer(product)
             return Response(serializer.data)
         except ProductOrigin.DoesNotExist:
+            return Response(
+                {"error": "商品が見つかりません"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+class APIProductReviewView(generics.RetrieveAPIView):
+    serializer_class = ProductListSerializer
+    queryset = Product.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            product = self.get_object()
+            serializer = self.get_serializer(product)
+            return Response(serializer.data)
+        except Product.DoesNotExist:
             return Response(
                 {"error": "商品が見つかりません"}, 
                 status=status.HTTP_404_NOT_FOUND
@@ -347,6 +341,30 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
 
 # 注文関連---------------------------------------------------------------------------------------------------------------
 class CompletePaymentView(APIView):
+    def create_sales_record(self, order, order_items):
+        """
+        注文情報から売上の記録を作成
+        """
+        # 即時決済の支払方法（クレカとPayPay）
+        # コンビニ・現金引換えはどうするかは検討しないといけない（仮で時差登録するかなど）
+        # とりあえず全部登録
+        IMMEDIATE_PSYMENT_METHODS = ['card', 'paypay', 'konbini', 'genkin']
+        # 売り上げ記録作成
+        if order.payment_method in IMMEDIATE_PSYMENT_METHODS:
+            sales_records = []
+            for order_item in order_items:
+                sales_record = SalesRecord(
+                    user=order.user,
+                    product=order_item.product,
+                    order=order,
+                    quantity=order_item.quantity,
+                    total_price=order_item.unit_price * order_item.quantity,
+                    tax_amount=Decimal('0'),  # save()メソッドで自動計算
+                    payment_method=order.payment_method,
+                )
+                sales_records.append(sales_record)
+            # 一括作成
+            SalesRecord.objects.bulk_create(sales_records)
     def post(self, request):
         try:
             with transaction.atomic():
@@ -377,7 +395,11 @@ class CompletePaymentView(APIView):
                     )
                     order_items.append(order_item)
                 
-                OrderItem.objects.bulk_create(order_items)
+                create_order_items = OrderItem.objects.bulk_create(order_items)
+
+                # 注文情報から売上記録を作成
+                
+                self.create_sales_record(order, create_order_items)
                 
                 # カートをクリア
                 cart_items.delete()
@@ -398,6 +420,41 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # ログインユーザーの注文のみ取得
         return Order.objects.filter(user=self.request.user).order_by('-order_date')
+    
+class ProductByCategoryView(APIView):
+    def get(self, request, category_name):
+        try:
+            # カテゴリ名でフィルタリング
+            category = Category.objects.get(category_name=category_name)
+            # サブクエリで同じ product_origin 内で最小の size_id を持つ商品のみを取得
+            subquery = Product.objects.filter(
+                product_origin=OuterRef('product_origin')
+            ).order_by('size_id').values('id')[:1]
+
+            products = Product.objects.filter(
+                product_origin__category=category,
+                id__in=Subquery(subquery)  # サブクエリで絞り込む
+            ).select_related(
+                'product_origin', 'product_origin__category', 'color', 'size'
+            ).prefetch_related('productimage_set')
+            
+            # 商品が見つからない場合の処理
+            if not products.exists():
+                return Response(
+                    {"message": "このカテゴリには商品がありません"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
+            # シリアライザーを使用してデータを変換
+            serializer = ProductListSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "カテゴリが見つかりません"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 # アカウント関連-----------------------------------------------------------------------------------------
 
@@ -480,13 +537,19 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 
 class RegisterView(APIView):
     def post(self, request):
+        # まず、メールアドレスの重複をチェック
+        email = request.data.get('email')
+        if email and CustomUser.objects.filter(email=email).exists():
+            return Response(
+                {"error": "このメールアドレスは既に登録されています。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -583,6 +646,23 @@ class AdminTop(LoginRequiredMixin, TemplateView):
             print(self.request.user.name)
         else:
             print('ユーザーが見つかりません')
+            
+        # 売上データを取得（全ての売上記録を取得）
+        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity', 'total_price').order_by('sale_date')
+
+        # 日付を文字列形式に変換
+        formatted_sales_data = []
+        for record in sales_data:
+            formatted_sales_data.append({
+                'sale_date': record['sale_date'].strftime('%Y-%m-%d'),
+                'quantity': record['quantity'],
+                'total_price': float(record['total_price'])  # Decimal型をfloatに変換
+            })
+
+        # コンテキストに追加
+        # JavaScriptで使用できる形式に変換
+        context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
+            
         return context
 
 def admin_logout(request):
@@ -595,7 +675,12 @@ class BaseSettingView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/top.html'
-
+    
+class SalesManegementView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'sales_management/top.html'
+    model = SalesRecord
 
 # カテゴリ関連-----------------------------------------------------------------------------------------
 class CategoryTopView(LoginRequiredMixin, TemplateView):
@@ -1319,3 +1404,234 @@ def submit_contact_form(request):
 
     # POST以外のリクエストメソッドの場合
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# 検索機能------------------------------------------------------------------------------------------------------------------------
+
+class ProductSearchView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '')
+        if not query:
+            return Product.objects.none()
+
+        # ProductOriginに関連する検索条件
+        origin_conditions = Q(product_origin__product_name__icontains=query) | \
+                            Q(product_origin__gender__icontains=query) | \
+                            Q(product_origin__description__icontains=query) | \
+                            Q(product_origin__category__category_name__icontains=query) | \
+                            Q(product_origin__subcategory__subcategory_name__icontains=query)
+
+        # Product自体の属性に関する検索条件
+        product_conditions = Q(color__color_name__icontains=query) | \
+                            Q(size__size_name__icontains=query) | \
+                            Q(status__icontains=query)
+
+        # 価格での検索（数値の場合）
+        try:
+            price = int(query)
+            product_conditions |= Q(price=price)
+        except ValueError:
+            pass
+
+        return Product.objects.filter(
+            origin_conditions | product_conditions
+        ).select_related(
+            'product_origin',
+            'color',
+            'size'
+        ).distinct()
+    
+
+# -----------------------------Review表示です-------------------------
+class ReviewListCreateView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    
+    def get_queryset(self):
+        queryset = Review.objects.all()
+        product_id = self.request.query_params.get('productId', None)
+        if product_id:
+            # 修正: productId ではなく product_id を使用する
+            queryset = queryset.filter(product_id=product_id)  # 修正部分
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        product_id = self.request.query_params.get('productId', None)
+      
+        if product_id:
+            # 評価ごとのカウントを取得
+            rating_counts = (
+                queryset
+                .values('rating')
+                .annotate(count=Count('rating'))
+                .order_by('-rating')
+            )
+            
+            # 評価カウントを辞書形式に変換
+            rating_distribution = {
+                item['rating']: item['count'] 
+                for item in rating_counts
+            }
+            
+            # 平均評価を計算
+            average_rating = queryset.aggregate(Avg('rating'))['rating__avg']
+            if average_rating is not None:
+                average_rating = round(average_rating, 1)
+
+            serializer = self.get_serializer(queryset, many=True)
+
+            response_data = {
+                "average_rating": average_rating if average_rating is not None else 0,
+                "rating_distribution": rating_distribution,
+                "reviews": serializer.data
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+# -----------------------------Review投稿です-------------------------
+class ReviewWriteView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]  # 認証済みユーザーのみアクセス可能
+
+    def get_queryset(self):
+        queryset = Review.objects.all()
+        product_id = self.request.query_params.get('productId', None)
+        
+        if product_id:
+            queryset = queryset.filter(product_id=product_id)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        # リクエストからproduct_idを取得
+        product_id = request.data.get("product")
+        print("Received product_id:", product_id)
+        
+        # ユーザー取得 - IsAuthenticatedにより、この時点で必ずユーザーは存在する
+        user = request.user
+        
+        # 商品が存在するかを確認
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "指定された商品が見つかりません"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 既にユーザーがレビューしているか確認
+        if Review.objects.filter(product=product, user=user).exists():
+            return Response(
+                {"error": "この商品には既にレビューを投稿しています"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # リクエストデータにユーザーIDを追加
+        request_data = request.data.copy()
+        request_data['user'] = user.id
+
+        # バリデーションとレビュー作成
+        serializer = self.get_serializer(data=request_data)
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # レビューを保存
+        serializer.save(user=user, product=product)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+User = get_user_model()
+
+# ----------------------レビュー全取得-------------------------
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_reviewed_products(request):
+    user = request.user
+    reviewed_product_ids = Review.objects.filter(user=user).values_list('product_id', flat=True)
+    return Response(list(reviewed_product_ids))
+
+# --------------------レビュー消去---------------------------------
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_review(request, product_id):
+    user = request.user
+    try:
+        review = Review.objects.get(product_id=product_id, user=user)
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Review.DoesNotExist:
+        return Response({'error': 'レビューが見つかりません'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserReviewedProductsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # ログインユーザーがレビューした商品のIDリストを返す
+        reviewed_product_ids = Review.objects.filter(user=request.user).values_list('product_id', flat=True)
+        return Response(reviewed_product_ids)
+
+
+# パスワード変更ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
+    authentication_classes = [JWTAuthentication]  # JWT認証
+
+    def post(self, request):
+        # リクエストデータを取得
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # バリデーション: 全てのフィールドが入力されているか確認
+        if not current_password or not new_password or not confirm_password:
+            return Response(
+                {"error": "全てのフィールドを入力してください。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # バリデーション: 新しいパスワードと確認用パスワードが一致しているか確認
+        if new_password != confirm_password:
+            return Response(
+                {"error": "新しいパスワードが一致しません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 現在のパスワードが正しいか確認
+        user = request.user
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "現在のパスワードが正しくありません。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 新しいパスワードを設定
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "パスワードが正常に変更されました。"},
+            status=status.HTTP_200_OK
+        )
+    
+# -------------------商品のおすすめ-------------------
+
+def check_similar_fit_users(request, product_id):
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    # ログイン中のユーザの身長・体重を取得
+    user_height = user.height
+    user_weight = user.weight
+
+    # 商品の「ちょうどいい」レビューを持つユーザの数をカウント
+    similar_users_count = Review.objects.filter(
+        product_id=product_id,
+        fit='ちょうどいい',
+        user__height=user_height,
+        user__weight=user_weight
+    ).values('user').distinct().count()
+
+    return JsonResponse({'similar_users_count': similar_users_count})
