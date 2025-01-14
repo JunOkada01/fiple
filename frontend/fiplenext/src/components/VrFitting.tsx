@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faHeart, faVest, faXmark, faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Draggable from 'react-draggable';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
@@ -319,8 +319,10 @@ const FittingArea: React.FC = () => {
         <div className="flex justify-between items-start">
           <div>
             <h4 className="font-medium truncate pr-2">{item.productName}</h4>
-            <p className="text-sm text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
-            <p className="text-sm text-gray-600">¥{item.price.toLocaleString()}</p>
+            <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
+            <p className="text-md text-gray-600">¥ {item.price.toLocaleString()}</p>
+            {renderColorButtons(item)}
+            {renderSizeButtons(item)}
           </div>
           
           <div className="flex flex-col space-y-2">
@@ -360,9 +362,6 @@ const FittingArea: React.FC = () => {
             </button>
           </div>
         </div>
-        
-        {renderColorButtons(item)}
-        {renderSizeButtons(item)}
       </div>
     </div>
   );
@@ -547,6 +546,13 @@ const FittingArea: React.FC = () => {
       </div>
     );
   };
+  // マネキンの向きの状態を追加
+  const [isFrontView, setIsFrontView] = useState(true);
+
+  // マネキンの向きを切り替える関数
+  const toggleMannequinView = () => {
+    setIsFrontView(!isFrontView);
+  };
 
   // サイズボタンのレンダリング
   const renderSizeButtons = (item: FittingItem) => {
@@ -647,7 +653,7 @@ const FittingArea: React.FC = () => {
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
           {/* 身長体重入力 */}
-          <div className="p-4">
+          <div className="p-2">
             <div className="flex justify-center space-x-4">
               <div className="flex items-center">
                 <input
@@ -676,11 +682,58 @@ const FittingArea: React.FC = () => {
         </div>
 
         {/* マネキンエリア（固定） */}
-        <div className="flex-none h-[180px] border-b border-gray-200">
+        <div className="flex-none h-[300px] border-b border-gray-200  flex justify-center items-center relative">
+          {/* マネキン正面と裏面の切り替えボタン */}
+          <button
+            onClick={toggleMannequinView}
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center 
+                rounded-full transition-colors"
+            title={isFrontView ? "背面を表示" : "正面を表示"}
+          >
+            <FontAwesomeIcon 
+              icon={faRotate} 
+              className="text-gray-600"
+            />
+          </button>
           {isLoading ? (
             <LoadingWave />
           ) : (
-            <MannequinModel height={height} weight={weight} />
+            <div className="relative w-[250px] h-[300px]">
+              <div className="relative w-full h-full">
+                {/* 正面画像 */}
+                <div 
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    isFrontView ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src='/images/mannequin-front.svg' 
+                      alt='マネキン正面' 
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+                {/* 裏面画像 */}
+                <div 
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    isFrontView ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src='/images/mannequin-back.svg' 
+                      alt='マネキン裏面' 
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
@@ -689,17 +742,17 @@ const FittingArea: React.FC = () => {
           
           <div className="flex-1 overflow-y-auto">
           {fittingItems.length > 0 ? (
-            <div className="p-4 space-y-4">
+            <div className="p-2 space-y-4">
               {fittingItems.map(renderFittingItem)}
             </div>
           ) : (
-            <p className="p-4 text-center text-gray-500">試着中のアイテムはありません</p>
+            <p className="p-2 text-center text-gray-500">試着中のアイテムはありません</p>
           )}
         </div>
         
         {/* 一括操作ボタン */}
         {fittingItems.length > 0 && (
-          <div className="flex-none border-t border-gray-200 p-4">
+          <div className="flex-none border-t border-gray-200 p-2">
             <div className="flex justify-between items-center">
               <button
                 onClick={handleBulkFavorite}
