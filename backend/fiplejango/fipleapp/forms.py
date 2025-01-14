@@ -134,6 +134,7 @@ class ProductImageForm(forms.ModelForm):
             'image_description': '画像説明',
         }
         
+        
 class QuestionCategoryForm(forms.ModelForm):
     class Meta:
         model = QuestionCategory
