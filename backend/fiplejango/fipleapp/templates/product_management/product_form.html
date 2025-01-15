@@ -3,7 +3,7 @@
 {% block content %}
 <h4>商品追加</h4>
 <br>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">追加</button>
