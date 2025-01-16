@@ -2080,3 +2080,11 @@ def check_similar_fit_users(request, product_id):
     ).values('user').distinct().count()
 
     return JsonResponse({'similar_users_count': similar_users_count})
+
+from rest_framework import viewsets
+from notifications.models import Notification
+from notifications.serializers import NotificationSerializer
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all().order_by('-created_at')
+    serializer_class = NotificationSerializer

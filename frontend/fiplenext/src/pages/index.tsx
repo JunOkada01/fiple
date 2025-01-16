@@ -6,6 +6,7 @@ import FittingArea from '../components/VrFitting';
 import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
+import Notifications from '../components/Notifications';
  
 interface Tag {
   id: number;
@@ -179,6 +180,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         
         {/* 右側: FittingArea コンポーネント */}
         <FittingArea/>
+        <Notifications />
       </div>
     </div>
   );
