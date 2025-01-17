@@ -131,13 +131,22 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id', 'product_origin']
 
+class ProductTagSerializer(serializers.ModelSerializer):
+    tag_name = serializers.CharField(source='tag.tag_name')
+
+    class Meta:
+        model = ProductTag
+        fields = ['id', 'tag_name']
+
 # 商品の基本情報を含む商品全体の情報のシリアライズ
 class ProductSerializer(serializers.ModelSerializer):
     product_origin = ProductOriginSerializer()
     color = ColorSerializer()
     size = SizeSerializer()
     images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
-
+    product_name = serializers.CharField(source='product_origin.product_name')
+    product_tags = ProductTagSerializer(source='product_origin.producttag_set', many=True, read_only=True)
+    gender = serializers.CharField(source='product_origin.gender')  # ProductOrigin 経由で gender を取得
     class Meta:
         model = Product
         fields = [
@@ -226,12 +235,6 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'name', 'category', 'message', 'created_at']
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name']  # 必要なフィールドを指定
-
 
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -322,30 +325,6 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id', 'product_origin']
 
-# 商品の基本情報を含む商品全体の情報のシリアライズ
-class ProductSerializer(serializers.ModelSerializer):
-    product_origin = ProductOriginSerializer()
-    color = ColorSerializer()
-    size = SizeSerializer()
-    images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
-
-    class Meta:
-        model = Product
-        fields = [
-            'id',
-            'product_name',
-            'category',
-            'subcategory',
-            'product_origin',
-            'color',
-            'size',
-            'price',
-            'stock',
-            'status',
-            'images',
-            'product_tags',
-            'product_origin_id'
-        ]
 
 class ProductTagSerializer(serializers.ModelSerializer):
     tag = TagSerializer()
@@ -494,11 +473,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'status', 'payment_method', 'delivery_address', 
             'items'
         ]
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name']  # 必要なフィールドを指定
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:

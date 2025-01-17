@@ -643,7 +643,7 @@ def admin_create(request):
             return redirect('fipleapp:admin_login')
     else:
         form = AdminCreationForm()
-    return render(request, 'admin/admin_create.html', {'form': form, 'current_path': request.path})
+    return render(request, 'admin2/admin_create.html', {'form': form, 'current_path': request.path})
 
 def admin_login(request):
     if request.method == 'POST':
@@ -666,7 +666,7 @@ def admin_login(request):
                 messages.error(request, '管理者が見つかりません')
     else:
         form = AdminLoginForm()
-    return render(request, 'admin/admin_login.html', {'form': form, 'current_path': request.path})
+    return render(request, 'admin2/admin_login.html', {'form': form, 'current_path': request.path})
 
 
 class AdminTop(LoginRequiredMixin, TemplateView):

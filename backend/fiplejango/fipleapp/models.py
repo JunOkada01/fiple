@@ -137,13 +137,16 @@ class Product(models.Model):
     
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # カテゴリID
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)  # サブカテゴリID
     color = models.ForeignKey(Color, on_delete=models.CASCADE)  # 色ID
     size = models.ForeignKey(Size, on_delete=models.CASCADE)  # サイズID
     stock = models.PositiveIntegerField()  # 在庫数
     price = models.IntegerField()  # 価格
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES)  # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
+
     
     class Meta:
         constraints = [

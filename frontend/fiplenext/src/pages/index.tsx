@@ -1,8 +1,8 @@
+import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import React, { useEffect, useState } from 'react';
 import ReactSlider from 'react-slider';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
-import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import FittingArea from '../components/VrFitting';
 import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
