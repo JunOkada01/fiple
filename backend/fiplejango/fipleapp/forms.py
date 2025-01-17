@@ -198,3 +198,15 @@ class ContactForm(forms.Form):
         required=True
     )
     message = forms.CharField(widget=forms.Textarea, required=True)
+
+from django import forms
+from .models import Banner
+
+class BannerForm(forms.ModelForm):
+    class Meta:
+        model = Banner
+        fields = ['image', 'link']
+        widgets = {
+            'link': forms.URLInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

@@ -7,6 +7,7 @@ import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
 import Notifications from '../components/Notifications';
+import BannerList from '../components/BannerList';
  
 interface Tag {
   id: number;
@@ -181,6 +182,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         {/* 右側: FittingArea コンポーネント */}
         <FittingArea/>
         <Notifications />
+        <BannerList/>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
 import { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
+
 import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
 // import { motion } from "framer-motion";
 //import Image from "next/image";
@@ -74,6 +75,7 @@ function App({ Component, pageProps }: AppProps) {
           </div>
         )}
         <Component {...pageProps} />
+        
       </main>
       <Footer/>
     </div>

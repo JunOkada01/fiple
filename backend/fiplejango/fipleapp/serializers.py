@@ -479,3 +479,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
         read_only_fields = ['user', 'datetime']  # userとdatetimeは読み取り専用
+
+from rest_framework import serializers
+from .models import Banner
+
+class BannerSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
+
+    class Meta:
+        model = Banner
+        fields = ['id', 'image', 'link']

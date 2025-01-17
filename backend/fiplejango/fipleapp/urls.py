@@ -4,11 +4,14 @@ from django.urls import path, include
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from .views import BannerListView, BannerCreateView, BannerUpdateView, BannerDeleteView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView
 )
+from django.urls import path
+from .views import BannerListView, BannerCreateView, BannerUpdateView, BannerDeleteView
 
 router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
@@ -178,4 +181,9 @@ urlpatterns = [
     path('reviews/<int:product_id>/', delete_review, name='delete_review'),
     # 商品おすすめ
     path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    path('banners/', BannerListView.as_view(), name='banner_list'),
+    path('banners/add/', BannerCreateView.as_view(), name='banner_add'),
+    path('banners/edit/<int:pk>/', BannerUpdateView.as_view(), name='banner_edit'),
+    path('banners/delete/<int:pk>/', BannerDeleteView.as_view(), name='banner_delete'),
+    path('api/banners/', BannerListAPIView.as_view(), name='banner_list_api'),
 ]

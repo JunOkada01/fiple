@@ -37,6 +37,13 @@ class SizeAdmin(admin.ModelAdmin):
     ordering = ('order',)
     list_editable = ('order',)  # リスト画面で「order」を直接編集可能にする
 
+from .models import Banner
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'link', 'created_at', 'updated_at', 'admin_user')
+    search_fields = ('link',)
+
 # Registering other models without customization
 admin.site.register(CustomUser)
 admin.site.register(AdminUser)
