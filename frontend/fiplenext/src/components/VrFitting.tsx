@@ -6,11 +6,6 @@ import Draggable from 'react-draggable';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 
-// マネキンモデルを動的にインポート
-const MannequinModel = dynamic(() => import('./MannequinModel'), {
-  ssr: false,
-});
-
 // ローディングアニメーション
 const LoadingWave = () => (
   <div className="flex space-x-3 items-center justify-center h-full">
@@ -44,6 +39,8 @@ interface ProductVariant {
     image: string;
     image_description: string | null;
   }>;
+  front_image: string; // 表画像URL
+  back_image: string;  // 裏画像URL
 }
 
 // 試着アイテムの型定義を拡張
@@ -55,6 +52,8 @@ interface FittingItem {
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  frontImageUrl?: string; // 表画像URL
+  backImageUrl?: string;  // 裏画像URL
   selectedColor?: string;
   selectedSize?: string;
   variants: ProductVariant[];
@@ -387,6 +386,7 @@ const FittingArea: React.FC = () => {
                 throw new Error(`Failed to fetch product details: ${response.statusText}`);
               }
               const productData = await response.json();
+              console.log(productData);
   
               // この商品の保存された選択状態を取得
               const savedVariant = savedVariants[item.id];
@@ -407,7 +407,9 @@ const FittingArea: React.FC = () => {
                 price: selectedVariant.price,
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
-                  : item.imageUrl
+                  : item.imageUrl,
+                frontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+                backImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
               };
             } catch (error) {
               console.error('Failed to fetch product details:', error);
@@ -456,7 +458,9 @@ const FittingArea: React.FC = () => {
               selectedSize: selectedVariant.size.size_name,
               imageUrl: selectedVariant.images[0]?.image 
                 ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
-                : item.imageUrl
+                : item.imageUrl,
+              frontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+              backImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
             };
             // 更新された商品情報を永続化
             const currentItems = JSON.parse(sessionStorage.getItem("fittingItems") || "[]");
@@ -707,13 +711,13 @@ const FittingArea: React.FC = () => {
                   }`}
                 >
                   <div className="relative w-full h-full">
-                    <Image 
-                      src='/images/mannequin-front.svg' 
-                      alt='マネキン正面' 
-                      fill
-                      className="object-cover"
-                      priority
-                    />
+                      <Image 
+                        src='/images/mannequin-front.svg' 
+                        alt='マネキン正面' 
+                        fill
+                        className="object-cover"
+                        priority
+                      />
                   </div>
                 </div>
                 {/* 裏面画像 */}
@@ -723,15 +727,40 @@ const FittingArea: React.FC = () => {
                   }`}
                 >
                   <div className="relative w-full h-full">
-                    <Image 
-                      src='/images/mannequin-back.svg' 
-                      alt='マネキン裏面' 
-                      fill
-                      className="object-cover"
-                      priority
-                    />
+                      <Image 
+                        src='/images/mannequin-back.svg' 
+                        alt='マネキン裏面' 
+                        fill
+                        className="object-cover"
+                        priority
+                      />
                   </div>
                 </div>
+
+                {/* アイテム表示 ※ ボトムスを下のレイヤーにし、トップスを上のレイヤーにしたい */}
+                {/* ボトムス */}
+                <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
+                  {fittingItems.length > 0 && (
+                    <Image 
+                      src={isFrontView ? fittingItems[0].frontImageUrl : fittingItems[0].backImageUrl} 
+                      alt={isFrontView ? '商品正面' : '商品裏面'} 
+                      width={100}
+                      height={140}
+                    />
+                  )}
+                </div>
+                {/* トップス */}
+                <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+                  {fittingItems.length > 0 && (
+                    <Image 
+                      src={isFrontView ? fittingItems[0].frontImageUrl : fittingItems[0].backImageUrl} 
+                      alt={isFrontView ? '商品正面' : '商品裏面'} 
+                      width={100}
+                      height={140}
+                    />
+                  )}
+                </div>
+
               </div>
             </div>
           )}
