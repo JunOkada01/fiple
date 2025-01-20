@@ -27,7 +27,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
  
-    path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
+    # path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('admin_create/', admin_create, name='admin_create'),

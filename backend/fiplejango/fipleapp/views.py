@@ -1796,46 +1796,46 @@ def submit_contact_form(request):
 
 # 検索機能
 
-class ProductSearchView(generics.ListAPIView):
-    serializer_class = ProductSerializer
+# class ProductSearchView(generics.ListAPIView):
+#     serializer_class = ProductSerializer
 
-    def get_queryset(self):
-        query = self.request.query_params.get('q', '')
-        if not query:
-            return Product.objects.none()
+#     def get_queryset(self):
+#         query = self.request.query_params.get('q', '')
+#         if not query:
+#             return Product.objects.none()
 
-        # ProductOriginに関連する検索条件
-        origin_conditions = Q(product_origin__product_name__icontains=query) | \
-                            Q(product_origin__gender__icontains=query) | \
-                            Q(product_origin__description__icontains=query) | \
-                            Q(product_origin__category__category_name__icontains=query) | \
-                            Q(product_origin__subcategory__subcategory_name__icontains=query)
+#         # ProductOriginに関連する検索条件
+#         origin_conditions = Q(product_origin__product_name__icontains=query) | \
+#                             Q(product_origin__gender__icontains=query) | \
+#                             Q(product_origin__description__icontains=query) | \
+#                             Q(product_origin__category__category_name__icontains=query) | \
+#                             Q(product_origin__subcategory__subcategory_name__icontains=query)
 
-        # Product自体の属性に関する検索条件
-        product_conditions = Q(color__color_name__icontains=query) | \
-                             Q(size__size_name__icontains=query) | \
-                             Q(status__icontains=query)
+#         # Product自体の属性に関する検索条件
+#         product_conditions = Q(color__color_name__icontains=query) | \
+#                              Q(size__size_name__icontains=query) | \
+#                              Q(status__icontains=query)
 
-        # タグ関連の検索条件
-        tag_conditions = Q(product_tag__tag__tag_name__icontains=query)
+#         # タグ関連の検索条件
+#         tag_conditions = Q(product_tag__tag__tag_name__icontains=query)
 
-        # 価格での検索（数値の場合）
-        try:
-            price = int(query)
-            product_conditions |= Q(price=price)
-        except ValueError:
-            pass
+#         # 価格での検索（数値の場合）
+#         try:
+#             price = int(query)
+#             product_conditions |= Q(price=price)
+#         except ValueError:
+#             pass
 
-        # 条件をまとめて検索
-        return Product.objects.filter(
-            origin_conditions | product_conditions | tag_conditions
-        ).select_related(
-            'product_origin',
-            'color',
-            'size'
-        ).prefetch_related(
-            'product_tag__tag'
-        ).distinct()
+#         # 条件をまとめて検索
+#         return Product.objects.filter(
+#             origin_conditions | product_conditions | tag_conditions
+#         ).select_related(
+#             'product_origin',
+#             'color',
+#             'size'
+#         ).prefetch_related(
+#             'product_tag__tag'
+#         ).distinct()
     
 
 # -----------------------------Review表示です-------------------------
