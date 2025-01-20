@@ -86,7 +86,7 @@ class ProductOriginForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status']
+        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status', 'front_image', 'back_image']
         labels = {
             'product_origin': '商品元',
             'color': '色',
@@ -94,6 +94,8 @@ class ProductForm(forms.ModelForm):
             'stock': '在庫数',
             'price': '価格',
             'status': '販売ステータス',
+            'front_image': '正面画像',
+            'back_image': '背面画像',
         }
         
         def clean(self):

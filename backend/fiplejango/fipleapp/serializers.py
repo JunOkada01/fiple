@@ -145,7 +145,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'price',
             'stock',
             'status',
-            'images'
+            'images',
         ]
 
 class CartListSerializer(serializers.ModelSerializer):

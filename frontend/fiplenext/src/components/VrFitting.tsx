@@ -44,6 +44,8 @@ interface ProductVariant {
     image: string;
     image_description: string | null;
   }>;
+  front_image: string | null;
+  back_image: string | null;
 }
 
 // 試着アイテムの型定義を拡張
@@ -57,6 +59,8 @@ interface FittingItem {
   imageUrl?: string;
   selectedColor?: string;
   selectedSize?: string;
+  selectedFrontImage?: string; /* 正面画像 */
+  selectedBackImage?: string; /* 背面画像 */
   variants: ProductVariant[];
 }
 
@@ -708,7 +712,8 @@ const FittingArea: React.FC = () => {
                 >
                   <div className="relative w-full h-full">
                     <Image 
-                      src='/images/mannequin-front.svg' 
+                      // src={`/images/${select_heith}/mannequin-front.svg`}
+                      src={`/images/mannequin-front.svg`}
                       alt='マネキン正面' 
                       fill
                       className="object-cover"
@@ -732,6 +737,24 @@ const FittingArea: React.FC = () => {
                     />
                   </div>
                 </div>
+
+                {/* アイテム表示 ※ ボトムスを下のレイヤーにし、トップスを上のレイヤーにしたい */}
+                {/* ボトムス */}
+                <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
+                <img 
+                  src={isFrontView ? '/images/front-pants.png' : '/images/back-pants.png'} 
+                  width={100} 
+                  height={140} 
+                />
+                </div>
+                {/* トップス */}
+                <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+                <img 
+                  src={isFrontView ? '/images/front-top.png' : '/images/back-top.jpeg'} 
+                  width={100} 
+                  height={140} 
+                />
+                </div>
               </div>
             </div>
           )}
@@ -739,7 +762,6 @@ const FittingArea: React.FC = () => {
 
         {/* スクロール可能なアイテムリスト */}
         <div className="flex-1 overflow-hidden flex flex-col">
-          
           <div className="flex-1 overflow-y-auto">
           {fittingItems.length > 0 ? (
             <div className="p-2 space-y-4">

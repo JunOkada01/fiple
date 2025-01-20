@@ -171,4 +171,8 @@ urlpatterns = [
     path('reviews/<int:product_id>/', delete_review, name='delete_review'),
     # 商品おすすめ
     path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    # ユーザー関連
+    path('users/', UserSettingView.as_view(), name='user_settings'),
+ path('user_list/', UserListView.as_view(), name='admin_user_list'),
+ path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
 ]
