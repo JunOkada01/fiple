@@ -49,11 +49,12 @@ interface FittingItem {
   product_id: number;
   productName: string;
   categoryName: string;
+  categoryPosition: string;
   subcategoryName: string;
   price: number;
   imageUrl?: string;
-  frontImageUrl?: string; // 表画像URL
-  backImageUrl?: string;  // 裏画像URL
+  selectedFrontImageUrl?: string; // 表画像URL
+  selectedBackImageUrl?: string;  // 裏画像URL
   selectedColor?: string;
   selectedSize?: string;
   variants: ProductVariant[];
@@ -408,8 +409,8 @@ const FittingArea: React.FC = () => {
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
                   : item.imageUrl,
-                frontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
-                backImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
+                selectedFrontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+                selectedBackImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
               };
             } catch (error) {
               console.error('Failed to fetch product details:', error);
@@ -735,36 +736,44 @@ const FittingArea: React.FC = () => {
                         priority
                       />
                   </div>
-                </div>
+                </div>  
 
-                {/* アイテム表示 ※ ボトムスを下のレイヤーにし、トップスを上のレイヤーにしたい */}
-                {/* ボトムス */}
+                {/* アイテム表示 */}
+
+                {/* 下半身のアイテム */}
                 <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
-                  {fittingItems.length > 0 && (
-                    <Image 
-                      src={isFrontView ? fittingItems[0].frontImageUrl : fittingItems[0].backImageUrl} 
-                      alt={isFrontView ? '商品正面' : '商品裏面'} 
-                      width={100}
-                      height={140}
-                    />
-                  )}
-                </div>
-                {/* トップス */}
-                <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
-                  {fittingItems.length > 0 && (
-                    <Image 
-                      src={isFrontView ? fittingItems[0].frontImageUrl : fittingItems[0].backImageUrl} 
-                      alt={isFrontView ? '商品正面' : '商品裏面'} 
-                      width={100}
-                      height={140}
-                    />
-                  )}
+                  {fittingItems
+                    .filter(item => item.categoryPosition === 'l')
+                    .map(item => (
+                      <Image 
+                        key={item.id}
+                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                        alt={isFrontView ? '商品正面' : '商品裏面'} 
+                        width={100}
+                        height={140}
+                      />
+                    ))}
                 </div>
 
-              </div>
-            </div>
-          )}
-        </div>
+                {/* 上半身のアイテム */}
+                <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+                  {fittingItems
+                    .filter(item => item.categoryPosition === 'u')
+                    .map(item => (
+                      <Image 
+                        key={item.id}
+                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                        alt={isFrontView ? '商品正面' : '商品裏面'} 
+                        width={100}
+                        height={140}
+                      />
+                    ))}
+                </div>
+
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
         {/* スクロール可能なアイテムリスト */}
         <div className="flex-1 overflow-hidden flex flex-col">

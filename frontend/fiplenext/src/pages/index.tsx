@@ -15,6 +15,7 @@ interface Tag {
 interface Category {
   id: number;
   category_name: string;
+  category_position: string;
 }
  
 interface SubCategory {
@@ -42,6 +43,7 @@ interface FittingItem {
   product_id: number;
   productName: string;
   categoryName: string;
+  categoryPosition: string;
   subcategoryName: string;
   price: number;
   imageUrl?: string;
@@ -153,6 +155,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                     product_id={product.id}
                     productName={product.product_name}
                     categoryName={product.category.category_name}
+                    categoryPosition={product.category.category_position}
                     subcategoryName={product.subcategory.subcategory_name}
                     price={product.price}
                     imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定

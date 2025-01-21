@@ -6,7 +6,12 @@
     <br>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.category_name.label }}: {{ form.category_name }}
+        <div class="radio-inline">
+            <br>
+            部位: {{ form.category_position }}
+        </div>
+        <br>
         <button type="submit">追加</button>
     </form>
     <br>

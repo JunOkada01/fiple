@@ -62,6 +62,14 @@ class AdminUser(AbstractBaseUser):
     
 class Category(models.Model):
     category_name = models.CharField(max_length=255, unique=True)  # カテゴリ名
+    
+    class positionChoices(models.TextChoices):
+        head = 'h', '頭'
+        upper_body = 'u', '上半身'
+        lower_body = 'l', '下半身'
+        foot = 'f', '足'
+    category_position = models.CharField(max_length=10, choices=positionChoices.choices, default=positionChoices.head)  # 性別
+    
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時

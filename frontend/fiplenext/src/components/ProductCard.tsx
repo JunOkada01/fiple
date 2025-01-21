@@ -11,12 +11,13 @@ interface ProductCardProps {
     product_id: number;
     productName: string;
     categoryName: string;
+    categoryPosition: string;
     subcategoryName: string;
     price: number;
     imageUrl: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, categoryPosition, subcategoryName, price, imageUrl}) => {
     /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
@@ -53,6 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                     productName,
                     price,
                     categoryName,
+                    categoryPosition,
                     subcategoryName,
                     imageUrl,
                 };
