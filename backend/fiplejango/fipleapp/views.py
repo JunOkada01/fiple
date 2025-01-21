@@ -1003,53 +1003,47 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     form_class = ProductForm
     template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
-    
+
     def form_valid(self, form):
-        with transaction.atomic():  # トランザクションを開始
-            # 商品を保存してから価格履歴を登録
-            form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
+        with transaction.atomic():
+            form.instance.admin_user = self.request.user
 
-            # 表画像の背景処理
-            if 'front_image' in self.request.FILES:
-                front_image_file = self.request.FILES['front_image']
-                front_image_data = front_image_file.read()
-                front_image_result = remove(front_image_data)
-                
-                # 背景除去済みの画像をPillowで処理して保存
-                front_image_io = io.BytesIO(front_image_result)
-                front_image = Image.open(front_image_io)
-                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.front_image.save(
-                    f"front_image.{front_image_format}",
-                    ContentFile(front_image_result),
-                    save=False
-                )
-            
-            # 裏画像の背景処理
-            if 'back_image' in self.request.FILES:
-                back_image_file = self.request.FILES['back_image']
-                back_image_data = back_image_file.read()
-                back_image_result = remove(back_image_data)
+            # まずProductを保存
+            product = form.save()
 
-                # 背景除去済みの画像をPillowで処理して保存
-                back_image_io = io.BytesIO(back_image_result)
-                back_image = Image.open(back_image_io)
-                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.back_image.save(
-                    f"back_image.{back_image_format}",
-                    ContentFile(back_image_result),
-                    save=False
-                )
-            
-            response = super().form_valid(form)  # 商品を保存
+            # カテゴリに基づく追加フィールドの保存
+            category = form.cleaned_data.get('category')
+            measurements_data = {}
 
-            # PriceHistory に登録
-            PriceHistory.objects.create(
-                product=form.instance,
-                price=form.cleaned_data['price']  # フォームから取得した価格を利用
+            if category == 'top':
+                measurements_data = {
+                    'shoulder_width': self.request.POST.get('shoulder_width'),
+                    'chest_width': self.request.POST.get('chest_width'),
+                    'sleeve_length': self.request.POST.get('sleeve_length'),
+                    'top_length': self.request.POST.get('top_length'),
+                }
+            elif category == 'bottom':
+                measurements_data = {
+                    'waist': self.request.POST.get('waist'),
+                    'inseam': self.request.POST.get('inseam'),
+                    'hip': self.request.POST.get('hip'),
+                }
+            elif category == 'onepiece':
+                measurements_data = {
+                    'total_length': self.request.POST.get('total_length'),
+                }
+
+            # ProductMeasurementsのデータを保存
+            ProductMeasurements.objects.create(
+                product=product,
+                **measurements_data
             )
-            
+
+            # 価格履歴などの他の保存処理
+            response = super().form_valid(form)
+
         return response
+
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'fipleapp:admin_login'

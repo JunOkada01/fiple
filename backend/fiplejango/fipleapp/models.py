@@ -134,14 +134,14 @@ class Product(models.Model):
         ('販売中', '販売中'),
         ('在庫切れ', '在庫切れ'),
     ]
-    
+
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     product_origin = models.ForeignKey(ProductOrigin, on_delete=models.CASCADE)  # 商品元ID
     color = models.ForeignKey(Color, on_delete=models.CASCADE)  # 色ID
     size = models.ForeignKey(Size, on_delete=models.CASCADE)  # サイズID
     stock = models.PositiveIntegerField()  # 在庫数
     price = models.IntegerField()  # 価格
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES)  # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
     front_image = models.ImageField(upload_to='products/front/', null=True, blank=True, verbose_name="表画像")
@@ -157,7 +157,34 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.product_origin.product_name} - {self.color.color_name} - {self.size.size_name}"
-    
+
+class ProductMeasurements(models.Model):
+    # サイズ情報フィールド
+
+    product = models.ForeignKey(
+        'Product',  # 紐づける対象のモデル
+        on_delete=models.CASCADE,  # Productが削除されたら関連データも削除
+        related_name='measurements'  # 逆参照時の名前
+    )
+
+
+    shoulder_width = models.FloatField(null=True, blank=True, verbose_name="肩幅 (cm)")  # 肩幅
+    chest_width = models.FloatField(null=True, blank=True, verbose_name="胸囲 (cm)")  # 胸囲
+    sleeve_length = models.FloatField(null=True, blank=True, verbose_name="袖丈 (cm)")  # 袖丈
+    top_length = models.FloatField(null=True, blank=True, verbose_name="着丈 (cm)")  # 着丈
+    waist = models.FloatField(null=True, blank=True, verbose_name="ウエスト (cm)")  # ウエスト
+    hip = models.FloatField(null=True, blank=True, verbose_name="ヒップ (cm)")  # ヒップ
+    rise = models.FloatField(null=True, blank=True, verbose_name="股上 (cm)")  # 股上
+    inseam = models.FloatField(null=True, blank=True, verbose_name="股下 (cm)")  # 股下
+    thigh_width = models.FloatField(null=True, blank=True, verbose_name="太もも周り (cm)")  # 太もも周り
+    hem_width = models.FloatField(null=True, blank=True, verbose_name="裾幅 (cm)")  # 裾幅
+    total_length = models.FloatField(null=True, blank=True, verbose_name="総丈 (cm)")  # 総丈（ワンピースやセットアップ用）
+
+    def __str__(self):
+        return f"Measurements ID: {self.id}"
+
+
+
 class PriceHistory(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # 商品ID（Productモデルへの外部キー）
     price = models.IntegerField()

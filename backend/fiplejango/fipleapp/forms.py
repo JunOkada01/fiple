@@ -83,10 +83,26 @@ class ProductOriginForm(forms.ModelForm):
             'description': '商品説明',
         }
 
+
 class ProductForm(forms.ModelForm):
+    CATEGORY_CHOICES = [
+        ('top', 'トップス'),
+        ('bottom', 'ボトムス'),
+        ('other', 'その他'),
+    ]
+    
+    category = forms.ChoiceField(
+        choices=CATEGORY_CHOICES,
+        label="カテゴリ",
+        required=True
+    )
+    
     class Meta:
         model = Product
-        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status', 'front_image', 'back_image']
+        fields = [
+            'category', 'product_origin', 'color', 'size', 'stock', 'price', 
+            'status', 'front_image', 'back_image',
+        ]
         labels = {
             'product_origin': '商品元',
             'color': '色',
@@ -103,11 +119,12 @@ class ProductForm(forms.ModelForm):
         product_origin = cleaned_data.get('product_origin')
         color = cleaned_data.get('color')
         size = cleaned_data.get('size')
-        
+
         if Product.objects.filter(product_origin=product_origin, color=color, size=size).exists():
             raise ValidationError("同じ商品元、色、サイズの組み合わせが既に存在します。")
         
         return cleaned_data
+
 
 class TagForm(forms.ModelForm):
     class Meta:

@@ -5,9 +5,71 @@
 <br>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div>
+        <label for="product_type">商品タイプを選択してください:</label>
+        <select id="product_type" name="product_type" onchange="toggleFormFields()">
+            <option value="">選択してください</option>
+            <option value="tops">上半身</option>
+            <option value="bottoms">下半身</option>
+            <option value="others">その他（ワンピースなど）</option>
+        </select>
+    </div>
+    <br>
+   
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+    
+    <br>
+    <!-- トップス用のフォーム -->
+    <div id="tops-fields" style="display: none;">
+        <h5>トップス用サイズ情報</h5>
+        <label for="id_shoulder_width">肩幅 (cm):</label>
+        <input type="number" step="0.1" name="shoulder_width" id="id_shoulder_width"><br>
+        <label for="id_chest_width">胸囲 (cm):</label>
+        <input type="number" step="0.1" name="chest_width" id="id_chest_width"><br>
+        <label for="id_sleeve_length">袖丈 (cm):</label>
+        <input type="number" step="0.1" name="sleeve_length" id="id_sleeve_length"><br>
+        <label for="id_top_length">着丈 (cm):</label>
+        <input type="number" step="0.1" name="top_length" id="id_top_length"><br>
+    </div>
+
+    <!-- ボトムス用のフォーム -->
+    <div id="bottoms-fields" style="display: none;">
+        <h5>ボトムス用サイズ情報</h5>
+        <label for="id_waist">ウエスト (cm):</label>
+        <input type="number" step="0.1" name="waist" id="id_waist"><br>
+        <label for="id_hip">ヒップ (cm):</label>
+        <input type="number" step="0.1" name="hip" id="id_hip"><br>
+        <label for="id_rise">股上 (cm):</label>
+        <input type="number" step="0.1" name="rise" id="id_rise"><br>
+        <label for="id_inseam">股下 (cm):</label>
+        <input type="number" step="0.1" name="inseam" id="id_inseam"><br>
+        <label for="id_thigh_width">太もも周り (cm):</label>
+        <input type="number" step="0.1" name="thigh_width" id="id_thigh_width"><br>
+        <label for="id_hem_width">裾幅 (cm):</label>
+        <input type="number" step="0.1" name="hem_width" id="id_hem_width"><br>
+    </div>
+
+    <!-- その他のフォーム -->
+    <div id="others-fields" style="display: none;">
+        <h5>その他のサイズ情報</h5>
+        <label for="id_total_length">総丈 (cm):</label>
+        <input type="number" step="0.1" name="total_length" id="id_total_length"><br>
+    </div>
+
+    <br>
     <button type="submit">追加</button>
 </form>
 <br>
 <a href="{% url 'fipleapp:product_list' %}"><h5>戻る</h5></a>
+
+<script>
+function toggleFormFields() {
+    const productType = document.getElementById('product_type').value;
+    document.getElementById('tops-fields').style.display = productType === 'tops' ? 'block' : 'none';
+    document.getElementById('bottoms-fields').style.display = productType === 'bottoms' ? 'block' : 'none';
+    document.getElementById('others-fields').style.display = productType === 'others' ? 'block' : 'none';
+}
+</script>
 {% endblock %}

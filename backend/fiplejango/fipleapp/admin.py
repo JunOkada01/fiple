@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, 
     Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, 
-    ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem
+    ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem,ProductMeasurements
 )
 
 # Register your models here.
@@ -54,3 +54,4 @@ admin.site.register(Favorite)
 admin.site.register(DeliveryAddress)
 admin.site.register(Order)
 admin.site.register(OrderItem)
+admin.site.register(ProductMeasurements)
