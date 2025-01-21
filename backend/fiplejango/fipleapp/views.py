@@ -1081,12 +1081,45 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     form_class = ProductForm
     template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
-
+    
     def form_valid(self, form):
-        with transaction.atomic():
+        with transaction.atomic():  # トランザクションを開始
+            # 管理者ユーザーを設定
             form.instance.admin_user = self.request.user
 
-            # まずProductを保存
+            # 表画像の背景処理
+            if 'front_image' in self.request.FILES:
+                front_image_file = self.request.FILES['front_image']
+                front_image_data = front_image_file.read()
+                front_image_result = remove(front_image_data)
+                
+                # 背景除去済みの画像をPillowで処理して保存
+                front_image_io = io.BytesIO(front_image_result)
+                front_image = Image.open(front_image_io)
+                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
+                form.instance.front_image.save(
+                    f"front_image.{front_image_format}",
+                    ContentFile(front_image_result),
+                    save=False
+                )
+            
+            # 裏画像の背景処理
+            if 'back_image' in self.request.FILES:
+                back_image_file = self.request.FILES['back_image']
+                back_image_data = back_image_file.read()
+                back_image_result = remove(back_image_data)
+
+                # 背景除去済みの画像をPillowで処理して保存
+                back_image_io = io.BytesIO(back_image_result)
+                back_image = Image.open(back_image_io)
+                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
+                form.instance.back_image.save(
+                    f"back_image.{back_image_format}",
+                    ContentFile(back_image_result),
+                    save=False
+                )
+            
+            # 商品を保存
             product = form.save()
 
             # カテゴリに基づく追加フィールドの保存
@@ -1117,10 +1150,14 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
                 **measurements_data
             )
 
-            # 価格履歴などの他の保存処理
-            response = super().form_valid(form)
-
-        return response
+            # PriceHistory に登録
+            PriceHistory.objects.create(
+                product=product,
+                price=form.cleaned_data['price']  # フォームから取得した価格を利用
+            )
+            
+        # 正常に保存された場合のレスポンスを返す
+        return super().form_valid(form)
 
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):

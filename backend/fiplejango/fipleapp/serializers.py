@@ -151,7 +151,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'price',
             'stock',
             'status',
-            'images',
+            'images'
         ]
         
     def get_product_tags(self, obj):
