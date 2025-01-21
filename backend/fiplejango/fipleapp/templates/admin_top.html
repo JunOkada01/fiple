@@ -5,39 +5,222 @@
 {% block content %}
 <!-- Icon Tiles -->
 <div class="box-container">
+    <div class="icon-tile-area">
+        <a href="{% url 'fipleapp:admin_user_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-user faa-float animated-hover icons" style="color: #d0e7a7;"></i>
+                <p>ユーザー管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:base_settings' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-layer-group faa-float animated-hover icons" style="color: #A7C7E7;"></i>
+                <p>基盤設定</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_management' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #A8D8A1;"></i>
+                <p>商品管理</p>
+            </div>
+        </a>
+        <a href="" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #d8cba1;"></i>
+                <p>在庫管理</p>
+            </div>
+        </a>
+        <a href="" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-bag-shopping faa-float animated-hover icons" style="color: #bfb1f1;"></i>
+                <p>売上管理</p>
+            </div>
+        </a>
+        <a href="" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-truck faa-float animated-hover icons" style="color: #b1b4f1;"></i>
+                <p>注文管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:contact_manager' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #F8C8A3;"></i>
+                <p>お問い合わせ</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:faq_manager' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
+                <p>FAQ</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+
+
+<!-- 売上レート グラフの表示・売上管理へのリンク -->
+<div class="sales-container">
     <div class="row">
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="{% url 'fipleapp:base_settings' %}" class="icon-link">
-                <div class="icon-tile">
-                    <i class="fa-solid fa-layer-group faa-float animated-hover icons" style="color: #A7C7E7;"></i>
-                    <p>基盤設定</p>
+        <!-- 左側の売上数グラフ -->
+        <div class="col-md-6">
+            <div class="block shadow w-100 rounded-4 border">
+                <div class="block-header p-3 d-flex justify-content-between align-items-center">
+                    <div class="block-title px-2">Sales Quantity / 売上数</div>
+                    <a href="#" class="btn btn-link text-decoration-none">売上管理へ</a>
                 </div>
-            </a>
+                <div class="block-content p-1 bg-body-light">
+                    <canvas id="salesQuantityChart" width="400" height="200"></canvas>
+                </div>
+                <div class="block-footer p-3">
+
+                </div>
+            </div>
         </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="{% url 'fipleapp:product_management' %}" class="icon-link">
-                <div class="icon-tile">
-                    <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #A8D8A1;"></i>
-                    <p>商品管理</p>
+        
+        <!-- 右側の売上額グラフ -->
+        <div class="col-md-6">
+            <div class="block shadow w-100 rounded-4 border">
+                <div class="block-header p-3 d-flex justify-content-between align-items-center">
+                    <div class="block-title px-2">Sales Amount / 売上額</div>
+                    <a href="#" class="btn btn-link text-decoration-none">売上管理へ</a>
                 </div>
-            </a>
-        </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="{% url 'fipleapp:contact_manager' %}" class="icon-link">
-                <div class="icon-tile">
-                    <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #F8C8A3;"></i>
-                    <p>お問い合わせ</p>
+                <div class="block-content p-1 bg-body-light">
+                    <canvas id="salesAmountChart" width="400" height="200"></canvas>
                 </div>
-            </a>
-        </div>
-        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="{% url 'fipleapp:faq_manager' %}" class="icon-link">
-                <div class="icon-tile">
-                    <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
-                    <p>FAQ</p>
+                <div class="block-footer p-3">
+
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Djangoテンプレートからデータを受け取る
+    const salesData = JSON.parse('{{ sales_data|safe }}');
+    console.log(salesData);
+    
+    // データを日付でグループ化して集計
+    const groupedData = {};
+    salesData.forEach(record => {
+        const date = record.sale_date;
+        if (!groupedData[date]) {
+            groupedData[date] = {
+                quantity: 0,
+                total: 0
+            };
+        }
+        groupedData[date].quantity += record.quantity;
+        groupedData[date].total += record.total_price;
+    });
+
+    // 日付順にソートされたデータを作成
+    const dates = Object.keys(groupedData).sort();
+    const quantities = dates.map(date => groupedData[date].quantity);
+    const totals = dates.map(date => groupedData[date].total);
+
+    // 売上数グラフ
+    const ctxQuantity = document.getElementById('salesQuantityChart').getContext('2d');
+    const salesQuantityChart = new Chart(ctxQuantity, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: '売上数',
+                data: quantities,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                hoverBackgroundColor: '#fff',
+                hoverBorderColor: 'rgba(54, 162, 235, 1)',
+                hoverRadius: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, display: false },
+                x: { display: false }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return tooltipItem[0].label;
+                        },
+                        label: function(tooltipItem) {
+                            return ' ×' + tooltipItem.raw;
+                        }
+                    },
+                    caretPadding: 10,
+                    intersect: false,
+                    mode: 'nearest'
+                },
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 売上額グラフ
+    const ctxAmount = document.getElementById('salesAmountChart').getContext('2d');
+    const salesAmountChart = new Chart(ctxAmount, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: '売上額',
+                data: totals,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                hoverBackgroundColor: '#fff',
+                hoverBorderColor: 'rgba(75, 192, 192, 1)',
+                hoverRadius: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, display: false },
+                x: { display: false }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return tooltipItem[0].label;
+                        },
+                        label: function(tooltipItem) {
+                            return ' ¥' + tooltipItem.raw.toLocaleString();
+                        }
+                    },
+                    caretPadding: 10,
+                    intersect: false,
+                    mode: 'nearest'
+                },
+                legend: { display: false }
+            }
+        }
+    });
+</script>
 {% endblock %}

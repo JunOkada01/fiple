@@ -1,11 +1,13 @@
+import ProductCard from '@styles/components/ProductCard';
 import AllMensLadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
 import React, { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import axios from 'axios';
-import FittingArea from '../../../components/VrFitting';
 import Navigation from '../../../components/Navigation';
+import FittingArea from '../../../components/VrFitting';
+
 import Link from 'next/link';
-import ProductCard from '@styles/components/ProductCard';
+
 
 interface ProductVariantType {
     id: number;
@@ -181,13 +183,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
                 </Link>
             </div>
             {/* 右側: FittingArea コンポーネント */}
-            <FittingArea
-                height={height}
-                weight={weight}
-                fittingItems={fittingItems}
-                onRemoveItem={removeItemFromFitting}
-                onAddToCart={handleAddToCart}
-            />
+            <FittingArea/>
         </div>
     );
 };

@@ -99,10 +99,7 @@ class ProductForm(forms.ModelForm):
     
     class Meta:
         model = Product
-        fields = [
-            'category', 'product_origin', 'color', 'size', 'stock', 'price', 
-            'status', 'front_image', 'back_image',
-        ]
+        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status', 'front_image', 'back_image']
         labels = {
             'product_origin': '商品元',
             'color': '色',
@@ -110,8 +107,8 @@ class ProductForm(forms.ModelForm):
             'stock': '在庫数',
             'price': '価格',
             'status': '販売ステータス',
-            'front_image': '表画像',
-            'back_image': '裏画像',
+            'front_image': '正面画像',
+            'back_image': '背面画像',
         }
 
     def clean(self):
@@ -152,6 +149,7 @@ class ProductImageForm(forms.ModelForm):
             'image': '画像',
             'image_description': '画像説明',
         }
+        
         
 class QuestionCategoryForm(forms.ModelForm):
     class Meta:

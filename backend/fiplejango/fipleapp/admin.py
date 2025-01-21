@@ -1,9 +1,5 @@
 from django.contrib import admin
-from .models import (
-    CustomUser, QuestionCategory, FAQ, Contact, ContactCategory, Review, AdminUser, 
-    Category, SubCategory, Color, Size, ProductOrigin, Product, Tag, ProductTag, 
-    ProductImage, Cart, Favorite, DeliveryAddress, Order, OrderItem,ProductMeasurements
-)
+from .models import *
 
 # Register your models here.
 
@@ -36,6 +32,16 @@ class SizeAdmin(admin.ModelAdmin):
     list_display = ('size_name', 'order', 'created_at', 'updated_at', 'admin_user')
     ordering = ('order',)
     list_editable = ('order',)  # リスト画面で「order」を直接編集可能にする
+
+"""
+売上管理
+"""
+@admin.register(SalesRecord)
+class SalesRecordAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'quantity', 'total_price', 'tax_amount', 'sale_date')
+    list_filter = ('sale_date', 'payment_method')
+    search_fields = ('product__product_origin__product_name', 'user__username')
+
 
 # Registering other models without customization
 admin.site.register(CustomUser)

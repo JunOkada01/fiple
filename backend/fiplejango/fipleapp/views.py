@@ -1,9 +1,15 @@
 # Python Standard Library
+from django.shortcuts import redirect
+from django.core.files.base import ContentFile
+from rembg import remove
+import io
+from PIL import Image
 from datetime import datetime, timedelta, timezone
 from django.db.models import *
 import json
 import jwt
 import uuid
+from decimal import Decimal
 # Djangoのインポート
 from django.conf import settings
 from django.contrib import messages
@@ -15,6 +21,7 @@ from django.contrib.auth import (
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMessage, send_mail
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Avg, Count, Prefetch, Q
 from django.http import HttpResponse, JsonResponse
@@ -37,11 +44,23 @@ from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import *
-from .serializers import *
 from rest_framework import status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .serializers import ProductListSerializer
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.db.models import Prefetch
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import NotFound
@@ -54,7 +73,9 @@ from django.views.generic import (
     TemplateView, ListView, CreateView, 
     UpdateView, DeleteView, DetailView
 )
-
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import (
     generics, status, viewsets, permissions
 )
@@ -80,6 +101,14 @@ from django.core.files.base import ContentFile
 from rembg import remove
 import io
 from PIL import Image
+from rest_framework import generics
+from rest_framework.response import Response
+from django.db.models import Q
+from .forms import ContactCategoryForm
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Contact
+
 
 
 
@@ -412,6 +441,31 @@ class DeliveryAddressViewSet(viewsets.ModelViewSet):
 
 # 注文関連---------------------------------------------------------------------------------------------------------------
 class CompletePaymentView(APIView):
+    def create_sales_record(self, order, order_items):
+        """
+        注文情報から売上の記録を作成
+        """
+        # 即時決済の支払方法（クレカとPayPay）
+        # コンビニ・現金引換えはどうするかは検討しないといけない（仮で時差登録するかなど）
+        # とりあえず全部登録
+        IMMEDIATE_PSYMENT_METHODS = ['card', 'paypay', 'konbini', 'genkin']
+        # 売り上げ記録作成
+        if order.payment_method in IMMEDIATE_PSYMENT_METHODS:
+            sales_records = []
+            for order_item in order_items:
+                sales_record = SalesRecord(
+                    user=order.user,
+                    product=order_item.product,
+                    order=order,
+                    quantity=order_item.quantity,
+                    total_price=order_item.unit_price * order_item.quantity,
+                    tax_amount=Decimal('0'),  # save()メソッドで自動計算
+                    payment_method=order.payment_method,
+                )
+                sales_records.append(sales_record)
+            # 一括作成
+            SalesRecord.objects.bulk_create(sales_records)
+
     def post(self, request):
         try:
             with transaction.atomic():
@@ -442,8 +496,12 @@ class CompletePaymentView(APIView):
                     )
                     order_items.append(order_item)
                 
-                OrderItem.objects.bulk_create(order_items)
+                create_order_items = OrderItem.objects.bulk_create(order_items)
+
+                # 注文情報から売上記録を作成
                 
+                self.create_sales_record(order, create_order_items)
+
                 # カートをクリア
                 cart_items.delete()
                 
@@ -463,7 +521,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # ログインユーザーの注文のみ取得
         return Order.objects.filter(user=self.request.user).order_by('-order_date')
-    
+
 class ProductByCategoryView(APIView):
     def get(self, request, category_name):
         try:
@@ -651,7 +709,7 @@ def admin_create(request):
             return redirect('fipleapp:admin_login')
     else:
         form = AdminCreationForm()
-    return render(request, 'admin/admin_create.html', {'form': form, 'current_path': request.path})
+    return render(request, 'fiple_admin/admin_create.html', {'form': form, 'current_path': request.path})
 
 def admin_login(request):
     if request.method == 'POST':
@@ -674,8 +732,11 @@ def admin_login(request):
                 messages.error(request, '管理者が見つかりません')
     else:
         form = AdminLoginForm()
-    return render(request, 'admin/admin_login.html', {'form': form, 'current_path': request.path})
+    return render(request, 'fiple_admin/admin_login.html', {'form': form, 'current_path': request.path})
 
+"""
+Django 管理画面用
+"""
 
 class AdminTop(LoginRequiredMixin, TemplateView):
     template_name = 'admin_top.html'
@@ -689,6 +750,22 @@ class AdminTop(LoginRequiredMixin, TemplateView):
             print(self.request.user.name)
         else:
             print('ユーザーが見つかりません')
+        
+        # 売上データを取得（全ての売上記録を取得）
+        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity', 'total_price').order_by('sale_date')
+
+        # 日付を文字列形式に変換
+        formatted_sales_data = []
+        for record in sales_data:
+            formatted_sales_data.append({
+                'sale_date': record['sale_date'].strftime('%Y-%m-%d'),
+                'quantity': record['quantity'],
+                'total_price': float(record['total_price'])  # Decimal型をfloatに変換
+            })
+
+        # コンテキストに追加
+        # JavaScriptで使用できる形式に変換
+        context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
         return context
 
 def admin_logout(request):
@@ -696,16 +773,17 @@ def admin_logout(request):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return redirect('fipleapp:admin_login')
-    
-class BaseSettingView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'base_settings/top.html'
 
 class BaseSettingView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/top.html'
+
+class SalesManegementView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'sales_management/top.html'
+    model = SalesRecord
 
 # カテゴリ関連-----------------------------------------------------------------------------------------
 class CategoryTopView(LoginRequiredMixin, TemplateView):
@@ -1059,6 +1137,37 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         with transaction.atomic():  # トランザクションを開始
             # 商品情報を更新
+            # 表画像の背景処理
+            if 'front_image' in self.request.FILES:
+                front_image_file = self.request.FILES['front_image']
+                front_image_data = front_image_file.read()
+                front_image_result = remove(front_image_data)
+               
+                # 背景除去済みの画像をPillowで処理して保存
+                front_image_io = io.BytesIO(front_image_result)
+                front_image = Image.open(front_image_io)
+                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
+                form.instance.front_image.save(
+                    f"front_image.{front_image_format}",
+                    ContentFile(front_image_result),
+                    save=False
+                )
+           
+            # 裏画像の背景処理
+            if 'back_image' in self.request.FILES:
+                back_image_file = self.request.FILES['back_image']
+                back_image_data = back_image_file.read()
+                back_image_result = remove(back_image_data)
+ 
+                # 背景除去済みの画像をPillowで処理して保存
+                back_image_io = io.BytesIO(back_image_result)
+                back_image = Image.open(back_image_io)
+                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
+                form.instance.back_image.save(
+                    f"back_image.{back_image_format}",
+                    ContentFile(back_image_result),
+                    save=False
+                )
             response = super().form_valid(form)
 
             # PriceHistory に新しい価格を登録
@@ -1314,7 +1423,7 @@ def edit_faq(request, faq_id):
 def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
-# views.py
+
 class ContactCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactCategory.objects.all()
     serializer_class = ContactCategorySerializer
@@ -1333,7 +1442,7 @@ def contact_detail(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
     return render(request, 'contact/contact_detail.html', {'contact': contact})
 
-# backend/app/views.py
+
 
 def add_contact_category(request):
     if request.method == 'POST':
@@ -1769,9 +1878,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 #問い合わせ一覧表示ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Contact
+
 
 def contact_list(request):
     contacts = Contact.objects.all().order_by('-created_at')
@@ -1829,7 +1936,7 @@ def submit_contact_form(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-# 検索機能
+
 
 class ProductSearchView(generics.ListAPIView):
     serializer_class = ProductSerializer
@@ -1986,7 +2093,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Review
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -2061,7 +2167,6 @@ class PasswordChangeView(APIView):
 
 from django.http import JsonResponse
 from django.db.models import Count
-from .models import Review, Product
 
 def check_similar_fit_users(request, product_id):
     user = request.user
@@ -2081,3 +2186,76 @@ def check_similar_fit_users(request, product_id):
     ).values('user').distinct().count()
 
     return JsonResponse({'similar_users_count': similar_users_count})
+
+# -------------------ユーザー管理（顧客）-------------------
+class UserSettingView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'users/top.html'
+ 
+class UserListView(LoginRequiredMixin, ListView):
+    """
+    ユーザー一覧ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'users/user_list.html'
+    context_object_name = 'users'
+    paginate_by = 20
+    model = CustomUser
+ 
+    def get_queryset(self):
+        """
+        検索機能の実装
+        """
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search', '')
+       
+        if search_query:
+            queryset = queryset.filter(
+                Q(username__icontains=search_query) |
+                Q(email__icontains=search_query) |
+                Q(hurigana__icontains=search_query)
+            )
+       
+        return queryset
+ 
+    def get_context_data(self, **kwargs):
+        """
+        検索クエリをコンテキストに追加
+        """
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+ 
+class UserDetailView(LoginRequiredMixin, DetailView):
+    """
+    ユーザー詳細ビュー
+    管理者のみアクセス可能
+    """
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = CustomUser
+    template_name = 'users/user_detail.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'user_id'
+    paginate_by = 10
+ 
+    def get_context_data(self, **kwargs):
+        """
+        ユーザーの注文履歴を追加
+        """
+        context = super().get_context_data(**kwargs)
+        orders = Order.objects.filter(user=self.object).order_by('-order_date')
+       
+        # ページネーションの追加
+        paginator = Paginator(orders, 10)  # 1ページあたり10件
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+ 
+        context['orders'] = page_obj
+        context['order_items'] = OrderItem.objects.filter(order__in=page_obj).select_related('product')
+        context['page_obj'] = page_obj  # ページオブジェクトをコンテキストに追加
+       
+        return context
