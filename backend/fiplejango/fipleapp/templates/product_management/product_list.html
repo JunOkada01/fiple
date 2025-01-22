@@ -4,10 +4,10 @@
 <h4>・商品一覧</h4>
 <br>
 <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-	<a href="{% url 'fipleapp:product_add' %}"><div class="icon-tile">
-		<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
-		<h6>商品追加</h6>
-	</div></a>
+    <a href="{% url 'fipleapp:product_add' %}"><div class="icon-tile">
+        <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#E83E8C"><path d="M180-80q-24.75 0-42.37-17.63Q120-115.25 120-140v-483q-17-6-28.5-21.39T80-680v-140q0-24.75 17.63-42.38Q115.25-880 140-880h680q24.75 0 42.38 17.62Q880-844.75 880-820v140q0 20.22-11.5 35.61T840-623v483q0 24.75-17.62 42.37Q804.75-80 780-80H180Zm0-540v480h600v-480H180Zm-40-60h680v-140H140v140Zm220 260h240v-60H360v60Zm120 40Z"/></svg>
+        <h6>商品追加</h6>
+    </div></a>
 </div>
 <br>
 <ul>
@@ -21,49 +21,62 @@
             販売ステータス: {{ product.status }}<br>
             追加日時: {{ product.created_at }}<br>
             更新日時: {{ product.updated_at }}<br>
+ 
+            <!-- 表画像と裏画像の表示 -->
+            {% if product.front_image %}
+                表画像: <img src="{{ product.front_image.url }}" alt="表画像" style="max-width: 100px; max-height: 100px;"><br>
+            {% else %}
+                表画像: なし<br>
+            {% endif %}
+           
+            {% if product.back_image %}
+                裏画像: <img src="{{ product.back_image.url }}" alt="裏画像" style="max-width: 100px; max-height: 100px;"><br>
+            {% else %}
+                裏画像: なし<br>
+            {% endif %}
+ 
             <a href="{% url 'fipleapp:product_edit' product.id %}">変更
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg></a>
-			・
+            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg></a>
+            ・
             <a href="{% url 'fipleapp:product_delete' product.id %}">削除
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/></svg>
-			</a>
+            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/></svg>
+            </a>
         </li>
         {% empty %}
         <li>商品元がありません。</li>
     {% endfor %}
 </ul>
-
+ 
 <nav aria-label="ページネーション">
-	<ul class="pagination">
-
-		{% if page_obj.has_previous %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-		{% endif %}
-
-		{% for page_num in page_obj.paginator.page_range %} 
-			{% if page_num == page_obj.number %}
-				<li class="page-item active">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% else %}
-				<li class="page-item">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% endif %}
-		{% endfor %}
-
-		{% if page_obj.has_next %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{% endif %}
-
-	</ul>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% endif %}
+ 
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+ 
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
 </nav>
 {% endblock %}
+ 

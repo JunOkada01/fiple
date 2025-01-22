@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
+# REST APIルーター設定
 router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
 router.register(r'contact-categories',ContactCategoryViewSet)
@@ -119,14 +120,6 @@ urlpatterns = [
     path('edit-question-category/<int:category_id>/', views.edit_question_category, name='edit_question_category'),
     path('edit-faq/<int:faq_id>/', views.edit_faq, name='edit_faq'),
     
-    #Contact関連
-    path('api/', include(router.urls)),
-    path('contact-manager/', views.contact_manager, name='contact_manager'),
-    path('contacts/', views.contact_list, name='contact_list'),
-    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
-    path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
-    path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
-    
     path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
@@ -170,7 +163,7 @@ urlpatterns = [
     # 注文関連
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
-    
+
     # レビュー関連
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
     path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
@@ -178,4 +171,8 @@ urlpatterns = [
     path('reviews/<int:product_id>/', delete_review, name='delete_review'),
     # 商品おすすめ
     path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    # ユーザー関連
+    path('users/', UserSettingView.as_view(), name='user_settings'),
+ path('user_list/', UserListView.as_view(), name='admin_user_list'),
+ path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
 ]

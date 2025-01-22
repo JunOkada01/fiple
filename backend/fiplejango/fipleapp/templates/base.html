@@ -12,6 +12,7 @@
         <!-- Font Awesomeの最新版CDN -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.2.1/font-awesome-animation.css" type="text/css" media="all" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
 
     <body>
@@ -57,10 +58,22 @@
                     </div>
                     <div class="side-content">
                         <ul class="side-main">
-                            <li class="side-item-main border-bottom"><a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME</a></li>
+                            <li class="side-item-main border-bottom">
+                                <a href="{% url 'fipleapp:admin_top' %}">
+                                    <i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME
+                                </a>
+                            </li>
+                            <!-- ユーザー管理 -->
+                            <li class="side-item-top border-bottom">
+                                <a href="{% url 'fipleapp:admin_user_list' %}" class="item-top">
+                                    <i class="fa-solid fa-user" style="font-size: 15px;"></i>ユーザー管理
+                                </a>
+                            </li>
                             <!-- 基盤設定 -->
                             <li class="side-item-top">
-                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top"><i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top">
+                                    <i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span>
+                                </a>
                                 <ul class="submenu border-bottom">
                                     <li class="submenu-item">
                                         <a href="{% url 'fipleapp:category_top' %}">Category</a>
@@ -104,6 +117,10 @@
                     <button class="forward-button" id="forwardButton" type="button" onclick="window.history.forward()" value="進む">
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
+                    <div class="digital-clock">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="clock"></span>
+                    </div>
                     {% endif %}
                 </div>
                 <div class="content">
@@ -155,6 +172,22 @@
                     document.querySelector('main').classList.add('no-sidebar');
                 }
             });
+        </script>
+
+        <!-- デジタル時計の処理 -->
+        <script>
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours} : ${minutes} : ${seconds}`;
+            }
+
+            // 初回実行
+            updateClock();
+            // 1秒ごとに更新
+            setInterval(updateClock, 1000);
         </script>
     </body>
 </html>

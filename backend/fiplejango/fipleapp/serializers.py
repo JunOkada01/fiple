@@ -124,6 +124,9 @@ class ProductListSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(source='productimage_set', many=True)
     product_name = serializers.CharField(source='product_origin.product_name')
     product_origin_id = serializers.IntegerField(source='product_origin.id')
+    product_tags = serializers.SerializerMethodField()  # 追加
+    gender = serializers.CharField(source='product_origin.gender')  # 追加
+
     class Meta:
         model = Product
         fields = ['id', 'product_name', 'category', 'subcategory', 'price', 'images', 'product_origin_id', 'product_origin']
@@ -139,6 +142,9 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id',
+            'product_name',
+            'category',
+            'subcategory',
             'product_origin',
             'color',
             'size',
@@ -147,6 +153,11 @@ class ProductSerializer(serializers.ModelSerializer):
             'status',
             'images'
         ]
+        
+    def get_product_tags(self, obj):
+        # product_originに関連付けられたタグを取得
+        product_tags = ProductTag.objects.filter(product_origin=obj.product_origin)
+        return ProductTagSerializer(product_tags, many=True).data
 
 class CartListSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
@@ -319,14 +330,26 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id',
+            'product_name',
+            'category',
+            'subcategory',
             'product_origin',
             'color',
             'size',
             'price',
             'stock',
             'status',
-            'images'
+            'images',
+            'product_tags',
+            'product_origin_id'
         ]
+
+class ProductTagSerializer(serializers.ModelSerializer):
+    tag = TagSerializer()
+    
+    class Meta:
+        model = ProductTag
+        fields = ['id', 'tag', 'created_at', 'updated_at']
 
 class CartListSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
