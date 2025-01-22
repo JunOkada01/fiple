@@ -63,6 +63,15 @@ User = get_user_model()
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
 
+def get_category_position(request, product_origin_id):
+    try:
+        product_origin = ProductOrigin.objects.get(id=product_origin_id)
+        return JsonResponse({
+            'category_position': product_origin.category.category_position
+        })
+    except ProductOrigin.DoesNotExist:
+        return JsonResponse({'error': '商品元が見つかりません'}, status=404)
+
 # class CustomPageNumberPagination(PageNumberPagination):
 #     page_size = 10  # 1ページに10件
 #     page_size_query_param = 'page_size'  # クライアントがページサイズを変更できるようにする
@@ -967,6 +976,28 @@ def get_subcategories(request):
     return JsonResponse(list(subcategories), safe=False)
     
 # 商品関連----------------------------------------------------------------------------------------------------------
+
+class ProductPriceHistoryListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = PriceHistory
+    template_name = 'product_history_list.html'
+    context_object_name = 'price_histories'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                product__product_origin__product_name__icontains=search_query
+            )
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
 
 class ProductListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-5xl">
+    <h1 class="text-2xl font-bold mb-6 text-center">価格履歴一覧</h1>
+
+    <!-- 検索フォーム -->
+    <form method="get" class="mb-6">
+        <div class="flex gap-2">
+            <input type="text" a
+                    name="search" 
+                    value="{{ search_query }}" 
+                    placeholder="商品名で検索" 
+                    class="border rounded px-4 py-2 flex-grow">
+            <button type="submit" 
+                    class="bg-blue-500 text-black px-4 py-2 rounded hover:bg-blue-600">
+                検索
+            </button>
+        </div>
+    </form>
+
+    <br>
+
+    <div class="flex justify-center w-full">  <!-- 中央寄せのためのコンテナ -->
+        <div class="w-full max-w-4xl">  <!-- コンテンツの最大幅を制限 -->
+            <!-- 価格履歴テーブル -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border px-4 py-2">商品名</th>
+                            <th class="border px-4 py-2">価格</th>
+                            <th class="border px-4 py-2">更新日時</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history in price_histories %}
+                        <tr>
+                            <td class="border px-4 py-2">
+                                {{ history.product.product_origin.product_name }}
+                            </td>
+                            <td class="border px-4 py-2 text-right">
+                                ¥{{ history.price|intcomma }}
+                            </td>
+                            <td class="border px-4 py-2">
+                                {{ history.created_at|date:"Y/m/d H:i" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="border px-4 py-2 text-center">
+                                価格履歴が見つかりません
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    
+            <!-- ページネーション -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-6">
+                <nav class="flex items-center gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                        class="px-3 py-1 border rounded hover:bg-gray-100">
+                        前へ
+                    </a>
+                    {% endif %}
+    
+                    <span class="px-3 py-1">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                        class="px-3 py-1 border rounded hover:bg-gray-100">
+                        次へ
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
