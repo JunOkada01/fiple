@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime, timedelta, timezone
 import json,time,uuid,jwt,requests
 
@@ -1016,41 +1017,53 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('fipleapp:product_list')
     
     def form_valid(self, form):
-        with transaction.atomic():  # トランザクションを開始
-            # 商品を保存してから価格履歴を登録
-            form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
-            
-            # 表画像の背景処理
-            if 'front_image' in self.request.FILES:
-                front_image_file = self.request.FILES['front_image']
-                front_image_data = front_image_file.read()
-                front_image_result = remove(front_image_data)
-                
-                # 背景除去済みの画像をPillowで処理して保存
-                front_image_io = io.BytesIO(front_image_result)
-                front_image = Image.open(front_image_io)
-                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.front_image.save(
-                    f"front_image.{front_image_format}",
-                    ContentFile(front_image_result),
-                    save=False
-                )
-            
-            # 裏画像の背景処理
-            if 'back_image' in self.request.FILES:
-                back_image_file = self.request.FILES['back_image']
-                back_image_data = back_image_file.read()
-                back_image_result = remove(back_image_data)
+        with transaction.atomic():
+            form.instance.admin_user = self.request.user
 
-                # 背景除去済みの画像をPillowで処理して保存
-                back_image_io = io.BytesIO(back_image_result)
-                back_image = Image.open(back_image_io)
-                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.back_image.save(
-                    f"back_image.{back_image_format}",
-                    ContentFile(back_image_result),
-                    save=False
-                )
+            def process_image_data(base64_data):
+                if base64_data:
+                    # Base64データからプレフィックスを削除
+                    format, imgstr = base64_data.split(';base64,')
+                    ext = format.split('/')[-1]
+                    
+                    # Base64をデコード
+                    image_data = base64.b64decode(imgstr)
+                    
+                    # PILで画像を開く
+                    img = Image.open(io.BytesIO(image_data))
+                    
+                    # 背景除去処理
+                    image_result = remove(image_data)
+                    
+                    # バイトデータに変換
+                    img_byte_arr = io.BytesIO()
+                    Image.open(io.BytesIO(image_result)).save(img_byte_arr, format='PNG')
+                    img_byte_arr = img_byte_arr.getvalue()
+                    
+                    return ContentFile(img_byte_arr), 'png'
+                return None, None
+
+            # 表画像の処理
+            front_image_data = self.request.POST.get('front_image')
+            if front_image_data:
+                image_content, ext = process_image_data(front_image_data)
+                if image_content:
+                    form.instance.front_image.save(
+                        f"front_image.{ext}",
+                        image_content,
+                        save=False
+                    )
+
+            # 裏画像の処理
+            back_image_data = self.request.POST.get('back_image')
+            if back_image_data:
+                image_content, ext = process_image_data(back_image_data)
+                if image_content:
+                    form.instance.back_image.save(
+                        f"back_image.{ext}",
+                        image_content,
+                        save=False
+                    )
             
             response = super().form_valid(form)  # 商品を保存
 
@@ -1076,37 +1089,43 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         with transaction.atomic():  # トランザクションを開始
             
-            # 表画像の背景処理
-            if 'front_image' in self.request.FILES:
-                front_image_file = self.request.FILES['front_image']
-                front_image_data = front_image_file.read()
-                front_image_result = remove(front_image_data)
-                
-                # 背景除去済みの画像をPillowで処理して保存
-                front_image_io = io.BytesIO(front_image_result)
-                front_image = Image.open(front_image_io)
-                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.front_image.save(
-                    f"front_image.{front_image_format}",
-                    ContentFile(front_image_result),
-                    save=False
-                )
-            
-            # 裏画像の背景処理
-            if 'back_image' in self.request.FILES:
-                back_image_file = self.request.FILES['back_image']
-                back_image_data = back_image_file.read()
-                back_image_result = remove(back_image_data)
+            # Base64データから画像を処理する関数
+            def process_image_data(base64_data):
+                if base64_data:
+                    # Base64データからプレフィックスを削除
+                    format, imgstr = base64_data.split(';base64,')
+                    ext = format.split('/')[-1]
+                    
+                    # Base64をデコード
+                    image_data = base64.b64decode(imgstr)
+                    
+                    # 背景除去処理
+                    image_result = remove(image_data)
+                    
+                    return ContentFile(image_result), ext
+                return None, None
 
-                # 背景除去済みの画像をPillowで処理して保存
-                back_image_io = io.BytesIO(back_image_result)
-                back_image = Image.open(back_image_io)
-                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.back_image.save(
-                    f"back_image.{back_image_format}",
-                    ContentFile(back_image_result),
-                    save=False
-                )
+            # 表画像の処理
+            front_image_data = self.request.POST.get('front_image')
+            if front_image_data:
+                image_content, ext = process_image_data(front_image_data)
+                if image_content:
+                    form.instance.front_image.save(
+                        f"front_image.{ext}",
+                        image_content,
+                        save=False
+                    )
+
+            # 裏画像の処理
+            back_image_data = self.request.POST.get('back_image')
+            if back_image_data:
+                image_content, ext = process_image_data(back_image_data)
+                if image_content:
+                    form.instance.back_image.save(
+                        f"back_image.{ext}",
+                        image_content,
+                        save=False
+                    )
             
             # 商品情報を更新
             response = super().form_valid(form)
