@@ -1086,57 +1086,118 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
+    # カテゴリに応じた画像サイズの定義
+    CATEGORY_SIZES = {
+        'h': (100, 100),
+        'u': (170, 170),
+        'l': (170, 170),
+        'f': (100, 80),
+    }
+    
+    def get_category_size(self, product_origin):
+        """商品元のカテゴリから適切な画像サイズを取得"""
+        category = product_origin.category.category_position
+        print(f'選択した部位：{category}')
+        return self.CATEGORY_SIZES.get(category)
+
+    def maintain_aspect_ratio_resize(self, image, target_size):
+        """アスペクト比を維持しながら、指定サイズに収まるようにリサイズ"""
+        target_width, target_height = target_size
+        orig_width, orig_height = image.size
+        
+        # 元画像のアスペクト比を計算
+        orig_aspect = orig_width / orig_height
+        # 目標のアスペクト比を計算
+        target_aspect = target_width / target_height
+        
+        if orig_aspect > target_aspect:
+            # 元画像の方が横長の場合
+            new_width = target_width
+            new_height = int(target_width / orig_aspect)
+        else:
+            # 元画像の方が縦長の場合
+            new_height = target_height
+            new_width = int(target_height * orig_aspect)
+            
+        # 新しいサイズでリサイズ
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+        
+        # 目標サイズの新しい画像を作成（背景透明）
+        final_image = Image.new('RGBA', target_size, (0, 0, 0, 0))
+        
+        # リサイズした画像を中央に配置
+        paste_x = (target_width - new_width) // 2
+        paste_y = (target_height - new_height) // 2
+        final_image.paste(resized_image, (paste_x, paste_y))
+        
+        return final_image
+    
+    def process_image_data(self, base64_data, target_size):
+        """画像データを処理し、アスペクト比を維持しながら指定サイズに収める"""
+        if not base64_data:
+            return None, None
+
+        # Base64データからプレフィックスを削除
+        format, imgstr = base64_data.split(';base64,')
+        
+        # Base64をデコード
+        image_data = base64.b64decode(imgstr)
+        
+        # 背景除去処理
+        image_result = remove(image_data)
+        
+        # PILで画像を開く
+        img = Image.open(io.BytesIO(image_result))
+        
+        # アスペクト比を維持しながらリサイズ
+        final_img = self.maintain_aspect_ratio_resize(img, target_size)
+        
+        # PNG形式で保存（透明度を保持）
+        img_byte_arr = io.BytesIO()
+        final_img.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+        
+        return ContentFile(img_byte_arr), 'png'
+    
     def form_valid(self, form):
-        with transaction.atomic():  # トランザクションを開始
+        with transaction.atomic():
+            form.instance.admin_user = self.request.user
             
-            # Base64データから画像を処理する関数
-            def process_image_data(base64_data):
-                if base64_data:
-                    # Base64データからプレフィックスを削除
-                    format, imgstr = base64_data.split(';base64,')
-                    ext = format.split('/')[-1]
-                    
-                    # Base64をデコード
-                    image_data = base64.b64decode(imgstr)
-                    
-                    # 背景除去処理
-                    image_result = remove(image_data)
-                    
-                    return ContentFile(image_result), ext
-                return None, None
-
-            # 表画像の処理
-            front_image_data = self.request.POST.get('front_image')
-            if front_image_data:
-                image_content, ext = process_image_data(front_image_data)
-                if image_content:
-                    form.instance.front_image.save(
-                        f"front_image.{ext}",
-                        image_content,
-                        save=False
-                    )
-
-            # 裏画像の処理
-            back_image_data = self.request.POST.get('back_image')
-            if back_image_data:
-                image_content, ext = process_image_data(back_image_data)
-                if image_content:
-                    form.instance.back_image.save(
-                        f"back_image.{ext}",
-                        image_content,
-                        save=False
-                    )
+            # 商品元から適切な画像サイズを取得
+            target_size = self.get_category_size(form.instance.product_origin)
             
-            # 商品情報を更新
+            if target_size:
+                # 表画像の処理
+                front_image_data = self.request.POST.get('front_image')
+                if front_image_data:
+                    image_content, ext = self.process_image_data(front_image_data, target_size)
+                    if image_content:
+                        form.instance.front_image.save(
+                            f"front_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+
+                # 裏画像の処理
+                back_image_data = self.request.POST.get('back_image')
+                if back_image_data:
+                    image_content, ext = self.process_image_data(back_image_data, target_size)
+                    if image_content:
+                        form.instance.back_image.save(
+                            f"back_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+
             response = super().form_valid(form)
 
-            # PriceHistory に新しい価格を登録
+            # PriceHistory に登録
             PriceHistory.objects.create(
-                product=self.object,  # 更新された Product インスタンス
-                price=form.cleaned_data['price']  # フォームの価格フィールドを利用
+                product=form.instance,
+                price=form.cleaned_data['price']
             )
-
-        return response
+            
+            return response
     
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
