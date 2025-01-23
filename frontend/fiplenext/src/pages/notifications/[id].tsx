@@ -73,7 +73,7 @@ const NotificationDetail: React.FC = () => {
             <p>{notification.message}</p>
             <small>{formatTimeAgo(notification.created_at)}</small>
             <br />
-            <a href="/">トップページに戻る</a>
+            <a href="/notifications">お知らせ一覧に戻る</a>
         </div>
     );
 };

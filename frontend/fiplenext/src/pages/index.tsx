@@ -138,6 +138,12 @@ export default function ProductList({ initialProducts }: ProductListProps) {
 <div className="container mx-auto max-w-screen-xl px-4">
       {/* Navigation コンポーネント */}
       <Navigation onSearch={setSearchQuery} />
+    
+      <div className={styles.container}>
+      <div className={styles.bannerAndNotifications}>
+        <BannerList />
+      </div>
+    </div>
       {/* 性別カテゴリメニュー */}
       <AllMensLeadiesKidsFilter />
       {/* その他のコンテンツ */}
@@ -180,9 +186,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         ))}
         
         {/* 右側: FittingArea コンポーネント */}
-        <FittingArea/>
-        <Notifications />
-        <BannerList/>
+        <FittingArea/>       
       </div>
     </div>
   );

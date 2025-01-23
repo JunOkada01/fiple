@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .bannerAndNotifications {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* バナーと通知の間にスペースを追加 */
+    width: 100%;
+    max-width: 1200px; /* 最大幅を設定 */
+  }
+  
+  @media (min-width: 768px) {
+    .bannerAndNotifications {
+      flex-direction: row; /* 画面が広い場合は横並びにする */
+      justify-content: space-between;
+    }
+  }

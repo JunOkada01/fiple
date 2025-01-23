@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from notifications import views
 from django.urls import path, include
 from . import views
 from .views import *
@@ -21,6 +22,7 @@ router.register(r'orders', OrderViewSet, basename='order')
 
 app_name = 'fipleapp'
 from .views import PasswordResetRequestView, PasswordResetConfirmView
+
 
 urlpatterns = [
     path('users/', views.user_list, name='user-list'),
@@ -186,4 +188,5 @@ urlpatterns = [
     path('banners/edit/<int:pk>/', BannerUpdateView.as_view(), name='banner_edit'),
     path('banners/delete/<int:pk>/', BannerDeleteView.as_view(), name='banner_delete'),
     path('api/banners/', BannerListAPIView.as_view(), name='banner_list_api'),
+    path('api/notifications/', views.NotificationList.as_view(), name='notification-list'),
 ]

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import Notification from '../../components/Notifications';
 
 interface NotificationData {
     id: number;
@@ -9,7 +10,7 @@ interface NotificationData {
     created_at: string;
 }
 
-const Notifications: React.FC = () => {
+const NotificationsPage: React.FC = () => {
     const [notifications, setNotifications] = useState<NotificationData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,6 @@ const Notifications: React.FC = () => {
                 setNotifications(response.data);
                 setLoading(false);
             } catch (err) {
-                console.error('Error fetching notifications:', err);
                 setError('お知らせの取得に失敗しました');
                 setLoading(false);
             }
@@ -30,29 +30,12 @@ const Notifications: React.FC = () => {
         fetchNotifications();
     }, []);
 
-    const formatTimeAgo = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diff = now.getTime() - date.getTime();
-        const diffMinutes = Math.floor(diff / (1000 * 60));
-        const diffHours = Math.floor(diff / (1000 * 60 * 60));
-        const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-        if (diffDays > 0) {
-            return `${diffDays}日前`;
-        } else if (diffHours > 0) {
-            return `${diffHours}時間前`;
-        } else {
-            return `${diffMinutes}分前`;
-        }
-    };
-
     if (loading) {
         return <div>読み込み中...</div>;
     }
 
     if (error) {
-        return <div className="text-red-500">{error}</div>;
+        return <div>{error}</div>;
     }
 
     return (
@@ -72,11 +55,28 @@ const Notifications: React.FC = () => {
                     ))}
                 </ul>
             )}
-            <Link href="/notifications" legacyBehavior>
+            <Link href="/" legacyBehavior>
                 <a className="text-blue-500 underline">トップに戻る</a>
             </Link>
         </div>
     );
 };
 
-export default Notifications;
+const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diff / (1000 * 60));
+    const diffHours = Math.floor(diff / (1000 * 60 * 60));
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+        return `${diffDays}日前`;
+    } else if (diffHours > 0) {
+        return `${diffHours}時間前`;
+    } else {
+        return `${diffMinutes}分前`;
+    }
+};
+
+export default NotificationsPage;

@@ -2081,12 +2081,12 @@ def check_similar_fit_users(request, product_id):
 
     return JsonResponse({'similar_users_count': similar_users_count})
 
-from rest_framework import viewsets
+from rest_framework import generics
 from notifications.models import Notification
 from notifications.serializers import NotificationSerializer
 
-class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all().order_by('-created_at')
+class NotificationList(generics.ListAPIView):
+    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
 
 from django.contrib.auth import get_user_model

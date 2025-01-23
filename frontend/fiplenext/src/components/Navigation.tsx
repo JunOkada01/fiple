@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faUser, faHeart ,faBell} from '@fortawesome/free-regular-svg-icons';
 import { faCartShopping, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 
@@ -43,6 +43,9 @@ const Navigation: React.FC<NavigationProps> = ({ onSearch }) => {
             <Link href="/accounts/profile" className="hover:text-gray-400">
               <FontAwesomeIcon icon={faUser} className="text-lg" />
             </Link>
+            <Link href="/notifications" className="hover:text-gray-400">
+            <FontAwesomeIcon icon={faBell} className="text-lg" />
+            </Link>
             <Link href="/favorites" className="hover:text-gray-400">
               <FontAwesomeIcon icon={faHeart} className="text-lg" />
             </Link>
@@ -54,6 +57,9 @@ const Navigation: React.FC<NavigationProps> = ({ onSearch }) => {
           <>
             <Link href="/accounts/login" className="hover:text-gray-400">
               <FontAwesomeIcon icon={faUser} className="text-lg" />
+            </Link>
+            <Link href="/notifications" className="hover:text-gray-400">
+            <FontAwesomeIcon icon={faBell} className="text-lg" />
             </Link>
             <Link href="/accounts/login" className="hover:text-gray-400">
               <FontAwesomeIcon icon={faHeart} className="text-lg" />

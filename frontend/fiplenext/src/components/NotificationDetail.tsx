@@ -52,7 +52,7 @@ const NotificationDetail: React.FC = () => {
             <Head>
                 <title>{notification.title}</title>
             </Head>
-            <h1 className="text-3xl font-bold mb-6">{notification.title}</h1>
+            <h3 className="text-3xl font-bold mb-6">{notification.title}</h3>
             <p>{notification.message}</p>
             <small>{new Date(notification.created_at).toLocaleString()}</small>
             <br />
