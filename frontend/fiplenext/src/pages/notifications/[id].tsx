@@ -68,13 +68,13 @@ const NotificationDetail: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-6">{notification.title}</h1>
-            <p>{notification.message}</p>
-            <small>{formatTimeAgo(notification.created_at)}</small>
-            <br />
-            <a href="/notifications">お知らせ一覧に戻る</a>
-        </div>
+        <div className="container mx-auto px-4 py-8 bg-white text-black">
+        <h1 className="text-2xl font-bold mb-6 border-b pb-2">{notification.title}</h1>
+        <p className="mb-4">{notification.message}</p>
+        <small className="text-gray-500">{formatTimeAgo(notification.created_at)}</small>
+        <br />
+        <a href="/notifications" className="text-black no-underline hover:underline">お知らせ一覧に戻る</a>
+    </div>
     );
 };
 

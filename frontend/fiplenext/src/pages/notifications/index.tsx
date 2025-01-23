@@ -39,26 +39,26 @@ const NotificationsPage: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h2 className="text-3xl font-bold mb-6">お知らせ一覧</h2>
-            {notifications.length === 0 ? (
-                <p className="text-gray-600">お知らせがありません</p>
-            ) : (
-                <ul>
-                    {notifications.map((notification) => (
-                        <li key={notification.id} className="mb-4">
-                            <Link href={`/notifications/${notification.id}`} legacyBehavior>
-                                <a className="text-blue-500 underline">{notification.title}</a>
-                            </Link>
-                            <small>{formatTimeAgo(notification.created_at)}</small>
-                        </li>
-                    ))}
-                </ul>
-            )}
-            <Link href="/" legacyBehavior>
-                <a className="text-blue-500 underline">トップに戻る</a>
-            </Link>
-        </div>
+        <div className="container mx-auto px-4 py-8 bg-white text-black">
+        <h2 className="text-2xl font-bold mb-6 border-b pb-2">お知らせ一覧</h2>
+        {notifications.length === 0 ? (
+            <p className="text-gray-600">お知らせがありません</p>
+        ) : (
+            <ul>
+                {notifications.map((notification) => (
+                    <li key={notification.id} className="mb-4 border-b pb-2">
+                        <Link href={`/notifications/${notification.id}`} legacyBehavior>
+                            <a className="text-black no-underline hover:underline">{notification.title}</a>
+                        </Link>
+                        <small className="text-gray-500">{formatTimeAgo(notification.created_at)}</small>
+                    </li>
+                ))}
+            </ul>
+        )}
+        <Link href="/" legacyBehavior>
+            <a className="text-black no-underline hover:underline">トップに戻る</a>
+        </Link>
+    </div>
     );
 };
 
