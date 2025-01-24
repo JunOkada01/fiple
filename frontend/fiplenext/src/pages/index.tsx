@@ -174,6 +174,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                   </span>
                 </button>
               </Link>
+              )}
             </div>
           </div>
         ))}

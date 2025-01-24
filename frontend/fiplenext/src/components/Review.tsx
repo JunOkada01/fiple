@@ -6,6 +6,7 @@ interface Review {
     id: number;
     user: string;
     subject: string;
+    subject: string;
     review_detail: string;
     rating: number;
     datetime: string;
@@ -17,6 +18,7 @@ interface ReviewProps {
  
 const ReviewList: React.FC<ReviewProps> = ({ productId }) => {
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [averageRating, setAverageRating] = useState<number | null>(null);
     const [averageRating, setAverageRating] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,7 @@ const ReviewList: React.FC<ReviewProps> = ({ productId }) => {
                 setAverageRating(response.data.average_rating);
             } catch (err) {
                 setError('レビューの取得に失敗しました');
+                console.error('Error details:', err);
                 console.error('Error details:', err);
             } finally {
                 setLoading(false);
@@ -105,7 +108,9 @@ const ReviewList: React.FC<ReviewProps> = ({ productId }) => {
             {reviewsToDisplay.length > 0 ? (
                 <ul>
                     {reviewsToDisplay.map(review => (
+                    {reviewsToDisplay.map(review => (
                         <li key={review.id} className="mb-4 border-b pb-2">
+                            <p>{review.subject}</p>
                             <p>{review.subject}</p>
                             <p><strong>評価:</strong> {review.rating}☆</p>
                             <p><strong>コメント:</strong> {review.review_detail}</p>

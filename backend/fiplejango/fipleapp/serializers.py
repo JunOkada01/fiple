@@ -8,6 +8,10 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone',
             'postal_code', 'birth', 'address', 'height', 'weight'
         ]
+        fields = [
+            'id', 'username', 'email', 'password', 'hurigana', 'sex', 'phone',
+            'postal_code', 'birth', 'address', 'height', 'weight'
+        ]
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -298,3 +302,32 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
         read_only_fields = ['user', 'datetime']
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name']  # 必要なフィールドを指定
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
+        read_only_fields = ['user', 'datetime']  # userとdatetimeは読み取り専用
+
+from rest_framework import serializers
+from .models import Banner
+
+class BannerSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
+
+    class Meta:
+        model = Banner
+        fields = ['id', 'image', 'link']
+
+from rest_framework import serializers
+from notifications.models import Notification
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'created_at']

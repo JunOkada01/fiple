@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserM
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -207,6 +208,8 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
     
+
+# cart
 class Cart(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -217,7 +220,8 @@ class Cart(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.product.product_origin.product_name}"
-    
+
+# お気に入り
 class Favorite(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -350,6 +354,15 @@ class Review(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     subject = models.CharField(max_length=254)
+    fit_CHOICES = [
+        ('大きすぎた', '大きすぎた'),
+        ('ちょうどいい', 'ちょうどいい'),
+        ('ぱつぱつ', 'ぱつぱつ'),
+    ]
+
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=254)
     review_detail = models.CharField(max_length=255)
     RATING_CHOICES = [(i, f'{i}☆') for i in range(1, 6)]
     rating = models.IntegerField(choices=RATING_CHOICES, default=5)
@@ -361,3 +374,16 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user}さんが{self.product}を評価しました。"
+    
+from django.db import models
+from django.conf import settings
+
+class Banner(models.Model):
+    image = models.ImageField(upload_to='banners/')
+    link = models.URLField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    admin_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Banner {self.id} - {self.link}"

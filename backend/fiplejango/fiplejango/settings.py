@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     "fipleapp.apps.FipleappConfig",
+    "notifications.apps.NotificationsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,10 +43,16 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'rest_framework',
-	'rest_framework.authtoken',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'rest_framework_simplejwt',
     'corsheaders',
     'django.contrib.humanize',
+    'channels',
+]
+
+INSTALLED_APPS += [
+    'django_filters',
 ]
 
 INSTALLED_APPS += [
@@ -111,6 +118,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "fiplejango.wsgi.application"
+ASGI_APPLICATION = 'fiplejango.asgi.application'
 
 
 # Database
@@ -222,4 +230,13 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'ROTATE_REFRESH_TOKENS': True, 
     'BLACKLIST_AFTER_ROTATION': True, 
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }

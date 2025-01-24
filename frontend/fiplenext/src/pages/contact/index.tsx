@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import styles from './ContactForm.module.css';
 
 interface ContactFormProps {
   name: string;
@@ -11,7 +12,7 @@ interface Category {
   name: string;
 }
 
-const Contact: React.FC = () => {
+const ContactForm = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState<ContactFormProps>({
     name: '',
@@ -29,9 +30,7 @@ const Contact: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -42,8 +41,10 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // フォームデータの確認
     console.log(formData);
 
+    // FormDataオブジェクトを作成
     const data = new FormData();
     data.append('name', formData.name);
     data.append('message', formData.message);
@@ -52,7 +53,7 @@ const Contact: React.FC = () => {
     try {
       const res = await fetch('http://localhost:8000/api/submit-contact-form/', {
         method: 'POST',
-        body: data,
+        body: data,  // FormDataを送信
       });
 
       const responseData = await res.json();
@@ -77,44 +78,22 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold text-center mt-[50px] mb-6">お問い合わせ</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>お問い合わせ</h1>
       {/* お問い合わせ通知 */}
       {popupMessage && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 p-4 bg-green-500 text-white rounded-md shadow-lg z-10">
+        <div className={styles.popupMessage}>
           {popupMessage}
         </div>
       )}
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md mx-auto border shadow-sm bg-white p-10 rounded-md"
-      >
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            名前
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            お問い合わせ内容
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label className={styles.label}>
+          名前:
+          <input type="text" name="name" value={formData.name} onChange={handleChange} required className={styles.input} />
+        </label>
+        <label className={styles.label}>
+          お問い合わせ内容:
+          <select name="category" value={formData.category} onChange={handleChange} required className={styles.select}>
             <option value="">選択してください</option>
             {categories.map((category) => (
               <option key={category.id} value={category.name}>
@@ -122,29 +101,15 @@ const Contact: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-            メッセージ
-          </label>
-          <textarea
-            id="message"
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            required
-            className="w-full h-[100px] mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full py-2 px-4 bg-black border border-black text-white font-medium rounded-sm hover:bg-white hover:text-black transition-all"
-        >
-          送信
-        </button>
+        </label>
+        <label className={styles.label}>
+          メッセージ:
+          <textarea name="message" value={formData.message} onChange={handleChange} required className={styles.textarea} />
+        </label>
+        <button type="submit" className={styles.button}>送信</button>
       </form>
     </div>
   );
 };
 
-export default Contact;
+export default ContactForm;

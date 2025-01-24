@@ -147,7 +147,11 @@ const OrderHistoryPage: React.FC = () => {
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between items-center py-2 border-b">
                   <div className="flex items-center">
+<<<<<<< HEAD
                     <Link href={`http://localhost:3000/products/${item.product.product_origin.id}`}>
+=======
+                    <Link href={`products/${item.product.product_origin.id}`}>
+>>>>>>> 江藤-1/8-コミット保険
                       <img 
                         src={`http://localhost:8000${item.product_image}`}
                         alt={item.product.product_origin.product_name} 
@@ -155,7 +159,11 @@ const OrderHistoryPage: React.FC = () => {
                       />
                     </Link>
                     <div>
+<<<<<<< HEAD
                       <Link href={`http://localhost:3000/products/${item.product.product_origin.id}`}>
+=======
+                      <Link href={`products/${item.product.product_origin.id}`}>
+>>>>>>> 江藤-1/8-コミット保険
                         <p className="font-medium text-blue-600 hover:underline">
                           {item.product.product_origin.product_name}
                         </p>

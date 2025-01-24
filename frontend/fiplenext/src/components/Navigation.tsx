@@ -11,6 +11,13 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ onSearch }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchInput, setSearchInput] = useState('');
+interface NavigationProps {
+  onSearch: (query: string) => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onSearch }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');

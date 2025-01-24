@@ -1,12 +1,17 @@
+<<<<<<< HEAD
 import ProductCard from '@styles/components/ProductCard';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
+=======
+import AllMensLadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
+>>>>>>> 江藤-1/8-コミット保険
 import React, { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import axios from 'axios';
 import Navigation from '../../../components/Navigation';
 import FittingArea from '../../../components/VrFitting';
+import Navigation from '../../../components/Navigation';
 import Link from 'next/link';
-
+import ProductCard from '@styles/components/ProductCard';
 
 interface ProductVariantType {
     id: number;
@@ -93,6 +98,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
     const [height] = useState<number>(180);
     const [weight] = useState<number>(70);
     const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [filteredProducts, setFilteredProducts] = useState<ProductDetailType[]>(products);
 
     const removeItemFromFitting = (id: number) => {
         setFittingItems(fittingItems.filter(item => item.id !== id));
@@ -102,19 +109,58 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
         console.log('商品をカートに追加');
     };
 
+    // 検索機能の実装
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredProducts(products);
+            return;
+        }
+    
+        const query = searchQuery.toLowerCase();
+        const filtered = products.filter(product => {
+            const hasMatchingTag = product.variants?.some(variant =>
+                variant.images?.some(image =>
+                    image.image_description?.toLowerCase().includes(query)
+                )
+            );
+    
+            return (
+                product.product_name.toLowerCase().includes(query) ||
+                product.category.category_name.toLowerCase().includes(query) ||
+                product.subcategory.subcategory_name.toLowerCase().includes(query) ||
+                hasMatchingTag ||
+                (!isNaN(Number(query)) && product.price === Number(query))
+            );
+        });
+    
+        setFilteredProducts(filtered);
+    }, [searchQuery, products]);
+    
+
+    
 
     return (
         <div className="container mx-auto max-w-screen-xl px-4">
+<<<<<<< HEAD
             {/* 性別カテゴリメニュー */}
             <AllMensLeadiesKidsFilter />
+=======
+            {/* Navigation コンポーネント */}
+            <Navigation onSearch={setSearchQuery} />
+            
+            <AllMensLadiesKidsFilter />
+
+>>>>>>> 江藤-1/8-コミット保険
             {/* 商品リスト */}
             <div className="flex justify-center items-center flex-col">
                 <h1 className="text-xl text-center mb-6">{categoryName}</h1>
                 <div className="grid grid-cols-4 gap-6 max-w-[700px]">
-                    {products.length === 0 ? (
-                        <div className="text-center">商品が見つかりませんでした。</div>
+                    {filteredProducts.length === 0 ? (
+                        <div className="text-center text-gray-500">
+                            商品が見つかりませんでした。
+                        </div>
                     ) : (
-                        products.map((product) => {
+                        filteredProducts.map((product) => {
                             const imageUrl = product.images[0]?.image 
                                 ? `http://127.0.0.1:8000/${product.images[0].image}` 
                                 : '';

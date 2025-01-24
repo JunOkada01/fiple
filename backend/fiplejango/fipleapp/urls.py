@@ -1,13 +1,18 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from notifications import views
+from django.urls import path, include
 from . import views
 from .views import *
 from django.views.generic import TemplateView
+from .views import BannerListView, BannerCreateView, BannerUpdateView, BannerDeleteView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView
 )
+from django.urls import path
+from .views import BannerListView, BannerCreateView, BannerUpdateView, BannerDeleteView
 
 router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
@@ -16,6 +21,8 @@ router.register(r'delivery-addresses', DeliveryAddressViewSet, basename='deliver
 router.register(r'orders', OrderViewSet, basename='order')
 
 app_name = 'fipleapp'
+from .views import PasswordResetRequestView, PasswordResetConfirmView
+
 
 urlpatterns = [
     path('users/', UserSettingView.as_view(), name='user_settings'),
@@ -23,12 +30,16 @@ urlpatterns = [
     path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
     path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
     path('register/', RegisterView.as_view(), name='register'),
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
+ 
+    path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('admin_create/', admin_create, name='admin_create'),
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
+    # path('api/products/', ProductListView.as_view(), name='product-list'),
     path('base_settings/', BaseSettingView.as_view(), name='base_settings'),
     path('categories/top/', CategoryTopView.as_view(), name='category_top'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
@@ -70,6 +81,10 @@ urlpatterns = [
     path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
 
     # トークン
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -80,20 +95,24 @@ urlpatterns = [
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
+    path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
     path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
-    # カート
+    #カート
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
     path('api/cart/', CartListView.as_view(), name='cart-list'),
     path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
     path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
-    # お気に入り
+    #お気に入り
     path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
-    # パスワード
-    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
-    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
-    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    
     #FAQ関連
     path('faq-manager/', views.faq_manager, name='faq_manager'),
     path('api/faqs/', views.faq_list, name='faq_list'),
@@ -167,4 +186,17 @@ urlpatterns = [
     path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
     # 商品おすすめ
     path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    # レビュー関連
+    path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
+    path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
+    path('reviews/', list_reviewed_products, name='list_reviewed_products'),
+    path('reviews/<int:product_id>/', delete_review, name='delete_review'),
+    # 商品おすすめ
+    path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    path('banners/', BannerListView.as_view(), name='banner_list'),
+    path('banners/add/', BannerCreateView.as_view(), name='banner_add'),
+    path('banners/edit/<int:pk>/', BannerUpdateView.as_view(), name='banner_edit'),
+    path('banners/delete/<int:pk>/', BannerDeleteView.as_view(), name='banner_delete'),
+    path('api/banners/', BannerListAPIView.as_view(), name='banner_list_api'),
+    path('api/notifications/', views.NotificationList.as_view(), name='notification-list'),
 ]

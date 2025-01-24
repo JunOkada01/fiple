@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import AuthHeader from '../components/AccontsHeader';
 import Head from 'next/head'
 import Link from "next/link";
@@ -11,10 +12,10 @@ import'@fortawesome/free-solid-svg-icons'
 import'@fortawesome/react-fontawesome'
 import { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
-import Footer from '../components/Footer'
 import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
-import { motion } from "framer-motion";
-
+// import { motion } from "framer-motion";
+//import Image from "next/image";
+//import Link from 'next/link'
 
 
 function App({ Component, pageProps }: AppProps) {
@@ -60,6 +61,7 @@ function App({ Component, pageProps }: AppProps) {
         <Link rel="preconnect" href="https://fonts.googleapis.com"></Link>
         <Link rel="preconnect" href="https://fonts.gstatic.com"></Link>
         <Link href="https://fonts.googleapis.com/css2?family=Julius+Sans+One&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet"></Link>
+        
       </Head>
 
       {/* ログイン・新規登録画面ではAuthHeader、それ以外では通常のHeader */}
@@ -72,10 +74,11 @@ function App({ Component, pageProps }: AppProps) {
           </div>
         )}
         <Component {...pageProps} />
+        
       </main>
       <Footer/>
     </div>
   );
 }
-
+ 
 export default App;
