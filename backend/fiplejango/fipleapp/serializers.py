@@ -52,6 +52,24 @@ class SizeSerializer(serializers.ModelSerializer):
         model = Size
         fields = ['id', 'size_name', 'order']
 
+class ProductTagSerializer(serializers.ModelSerializer):
+    # 関連するデータを追加で表示
+    tag_name = serializers.CharField(source='tag.tag_name', read_only=True)  # Tagモデルのtag_name
+    product_name = serializers.CharField(source='product_origin.product_name', read_only=True)  # ProductOriginモデルのproduct_name
+    admin_username = serializers.CharField(source='admin_user.username', read_only=True)  # AdminUserのusername
+
+    class Meta:
+        model = ProductTag
+        fields = [
+            'id',                # ProductTagのID
+            'product_origin_id', # 商品元ID（外部キーのID）
+            'tag_name',          # タグ名
+            'product_name',      # 商品名
+            'admin_username',    # 管理者のユーザー名
+            'created_at',        # 作成日時
+            'updated_at',        # 更新日時
+        ]
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -139,6 +157,7 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(source='productimage_set', many=True, read_only=True)
     front_image_url = serializers.ImageField(source='front_image', read_only=True)
     back_image_url = serializers.ImageField(source='back_image', read_only=True)
+    product_tags = ProductTagSerializer(source='product_origin.producttag_set', many=True)
 
     class Meta:
         model = Product
@@ -153,6 +172,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'images',
             'front_image_url',
             'back_image_url',
+            'product_tags',
         ]
 
 class CartListSerializer(serializers.ModelSerializer):

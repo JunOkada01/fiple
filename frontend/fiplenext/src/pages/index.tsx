@@ -8,39 +8,63 @@ import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
 import ReactSlider from 'react-slider'; 
 
+// 基本的なモデルのインターフェース
 interface Tag {
   id: number;
   tag_name: string;
 }
- 
+
 interface Category {
   id: number;
   category_name: string;
   category_position: string;
 }
- 
+
 interface SubCategory {
   id: number;
   subcategory_name: string;
 }
- 
-interface Product {
+
+// ProductTagSerializerに合わせたインターフェース
+interface ProductTag {
+  id: number;
+  product_origin: ProductOrigin;
+  tag_name: string;        // tag.tag_name
+  product_name: string;    // product_origin.product_name
+  admin_username: string;  // admin_user.username
+  created_at: string;
+  updated_at: string;
+}
+
+// ProductOriginの情報を含むインターフェース
+interface ProductOrigin {
   id: number;
   product_name: string;
-  product_origin: {
-    category: string;
-    subcategory: string;
-    gender: string;
-  }
-  price: number;
-  images: Array<{ image: string }>;
-  product_tags?: Array<{ tag: Tag }>;
+  category: Category;
+  subcategory: SubCategory;
+  gender: string;
+  description: string;
+  product_tags?: ProductTag[];
 }
- 
+
+// 商品全体の情報を含むインターフェース
+interface Product {
+  id: number;
+  product_origin: ProductOrigin;
+  price: number;
+  stock: number;
+  status: string;
+  images: Array<{ image: string }>;
+  front_image_url?: string;
+  back_image_url?: string;
+}
+
+// プロップスのインターフェース
 interface ProductListProps {
   initialProducts: Product[];
 }
- 
+
+// フィッティングアイテムのインターフェース
 interface FittingItem {
   id: number;
   product_id: number;
@@ -51,6 +75,7 @@ interface FittingItem {
   price: number;
   imageUrl?: string;
 }
+
  
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   try {
@@ -103,9 +128,13 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       const isWithinPriceRange =
         product.price >= priceRange[0] && product.price <= priceRange[1];
   
-      const hasMatchingTag = product.product_tags?.some(productTag =>
-        productTag.tag.tag_name.toLowerCase().includes(query)
-      );
+        const hasMatchingTag = product.product_origin.product_tags?.some(productTag => {
+          // 入力が空の場合はすべての商品を表示
+          if (!query) return true;
+          
+          // タグの部分一致チェック
+          return productTag.tag_name.toLowerCase().includes(query);
+        });
 
       // 性別フィルタリング
       const matchesGender = 
@@ -119,11 +148,11 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         matchesGender &&
         (
           // 商品名で検索
-          product.product_name.toLowerCase().includes(query) ||
+          product.product_origin.product_name.toLowerCase().includes(query) ||
           // カテゴリー名で検索
-          product.category.category_name.toLowerCase().includes(query) ||
+          product.product_origin.category.category_name.toLowerCase().includes(query) ||
           // サブカテゴリ―で検索
-          product.subcategory.subcategory_name.toLowerCase().includes(query) ||
+          product.product_origin.subcategory.subcategory_name.toLowerCase().includes(query) ||
           // タグで検索
           hasMatchingTag
         )
