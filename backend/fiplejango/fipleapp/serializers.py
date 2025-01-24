@@ -41,7 +41,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'category_name', 'subcategories']
+        fields = ['id', 'category_name', 'subcategories', 'category_position']
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -229,7 +229,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'category_name', 'subcategories']
+        fields = ['id', 'category_name', 'category_position', 'subcategories']
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -263,12 +263,14 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     color = ColorSerializer()
     size = SizeSerializer()
     images = ProductImageSerializer(many=True, source='productimage_set')
+    front_image = serializers.ImageField()
+    back_image = serializers.ImageField()
 
     class Meta:
         model = Product
         fields = [
             'id', 'color', 'size', 'stock', 'price', 
-            'status', 'images'
+            'status', 'images', 'front_image', 'back_image'
         ]
 
 class ProductDetailSerializer(serializers.ModelSerializer):

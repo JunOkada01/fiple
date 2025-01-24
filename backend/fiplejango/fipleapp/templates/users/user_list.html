@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="page-container">
     <h1>ユーザー管理</h1>
     
     <form method="get" class="search-form mb-4">
@@ -15,24 +15,24 @@
         </div>
     </form>
 
-    <table class="table table-striped">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>ユーザー名</th>
-                <th>メールアドレス</th>
+                <th>名前</th>
                 <th>フリガナ</th>
-                <th>アカウント状態</th>
+                <th>メールアドレス</th>
+                <th>status</th>
                 <th></th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="table-group-divider">
             {% for user in users %}
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
                 <td>{{ user.hurigana }}</td>
+                <td>{{ user.email }}</td>
                 <td>
                     {% if user.accounts_valid %}
                         <span>有効</span>

@@ -15,6 +15,7 @@ interface Tag {
 interface Category {
   id: number;
   category_name: string;
+  category_position: string;
 }
  
 interface SubCategory {
@@ -45,6 +46,7 @@ interface FittingItem {
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  categoryPosition: string;
 }
  
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
@@ -156,6 +158,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                     subcategoryName={product.subcategory.subcategory_name}
                     price={product.price}
                     imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                    categoryPosition={product.category.category_position} // カテゴリの位置情報を追加
                     // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
                   />
                 ))}

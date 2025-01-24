@@ -65,6 +65,13 @@ class Category(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
+    
+    class positionChoices(models.TextChoices):
+        head = 'h', '頭'
+        upper_body = 'u', '上半身'
+        lower_body = 'l', '下半身'
+        foot = 'f', '足'
+    category_position = models.CharField(max_length=10, choices=positionChoices.choices, default=positionChoices.head)  # 性別
 
     def __str__(self):
         return self.category_name
@@ -293,9 +300,9 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
 
-    """
-    注文された個別の商品情報を管理するモデル
-    """
+"""
+注文された個別の商品情報を管理するモデル
+"""
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -308,9 +315,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
     
-    """
-    売上管理用のモデル
-    """
+"""
+売上管理用のモデル
+"""
 class SalesRecord(models.Model):
     PAYMENT_METHODS = [
         ('card', 'クレジットカード'),

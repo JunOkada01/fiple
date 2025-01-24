@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% block content %}
-<div class="container mt-5">
+<div class="page-container">
     <div class="row">
         <div class="col-md-12">
             <h1 class="mb-4 text-center">ユーザー詳細</h1>
@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="mb-2"><strong>支払い方法:</strong> {{ order.get_payment_method_display }}</p>
-                                    <table class="table table-hover table-striped">
+                                    <table class="table table-hover">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>商品名</th>

@@ -9,6 +9,7 @@ from django.db.models import *
 import json
 import jwt
 import uuid
+import csv
 from decimal import Decimal
 # Djangoのインポート
 from django.conf import settings
@@ -2261,3 +2262,86 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context['page_obj'] = page_obj  # ページオブジェクトをコンテキストに追加
        
         return context
+    
+# -------------------売上管理画面-------------------
+class SalesView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'sales/sales.html'
+    context_object_name = 'sales'
+    paginate_by = 20
+    model = SalesRecord
+    """
+    検索機能等の関数を追加予定
+    """
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # フィルターパラメータの取得
+        start_date = self.request.GET.get('start_date') # 売上日の開始日
+        end_date = self.request.GET.get('end_date') # 売上日の終了日
+        payment_method = self.request.GET.get('payment_method') # 支払方法
+        sort_by = self.request.GET.get('sort_by', 'sale_date')  # デフォルトは売上日
+        order = self.request.GET.get('order', 'desc')  # デフォルトは降順
+        # フィルター適用
+        if start_date:
+            queryset = queryset.filter(sale_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(sale_date__lte=end_date)
+        if payment_method:
+            queryset = queryset.filter(payment_method=payment_method)
+        # ソート適用
+        if order == 'asc':
+            queryset = queryset.order_by(sort_by)
+        else:
+            queryset = queryset.order_by(f'-{sort_by}')
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 本日の日付
+        today = date.today()
+        # 本日の売上データ
+        today_sales = SalesRecord.objects.filter(sale_date=today)
+        # サマリー情報の計算 (本日の売上額・売上数・平均額の計算)
+        context['today_summary'] = {
+            'total_amount': today_sales.aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            'total_count': today_sales.count(),
+            'average_amount': today_sales.aggregate(Avg('total_price'))['total_price__avg'] or 0
+        }
+        # フィルターの選択肢
+        context['payment_methods'] = SalesRecord.PAYMENT_METHODS
+        return context
+
+    def export_csv(self):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="sales_report_{datetime.now().strftime("%Y%m%d")}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['売上日', '商品名', '数量', '売上金額', '支払方法', '税額'])
+        # フィルター適用済みのクエリセットを使用
+        queryset = self.get_queryset()
+        for sale in queryset:
+            writer.writerow([
+                sale.sale_date,
+                sale.product.product_origin.product_name,
+                sale.quantity,
+                sale.total_price,
+                dict(SalesRecord.PAYMENT_METHODS)[sale.payment_method],
+                sale.tax_amount
+            ])
+        return response
+    def post(self, request, *args, **kwargs):
+        if 'export_csv' in request.GET:
+            return self.export_csv()
+        return super().get(request, *args, **kwargs)
+
+class SalesDetailView(LoginRequiredMixin, DetailView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = SalesRecord
+    template_name = 'sales/sales_detail.html'
+    context_object_name = 'sales'
+    pk_url_kwarg = 'sales_id'
+    paginate_by = 10
+    """
+    他モデルからのデータ取得等の関数を追加予定
+    売上詳細に必要なものを検討
+    """

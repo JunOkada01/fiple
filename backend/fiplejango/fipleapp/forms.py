@@ -28,9 +28,16 @@ class AdminLoginForm(forms.Form):
     
     
 class CategoryForm(forms.ModelForm):
+    
+    category_position = forms.ChoiceField(
+        choices=Category.positionChoices.choices,
+        widget=forms.RadioSelect(),
+        label='部位'
+    )
+    
     class Meta:
         model = Category
-        fields = ['category_name']
+        fields = ['category_name', 'category_position']
         labels = {
             'category_name': 'カテゴリ名',
         }

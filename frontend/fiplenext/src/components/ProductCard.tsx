@@ -14,10 +14,11 @@ interface ProductCardProps {
     subcategoryName: string;
     price: number;
     imageUrl: string;
+    categoryPosition: string;
     // tags: string[];
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl, categoryPosition}) => {
     /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
@@ -56,6 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                     categoryName,
                     subcategoryName,
                     imageUrl,
+                    categoryPosition,
                 };
                 
                 const existingIndex = currentItems.findIndex(item => 

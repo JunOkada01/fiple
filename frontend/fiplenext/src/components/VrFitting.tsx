@@ -44,8 +44,8 @@ interface ProductVariant {
     image: string;
     image_description: string | null;
   }>;
-  front_image: string | null;
-  back_image: string | null;
+  front_image: string;
+  back_image: string;
 }
 
 // 試着アイテムの型定義を拡張
@@ -59,8 +59,9 @@ interface FittingItem {
   imageUrl?: string;
   selectedColor?: string;
   selectedSize?: string;
-  selectedFrontImage?: string; /* 正面画像 */
-  selectedBackImage?: string; /* 背面画像 */
+  selectedFrontImageUrl?: string; /* 正面画像 */
+  selectedBackImageUrl?: string; /* 背面画像 */
+  categoryPosition: string;
   variants: ProductVariant[];
 }
 
@@ -409,6 +410,8 @@ const FittingArea: React.FC = () => {
                 selectedColor: selectedVariant.color.color_name,
                 selectedSize: selectedVariant.size.size_name,
                 price: selectedVariant.price,
+                selectedFrontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`, /* 正面画像 */
+                selectedBackImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`, /* 背面画像 */
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
                   : item.imageUrl
@@ -738,22 +741,44 @@ const FittingArea: React.FC = () => {
                   </div>
                 </div>
 
-                {/* アイテム表示 ※ ボトムスを下のレイヤーにし、トップスを上のレイヤーにしたい */}
-                {/* ボトムス */}
-                <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
-                <img 
-                  src={isFrontView ? '/images/front-pants.png' : '/images/back-pants.png'} 
-                  width={100} 
-                  height={140} 
-                />
+                {/* 仮の配置　上半身エリア */}
+                <div className="absolute border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                <p className='text-sm'>上半身</p>
                 </div>
-                {/* トップス */}
+                {/* 仮の配置　下半身エリア */}
+                <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                <p className='text-sm'>下半身</p>
+                </div>
+
+                {/* アイテム表示 */}
+                {/* 下半身のアイテム */}
+                <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
+                  {fittingItems
+                    .filter(item => item.categoryPosition === 'l')
+                    .map(item => (
+                      <Image 
+                        key={item.id}
+                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                        alt={isFrontView ? '商品正面' : '商品裏面'} 
+                        width={100}
+                        height={140}
+                      />
+                    ))}
+                </div>
+                
+                {/* 上半身のアイテム */}
                 <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
-                <img 
-                  src={isFrontView ? '/images/front-top.png' : '/images/back-top.jpeg'} 
-                  width={100} 
-                  height={140} 
-                />
+                  {fittingItems
+                    .filter(item => item.categoryPosition === 'u')
+                    .map(item => (
+                      <Image 
+                        key={item.id}
+                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                        alt={isFrontView ? '商品正面' : '商品裏面'} 
+                        width={100}
+                        height={140}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
