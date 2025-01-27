@@ -9,6 +9,7 @@ interface Review {
     review_detail: string;
     rating: number;
     datetime: string;
+    fit: string;
 }
  
 interface ReviewProps {
@@ -109,6 +110,7 @@ const ReviewList: React.FC<ReviewProps> = ({ productId }) => {
                             <p>{review.subject}</p>
                             <p><strong>評価:</strong> {review.rating}☆</p>
                             <p><strong>コメント:</strong> {review.review_detail}</p>
+                            <p><strong>フィット感:</strong> {review.fit}</p>
                             <p className="text-sm text-gray-500">
                                 <strong>投稿日:</strong> {new Date(review.datetime).toLocaleString()}
                             </p>

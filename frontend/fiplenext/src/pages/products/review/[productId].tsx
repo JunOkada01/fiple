@@ -34,6 +34,7 @@ interface Review {
   review_detail: string;
   rating: number;
   datetime: string;
+  fit: string;
 }
 
 export interface ProductDetailType {
@@ -114,6 +115,7 @@ const ProductReviews = () => {
                             <p><strong>評価:</strong> {review.rating}☆</p>
                             <p className="text-gray-800"><strong>タイトル:</strong> {review.subject}</p>
                             <p className="text-gray-700"><strong>コメント:</strong> {review.review_detail}</p>
+                            <p className="text-gray-700"><strong>フィット感:</strong> {review.fit}</p>
                             <p className="text-xs text-gray-500">
                                 <strong>投稿日:</strong> {new Date(review.datetime).toLocaleDateString()}
                             </p>
