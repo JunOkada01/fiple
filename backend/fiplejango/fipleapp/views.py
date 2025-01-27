@@ -747,7 +747,6 @@ class AdminTop(LoginRequiredMixin, TemplateView):
                 'quantity': record['quantity'],
                 'total_price': float(record['total_price'])  # Decimal型をfloatに変換
             })
-
         # コンテキストに追加
         # JavaScriptで使用できる形式に変換
         context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
@@ -2312,7 +2311,7 @@ class SalesView(LoginRequiredMixin, ListView):
         return context
 
     def export_csv(self):
-        response = HttpResponse(content_type='text/csv')
+        response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
         response['Content-Disposition'] = f'attachment; filename="sales_report_{datetime.now().strftime("%Y%m%d")}.csv"'
         writer = csv.writer(response)
         writer.writerow(['売上日', '商品名', '数量', '売上金額', '支払方法', '税額'])
@@ -2328,7 +2327,7 @@ class SalesView(LoginRequiredMixin, ListView):
                 sale.tax_amount
             ])
         return response
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if 'export_csv' in request.GET:
             return self.export_csv()
         return super().get(request, *args, **kwargs)
