@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserM
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
+import random, string
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -312,6 +313,82 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
+    
+class Shipping(models.Model):
+    PRIORITY_CHOICES = [
+        (1, '最優先'),
+        (2, '優先'),
+        (3, '通常'),
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipping')
+    is_shipped = models.BooleanField(default=False)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=3)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"発送 #{self.id} - 注文 #{self.order.id}"
+    
+class Delivery(models.Model):
+    DELIVERY_STATUS_CHOICES = [
+        ('配送中', '配送中'),
+        ('配送済み', '配送済み'),
+        ('配送遅延', '配送遅延'),
+        ('配送エラー', '配送エラー'),
+        ('キャンセル', 'キャンセル')
+    ]
+    
+    @staticmethod
+    def generate_tracking_number():
+        """ランダムな12桁の追跡番号を生成"""
+        chars = string.ascii_uppercase + string.digits  # 大文字アルファベットと数字
+        return ''.join(random.choices(chars, k=12))
+    
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='delivery')
+    shipping = models.OneToOneField(Shipping, on_delete=models.CASCADE, related_name='delivery')
+    status = models.CharField(max_length=20, choices=DELIVERY_STATUS_CHOICES, default='配送中')
+    
+    # 配送業者情報
+    delivery_company = models.CharField(max_length=100)
+    tracking_number = models.CharField(max_length=12, blank=True, null=True)
+    scheduled_delivery_date = models.DateField()
+    
+    # 作業者情報
+    admin_user = models.ForeignKey(
+        AdminUser,
+        on_delete=models.CASCADE,
+        related_name='deliveries'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # 配送に関する備考
+    notes = models.TextField(blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.tracking_number:
+            # 追跡番号が未設定の場合、ユニークな番号を生成
+            while True:
+                tracking_number = self.generate_tracking_number()
+                if not Delivery.objects.filter(tracking_number=tracking_number).exists():
+                    self.tracking_number = tracking_number
+                    break
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"配送 #{self.id} - 注文 #{self.order.id}"
+
+class DeliveryStatusLog(models.Model):
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, related_name='status_logs')
+    status = models.CharField(max_length=20, choices=Delivery.DELIVERY_STATUS_CHOICES)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"{self.delivery} - {self.status} ({self.changed_at})"
     
 class SalesRecord(models.Model):
     PAYMENT_METHODS = [

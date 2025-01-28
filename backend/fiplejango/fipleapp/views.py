@@ -1,6 +1,5 @@
-import base64
 from datetime import datetime, timedelta, timezone
-import json,time,uuid,jwt,requests
+import json,time,uuid,jwt,requests,base64
 
 from decimal import Decimal
 
@@ -23,6 +22,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import (
     TemplateView, ListView, CreateView, 
     UpdateView, DeleteView, DetailView
@@ -411,10 +411,21 @@ class CompletePaymentView(APIView):
                     order_items.append(order_item)
                 
                 create_order_items = OrderItem.objects.bulk_create(order_items)
-
                 # 注文情報から売上記録を作成
-                
                 self.create_sales_record(order, create_order_items)
+                
+                # 発送レコードを作成
+                # payment_methodによって優先度を変える例
+                priority = 3  # デフォルトは通常
+                if order.payment_method == 'genkin':  # 代引きの場合は優先度を上げる
+                    priority = 2
+                
+                Shipping.objects.create(
+                    order=order,
+                    is_shipped=False,
+                    priority=priority,
+                    admin_user=AdminUser.objects.first()  # システムデフォルトの管理者を設定
+                )
                 
                 # カートをクリア
                 cart_items.delete()
@@ -435,7 +446,135 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # ログインユーザーの注文のみ取得
         return Order.objects.filter(user=self.request.user).order_by('-order_date')
-    
+
+# 注文関連---------------------------------------------------------------------------------------------------------------
+class OrderListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Order
+    template_name = 'order_list.html'
+    context_object_name = 'orders'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Order.objects.select_related(
+            'user', 'shipping'
+        ).prefetch_related('items')
+
+        # 検索フィルター
+        status = self.request.GET.get('status')
+        payment_method = self.request.GET.get('payment_method')
+        is_shipped = self.request.GET.get('is_shipped')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+
+        if status:
+            queryset = queryset.filter(status=status)
+        if payment_method:
+            queryset = queryset.filter(payment_method=payment_method)
+        if is_shipped:
+            queryset = queryset.filter(shipping__is_shipped=is_shipped)
+        if date_from:
+            queryset = queryset.filter(order_date__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(order_date__lte=date_to)
+
+        return queryset.order_by('-order_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'status_choices': Order.STATUS_CHOICES,
+            'payment_method_choices': Order.PAYMENT_METHODS,
+        })
+        return context
+
+class ShippingUpdateView(LoginRequiredMixin, UpdateView):
+    model = Shipping
+    form_class = ShippingUpdateForm
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():  # トランザクションを使用して一連の処理を保証
+            order = get_object_or_404(Order, id=self.kwargs['order_id'])
+            shipping = order.shipping
+
+            if shipping:
+                form = self.form_class(request.POST, instance=shipping)
+            else:
+                form = self.form_class(request.POST)
+
+            if form.is_valid():
+                shipping = form.save(commit=False)
+                if not hasattr(order, 'shipping'):
+                    shipping.order = order
+                shipping.admin_user = request.user
+                shipping.save()
+
+                if shipping.is_shipped:
+                    # 注文ステータスを更新
+                    order.status = '発送済み'
+                    order.save()
+
+                    # 配送データを作成
+                    Delivery.objects.create(
+                        order=order,
+                        shipping=shipping,
+                        status='配送中',
+                        admin_user=request.user,
+                        scheduled_delivery_date=datetime.now().date() + timedelta(days=3)  # 3日後を予定日とする
+                    )
+
+                return JsonResponse({'status': 'success'})
+            
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors,
+                'received_data': request.POST
+            }, status=400)
+
+class DeliveryListView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Delivery
+    template_name = 'delivery_list.html'
+    context_object_name = 'deliveries'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return Delivery.objects.select_related(
+            'order', 'shipping', 'admin_user'
+        ).filter(
+            shipping__is_shipped=True
+        ).order_by('-created_at')
+
+class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = Delivery
+    form_class = DeliveryForm
+    template_name = 'delivery_form.html'
+    success_url = reverse_lazy('fipleapp:delivery-list')
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            delivery = form.save(commit=False)
+            delivery.admin_user = self.request.user
+            delivery.save()
+
+            # ステータス変更をログに記録
+            if 'status' in form.changed_data:
+                DeliveryStatusLog.objects.create(
+                    delivery=delivery,
+                    status=delivery.status,
+                    admin_user=self.request.user,
+                    reason=form.cleaned_data.get('notes', '')
+                )
+
+            return super().form_valid(form)
+
+# カテゴリで商品をフィルタリング
 class ProductByCategoryView(APIView):
     def get(self, request, category_name):
         try:
@@ -1016,64 +1155,118 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
     
+    # カテゴリに応じた画像サイズの定義
+    CATEGORY_SIZES = {
+        'h': (100, 100),
+        'u': (170, 170),
+        'l': (170, 170),
+        'f': (100, 80),
+    }
+    
+    def get_category_size(self, product_origin):
+        """商品元のカテゴリから適切な画像サイズを取得"""
+        category = product_origin.category.category_position
+        print(f'選択した部位：{category}')
+        return self.CATEGORY_SIZES.get(category)
+
+    def maintain_aspect_ratio_resize(self, image, target_size):
+        """アスペクト比を維持しながら、指定サイズに収まるようにリサイズ"""
+        target_width, target_height = target_size
+        orig_width, orig_height = image.size
+        
+        # 元画像のアスペクト比を計算
+        orig_aspect = orig_width / orig_height
+        # 目標のアスペクト比を計算
+        target_aspect = target_width / target_height
+        
+        if orig_aspect > target_aspect:
+            # 元画像の方が横長の場合
+            new_width = target_width
+            new_height = int(target_width / orig_aspect)
+        else:
+            # 元画像の方が縦長の場合
+            new_height = target_height
+            new_width = int(target_height * orig_aspect)
+            
+        # 新しいサイズでリサイズ
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+        
+        # 目標サイズの新しい画像を作成（背景透明）
+        final_image = Image.new('RGBA', target_size, (0, 0, 0, 0))
+        
+        # リサイズした画像を中央に配置
+        paste_x = (target_width - new_width) // 2
+        paste_y = (target_height - new_height) // 2
+        final_image.paste(resized_image, (paste_x, paste_y))
+        
+        return final_image
+    
+    def process_image_data(self, base64_data, target_size):
+        """画像データを処理し、アスペクト比を維持しながら指定サイズに収める"""
+        if not base64_data:
+            return None, None
+
+        # Base64データからプレフィックスを削除
+        format, imgstr = base64_data.split(';base64,')
+        
+        # Base64をデコード
+        image_data = base64.b64decode(imgstr)
+        
+        # 背景除去処理
+        image_result = remove(image_data)
+        
+        # PILで画像を開く
+        img = Image.open(io.BytesIO(image_result))
+        
+        # アスペクト比を維持しながらリサイズ
+        final_img = self.maintain_aspect_ratio_resize(img, target_size)
+        
+        # PNG形式で保存（透明度を保持）
+        img_byte_arr = io.BytesIO()
+        final_img.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+        
+        return ContentFile(img_byte_arr), 'png'
+    
     def form_valid(self, form):
         with transaction.atomic():
             form.instance.admin_user = self.request.user
-
-            def process_image_data(base64_data):
-                if base64_data:
-                    # Base64データからプレフィックスを削除
-                    format, imgstr = base64_data.split(';base64,')
-                    ext = format.split('/')[-1]
-                    
-                    # Base64をデコード
-                    image_data = base64.b64decode(imgstr)
-                    
-                    # PILで画像を開く
-                    img = Image.open(io.BytesIO(image_data))
-                    
-                    # 背景除去処理
-                    image_result = remove(image_data)
-                    
-                    # バイトデータに変換
-                    img_byte_arr = io.BytesIO()
-                    Image.open(io.BytesIO(image_result)).save(img_byte_arr, format='PNG')
-                    img_byte_arr = img_byte_arr.getvalue()
-                    
-                    return ContentFile(img_byte_arr), 'png'
-                return None, None
-
-            # 表画像の処理
-            front_image_data = self.request.POST.get('front_image')
-            if front_image_data:
-                image_content, ext = process_image_data(front_image_data)
-                if image_content:
-                    form.instance.front_image.save(
-                        f"front_image.{ext}",
-                        image_content,
-                        save=False
-                    )
-
-            # 裏画像の処理
-            back_image_data = self.request.POST.get('back_image')
-            if back_image_data:
-                image_content, ext = process_image_data(back_image_data)
-                if image_content:
-                    form.instance.back_image.save(
-                        f"back_image.{ext}",
-                        image_content,
-                        save=False
-                    )
             
-            response = super().form_valid(form)  # 商品を保存
+            # 商品元から適切な画像サイズを取得
+            target_size = self.get_category_size(form.instance.product_origin)
+            
+            if target_size:
+                # 表画像の処理
+                front_image_data = self.request.POST.get('front_image')
+                if front_image_data:
+                    image_content, ext = self.process_image_data(front_image_data, target_size)
+                    if image_content:
+                        form.instance.front_image.save(
+                            f"front_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+
+                # 裏画像の処理
+                back_image_data = self.request.POST.get('back_image')
+                if back_image_data:
+                    image_content, ext = self.process_image_data(back_image_data, target_size)
+                    if image_content:
+                        form.instance.back_image.save(
+                            f"back_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+
+            response = super().form_valid(form)
 
             # PriceHistory に登録
             PriceHistory.objects.create(
                 product=form.instance,
-                price=form.cleaned_data['price']  # フォームから取得した価格を利用
+                price=form.cleaned_data['price']
             )
             
-        return response
+            return response
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'fipleapp:admin_login'
@@ -1296,47 +1489,6 @@ class ProductImageDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return ProductImage.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
     
-
-class PasswordChangeView(APIView):
-    permission_classes = [IsAuthenticated]  # ログイン中のユーザーのみ許可
-    authentication_classes = [JWTAuthentication]  # JWT認証
-
-    def post(self, request):
-        # リクエストデータを取得
-        current_password = request.data.get('current_password')
-        new_password = request.data.get('new_password')
-        confirm_password = request.data.get('confirm_password')
-
-        # バリデーション: 全てのフィールドが入力されているか確認
-        if not current_password or not new_password or not confirm_password:
-            return Response(
-                {"error": "全てのフィールドを入力してください。"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # バリデーション: 新しいパスワードと確認用パスワードが一致しているか確認
-        if new_password != confirm_password:
-            return Response(
-                {"error": "新しいパスワードが一致しません。"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # 現在のパスワードが正しいか確認
-        user = request.user
-        if not user.check_password(current_password):
-            return Response(
-                {"error": "現在のパスワードが正しくありません。"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # 新しいパスワードを設定
-        user.set_password(new_password)
-        user.save()
-
-        return Response(
-            {"message": "パスワードが正常に変更されました。"},
-            status=status.HTTP_200_OK
-        )
 
 
 class PasswordResetRequestView(APIView):
@@ -1640,7 +1792,7 @@ class ReviewListCreateView(generics.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         product_id = self.request.query_params.get('productId', None)
-      
+    
         if product_id:
             # 評価ごとのカウントを取得
             rating_counts = (

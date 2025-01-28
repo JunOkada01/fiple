@@ -191,7 +191,7 @@ const Cart: React.FC = () => {
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
-                                            src={`${item.product.images[0]?.image}`}
+                                            src={`http://localhost:8000/${item.product.images[0]?.image}`}
                                             className="itemImage w-auto h-[150px] object-cover"   
                                         />
                                     </Link>

@@ -205,3 +205,21 @@ class ContactForm(forms.Form):
         required=True
     )
     message = forms.CharField(widget=forms.Textarea, required=True)
+
+class ShippingUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Shipping
+        fields = ['is_shipped']
+        widgets = {
+            'is_shipped': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+class DeliveryForm(forms.ModelForm):
+    class Meta:
+        model = Delivery
+        fields = ['status', 'delivery_company', 'tracking_number', 
+                'scheduled_delivery_date', 'notes']
+        widgets = {
+            'scheduled_delivery_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 4})
+        }

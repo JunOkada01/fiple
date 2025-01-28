@@ -18,6 +18,11 @@ router.register(r'orders', OrderViewSet, basename='order')
 app_name = 'fipleapp'
 
 urlpatterns = [
+    path('orders/', OrderListView.as_view(), name='admin_order-list'),
+    path('orders/<int:order_id>/update-shipping/', ShippingUpdateView.as_view(), name='update-shipping'),
+    path('deliveries/', DeliveryListView.as_view(), name='delivery-list'),
+    path('delivery/<int:pk>/update/', DeliveryUpdateView.as_view(), name='delivery-update'),
+    
     path('users/', UserSettingView.as_view(), name='user_settings'),
     path('user_list/', UserListView.as_view(), name='admin_user_list'),
     path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),

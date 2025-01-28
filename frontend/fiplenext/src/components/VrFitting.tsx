@@ -653,7 +653,7 @@ const FittingArea: React.FC = () => {
         className={`fixed top-20 right-5 bg-white border border-black shadow-md w-[300px]
                   transition-all duration-500 ease-in-out z-40 flex flex-col
                   ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
-                  max-h-[80vh]`} // 最大高さを設定
+                  max-h-[100vh]`} // 最大高さを設定
       >
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
