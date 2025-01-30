@@ -480,8 +480,15 @@ class CompletePaymentView(APIView):
                 create_order_items = OrderItem.objects.bulk_create(order_items)
 
                 # 注文情報から売上記録を作成
-                
                 self.create_sales_record(order, create_order_items)
+
+                # 在庫数の更新
+                for cart_item in cart_items:
+                    product = cart_item.product
+                    product.stock -= cart_item.quantity # 注文数分在庫を減らす
+                    if product.stock < 0:
+                        raise ValueError(f"在庫が不足しています: {product.product_origin.product_name}")
+                    product.save()
 
                 # カートをクリア
                 cart_items.delete()
@@ -1083,13 +1090,6 @@ class ProductManagementView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'product_management/top.html'
-
-# 商品元関連----------------------------------------------------------------------------------------
-class ProductManagementView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'product_management/top.html'
-
 
 class ProductOriginListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
@@ -2633,3 +2633,13 @@ class SalesDetailView(LoginRequiredMixin, DetailView):
     他モデルからのデータ取得等の関数を追加予定
     売上詳細に必要なものを検討
     """
+
+class StockView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'stock/stock_list.html'
+    context_object_name = 'stocks'
+    paginate_by = 20
+    model = Product
+    def get_queryset(self):
+        return Product.objects.all().select_related('product_origin', 'color', 'size')

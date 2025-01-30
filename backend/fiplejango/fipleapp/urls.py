@@ -82,6 +82,8 @@ urlpatterns = [
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('sales/', SalesView.as_view(), name='sales'),
     path('sales/<int:sales_id>/', SalesDetailView.as_view(), name='sales_detail'),
+    # 在庫管理
+    path('stock/', StockView.as_view(), name='stock'),
 
 
     # トークン
@@ -158,14 +160,11 @@ urlpatterns = [
     path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
-    
     # 配達先関連
     path('api/', include(router.urls)),
-    
     # 注文関連
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
-
     # レビュー関連
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
     path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
@@ -175,6 +174,6 @@ urlpatterns = [
     path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
     # ユーザー関連
     path('users/', UserSettingView.as_view(), name='user_settings'),
- path('user_list/', UserListView.as_view(), name='admin_user_list'),
- path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
+    path('user_list/', UserListView.as_view(), name='admin_user_list'),
+    path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
 ]
