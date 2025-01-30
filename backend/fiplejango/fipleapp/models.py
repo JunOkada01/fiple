@@ -23,8 +23,13 @@ class CustomUser(AbstractUser):
     weight = models.FloatField(default=0.0)  # 体重
     cancellation_day = models.DateField(null=True, blank=True, default=None)  # 退会日
     accounts_valid = models.BooleanField(default=True)  # アカウント有効
-    
     last_login = models.DateField(null=True, blank=True, default=None)  # 最終ログイン日
+    @property
+    def age(self):
+        if self.birth:
+            today = date.today()
+            return today.year - self.birth.year - ((today.month, today.day) < (self.birth.month, self.birth.day))
+        return None
 
 class AdminUserManager(BaseUserManager):
     def create_user(self, name, password=None, **extra_fields):

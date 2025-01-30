@@ -2,19 +2,230 @@
 {% block content %}
 <div class="page-container">
     <!-- サマリーカード -->
-    <div class="sales-data-area">
-        <div class="sales-data-card">
-            <h3 class="title">本日の売上額</h3>
-            <p class="data">¥{{ today_summary.total_amount }}</p>
+    <div class="sales-summary">
+        <!-- 本日 -->
+        <div class="sales-data-area daily-summary">
+            <div class="sales-data-card">
+                <h3 class="title">本日の売上額</h3>
+                <p class="data">¥{{ daily_summary.total_amount }}</p>
+                <p class="">
+                    前日比: 
+                    {% if daily_summary.amount_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ daily_summary.amount_comparison }}%</span>
+                    {% elif daily_summary.amount_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ daily_summary.amount_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ daily_summary.amount_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">本日の売上数</h3>
+                <p class="data">{{ daily_summary.total_count }}件</p>
+                <p class="">
+                    前日比: 
+                    {% if daily_summary.count_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ daily_summary.count_comparison }}%</span>
+                    {% elif daily_summary.count_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ daily_summary.count_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ daily_summary.count_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">平均売上額</h3>
+                <p class="data">¥{{ daily_summary.average_amount|floatformat:0 }}</p>
+                <p class="">
+                    前日比: 
+                    {% if daily_summary.average_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ daily_summary.average_comparison }}%</span>
+                    {% elif daily_summary.average_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ daily_summary.average_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ daily_summary.average_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
         </div>
-        <div class="sales-data-card">
-            <h3 class="title">本日の売上数</h3>
-            <p class="data">{{ today_summary.total_count }}件</p>
+        <!-- 今週 -->
+        <div class="sales-data-area weekly-summary hidden">
+            <div class="sales-data-card">
+                <h3 class="title">今週の売上額</h3>
+                <p class="data">¥{{ weekly_summary.total_amount }}</p>
+                <p class="">
+                    前週比: 
+                    {% if weekly_summary.amount_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ weekly_summary.amount_comparison }}%</span>
+                    {% elif weekly_summary.amount_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ weekly_summary.amount_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ weekly_summary.amount_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">今週の売上数</h3>
+                <p class="data">{{ weekly_summary.total_count }}件</p>
+                <p>
+                    前週比: 
+                    {% if weekly_summary.count_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ weekly_summary.count_comparison }}%</span>
+                    {% elif weekly_summary.count_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ weekly_summary.count_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ weekly_summary.count_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">平均売上額</h3>
+                <p class="data">¥{{ weekly_summary.average_amount|floatformat:0 }}</p>
+                <p class="">
+                    前週比: 
+                    {% if weekly_summary.average_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ weekly_summary.average_comparison }}%</span>
+                    {% elif weekly_summary.average_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ weekly_summary.average_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ weekly_summary.average_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
         </div>
-        <div class="sales-data-card">
-            <h3 class="title">平均売上額</h3>
-            <p class="data">¥{{ today_summary.average_amount|floatformat:0 }}</p>
+        <!-- 今月 -->
+        <div class="sales-data-area monthly-summary hidden">
+            <div class="sales-data-card">
+                <h3 class="title">今月の売上額</h3>
+                <p class="data">¥{{ monthly_summary.total_amount }}</p>
+                <p class="">
+                    前月比: 
+                    {% if monthly_summary.amount_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ monthly_summary.amount_comparison }}%</span>
+                    {% elif monthly_summary.amount_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ monthly_summary.amount_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ monthly_summary.amount_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">今月の売上数</h3>
+                <p class="data">{{ monthly_summary.total_count }}件</p>
+                <p>
+                    前月比: 
+                    {% if monthly_summary.count_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ monthly_summary.count_comparison }}%</span>
+                    {% elif monthly_summary.count_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ monthly_summary.count_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ monthly_summary.count_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">平均売上額</h3>
+                <p class="data">¥{{ monthly_summary.average_amount|floatformat:0 }}</p>
+                <p class="">
+                    前日比: 
+                    {% if monthly_summary.average_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ monthly_summary.average_comparison }}%</span>
+                    {% elif monthly_summary.average_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ monthly_summary.average_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ monthly_summary.average_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
         </div>
+        <!-- 今年 -->
+        <div class="sales-data-area yearly-summary hidden">
+            <div class="sales-data-card">
+                <h3 class="title">今年の売上額</h3>
+                <p class="data">¥{{ yearly_summary.total_amount }}</p>
+                <p class="">
+                    前年比: 
+                    {% if yearly_summary.amount_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ yearly_summary.amount_comparison }}%</span>
+                    {% elif yearly_summary.amount_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ yearly_summary.amount_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ yearly_summary.amount_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">今年の売上数</h3>
+                <p class="data">{{ yearly_summary.total_count }}件</p>
+                <p>
+                    前年比: 
+                    {% if yearly_summary.count_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ yearly_summary.count_comparison }}%</span>
+                    {% elif yearly_summary.count_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ yearly_summary.count_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ yearly_summary.count_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="sales-data-card">
+                <h3 class="title">平均売上額</h3>
+                <p class="data">¥{{ yearly_summary.average_amount|floatformat:0 }}</p>
+                <p class="">
+                    前日比: 
+                    {% if yearly_summary.average_comparison > 0 %}
+                        <i class="fa-solid fa-arrow-up" style="color: green;"></i>
+                        <span style="color: green;">{{ yearly_summary.average_comparison }}%</span>
+                    {% elif yearly_summary.average_comparison < 0 %}
+                        <i class="fa-solid fa-arrow-down" style="color: red;"></i>
+                        <span style="color: red;">{{ yearly_summary.average_comparison }}%</span>
+                    {% else %}
+                        <i class="fa-solid fa-minus" style="color: gray;"></i>
+                        <span style="color: gray;">{{ yearly_summary.average_comparison }}%</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- 切り替えボタン -->
+    <div class="sales-filter-btns">
+        <button class="filter-btn active" data-target="daily-summary">本日</button>
+        <button class="filter-btn" data-target="weekly-summary">今週</button>
+        <button class="filter-btn" data-target="monthly-summary">今月</button>
+        <button class="filter-btn" data-target="yearly-summary">今年</button>
     </div>
 
     <!-- フィルター及びCSV出力 -->
@@ -83,22 +294,26 @@
                                     {% endif %}
                                 </a>
                             </th>
-                            <th>顧客名</th>
+                            <th>顧客ID</th>  <!-- 要変更 -->
+                            <th>性別</th>
+                            <th>年齢</th>
+                            <th>都道府県</th>
                             <th>数量</th>
                             <th>売上金額</th>
                             <th>支払方法</th>
-                            <th>ステータス</th>
                         </tr>
                     </thead>                    
                     <tbody>
                         {% for sale in sales %}
                         <tr>
                             <td>{{ sale.sale_date|date:"Y/m/d" }}</td>
-                            <td>{{ sale.user }}</td>
+                            <td>{{ sale.user_id }}</td> <!-- 要変更 -->
+                            <td>{{ sale.user.sex }}</td>
+                            <td>{{ sale.user.age }}歳</td>
+                            <td>{{ sale.user.address }}</td>
                             <td>{{ sale.quantity }}</td>
                             <td>¥{{ sale.total_price }}</td>
                             <td>{{ sale.get_payment_method_display }}</td>
-                            <td>{{ sale.order.status }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -130,4 +345,30 @@
         </div>
     </div>
 </div>
+
+<!-- サマリーカード　期間別切り替えボタンの処理 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const dataAreas = document.querySelectorAll('.sales-data-area');
+    
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // ボタンのアクティブ状態を切り替え
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+    
+                // データエリアの表示を切り替え
+                const target = this.getAttribute('data-target');
+                dataAreas.forEach(area => {
+                    if (area.classList.contains(target)) {
+                        area.classList.remove('hidden');
+                    } else {
+                        area.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

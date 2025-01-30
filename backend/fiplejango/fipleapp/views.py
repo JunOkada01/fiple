@@ -2,14 +2,10 @@
 from django.shortcuts import redirect
 from django.core.files.base import ContentFile
 from rembg import remove
-import io
 from PIL import Image
 from datetime import datetime, timedelta, timezone
 from django.db.models import *
-import json
-import jwt
-import uuid
-import csv
+import io, os, sys, json, jwt, uuid, csv, base64
 from decimal import Decimal
 # Djangoのインポート
 from django.conf import settings
@@ -1047,6 +1043,15 @@ def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'subcategory_name')
     return JsonResponse(list(subcategories), safe=False)
+
+def get_category_position(request, product_origin_id):
+    try:
+        product_origin = ProductOrigin.objects.get(id=product_origin_id)
+        return JsonResponse({
+            'category_position': product_origin.category.category_position
+        })
+    except ProductOrigin.DoesNotExist:
+        return JsonResponse({'error': '商品元が見つかりません'}, status=404)
     
 # 商品関連----------------------------------------------------------------------------------------------------------
 
@@ -1065,52 +1070,120 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     form_class = ProductForm
     template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
-    
-    def form_valid(self, form):
-        with transaction.atomic():  # トランザクションを開始
-            # 商品を保存してから価格履歴を登録
-            form.instance.admin_user = self.request.user  # ログイン中の管理者を設定
-            # 表画像の背景処理
-            if 'front_image' in self.request.FILES:
-                front_image_file = self.request.FILES['front_image']
-                front_image_data = front_image_file.read()
-                front_image_result = remove(front_image_data)
-               
-                # 背景除去済みの画像をPillowで処理して保存
-                front_image_io = io.BytesIO(front_image_result)
-                front_image = Image.open(front_image_io)
-                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.front_image.save(
-                    f"front_image.{front_image_format}",
-                    ContentFile(front_image_result),
-                    save=False
-                )
-           
-            # 裏画像の背景処理
-            if 'back_image' in self.request.FILES:
-                back_image_file = self.request.FILES['back_image']
-                back_image_data = back_image_file.read()
-                back_image_result = remove(back_image_data)
+   
+    # カテゴリに応じた画像サイズの定義
+    CATEGORY_SIZES = {
+        'h': (100, 100),
+        'u': (170, 170),
+        'l': (170, 170),
+        'f': (100, 80),
+    }
+   
+    def get_category_size(self, product_origin):
+        """商品元のカテゴリから適切な画像サイズを取得"""
+        category = product_origin.category.category_position
+        print(f'選択した部位：{category}')
+        return self.CATEGORY_SIZES.get(category)
  
-                # 背景除去済みの画像をPillowで処理して保存
-                back_image_io = io.BytesIO(back_image_result)
-                back_image = Image.open(back_image_io)
-                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.back_image.save(
-                    f"back_image.{back_image_format}",
-                    ContentFile(back_image_result),
-                    save=False
-                )
-            response = super().form_valid(form)  # 商品を保存
-
+    def maintain_aspect_ratio_resize(self, image, target_size):
+        """アスペクト比を維持しながら、指定サイズに収まるようにリサイズ"""
+        target_width, target_height = target_size
+        orig_width, orig_height = image.size
+       
+        # 元画像のアスペクト比を計算
+        orig_aspect = orig_width / orig_height
+        # 目標のアスペクト比を計算
+        target_aspect = target_width / target_height
+       
+        if orig_aspect > target_aspect:
+            # 元画像の方が横長の場合
+            new_width = target_width
+            new_height = int(target_width / orig_aspect)
+        else:
+            # 元画像の方が縦長の場合
+            new_height = target_height
+            new_width = int(target_height * orig_aspect)
+           
+        # 新しいサイズでリサイズ
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+       
+        # 目標サイズの新しい画像を作成（背景透明）
+        final_image = Image.new('RGBA', target_size, (0, 0, 0, 0))
+       
+        # リサイズした画像を中央に配置
+        paste_x = (target_width - new_width) // 2
+        paste_y = (target_height - new_height) // 2
+        final_image.paste(resized_image, (paste_x, paste_y))
+       
+        return final_image
+   
+    def process_image_data(self, base64_data, target_size):
+        """画像データを処理し、アスペクト比を維持しながら指定サイズに収める"""
+        if not base64_data:
+            return None, None
+ 
+        # Base64データからプレフィックスを削除
+        format, imgstr = base64_data.split(';base64,')
+       
+        # Base64をデコード
+        image_data = base64.b64decode(imgstr)
+       
+        # 背景除去処理
+        image_result = remove(image_data)
+       
+        # PILで画像を開く
+        img = Image.open(io.BytesIO(image_result))
+       
+        # アスペクト比を維持しながらリサイズ
+        final_img = self.maintain_aspect_ratio_resize(img, target_size)
+       
+        # PNG形式で保存（透明度を保持）
+        img_byte_arr = io.BytesIO()
+        final_img.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+       
+        return ContentFile(img_byte_arr), 'png'
+   
+    def form_valid(self, form):
+        with transaction.atomic():
+            form.instance.admin_user = self.request.user
+           
+            # 商品元から適切な画像サイズを取得
+            target_size = self.get_category_size(form.instance.product_origin)
+           
+            if target_size:
+                # 表画像の処理
+                front_image_data = self.request.POST.get('front_image')
+                if front_image_data:
+                    image_content, ext = self.process_image_data(front_image_data, target_size)
+                    if image_content:
+                        form.instance.front_image.save(
+                            f"front_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+ 
+                # 裏画像の処理
+                back_image_data = self.request.POST.get('back_image')
+                if back_image_data:
+                    image_content, ext = self.process_image_data(back_image_data, target_size)
+                    if image_content:
+                        form.instance.back_image.save(
+                            f"back_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+ 
+            response = super().form_valid(form)
+ 
             # PriceHistory に登録
             PriceHistory.objects.create(
                 product=form.instance,
-                price=form.cleaned_data['price']  # フォームから取得した価格を利用
+                price=form.cleaned_data['price']
             )
-            
-        return response
-
+           
+            return response
+        
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -1118,53 +1191,97 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     form_class = ProductForm
     template_name = 'product_management/product_form.html'
     success_url = reverse_lazy('fipleapp:product_list')
-    
     def get_queryset(self):
         return Product.objects.filter(admin_user=self.request.user)  # ログイン中の管理者が作成した商品元のみ
-    
+    # カテゴリに応じた画像サイズの定義
+    CATEGORY_SIZES = {
+        'h': (100, 100),
+        'u': (170, 170),
+        'l': (170, 170),
+        'f': (100, 80),
+    }
+    def get_category_size(self, product_origin):
+        """商品元のカテゴリから適切な画像サイズを取得"""
+        category = product_origin.category.category_position
+        print(f'選択した部位：{category}')
+        return self.CATEGORY_SIZES.get(category)
+    def maintain_aspect_ratio_resize(self, image, target_size):
+        """アスペクト比を維持しながら、指定サイズに収まるようにリサイズ"""
+        target_width, target_height = target_size
+        orig_width, orig_height = image.size
+        # 元画像のアスペクト比を計算
+        orig_aspect = orig_width / orig_height
+        # 目標のアスペクト比を計算
+        target_aspect = target_width / target_height
+        if orig_aspect > target_aspect:
+            # 元画像の方が横長の場合
+            new_width = target_width
+            new_height = int(target_width / orig_aspect)
+        else:
+            # 元画像の方が縦長の場合
+            new_height = target_height
+            new_width = int(target_height * orig_aspect)
+        # 新しいサイズでリサイズ
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+        # 目標サイズの新しい画像を作成（背景透明）
+        final_image = Image.new('RGBA', target_size, (0, 0, 0, 0))
+        # リサイズした画像を中央に配置
+        paste_x = (target_width - new_width) // 2
+        paste_y = (target_height - new_height) // 2
+        final_image.paste(resized_image, (paste_x, paste_y))
+        return final_image
+    def process_image_data(self, base64_data, target_size):
+        """画像データを処理し、アスペクト比を維持しながら指定サイズに収める"""
+        if not base64_data:
+            return None, None
+        # Base64データからプレフィックスを削除
+        format, imgstr = base64_data.split(';base64,')
+        # Base64をデコード
+        image_data = base64.b64decode(imgstr)
+        # 背景除去処理
+        image_result = remove(image_data)
+        # PILで画像を開く
+        img = Image.open(io.BytesIO(image_result))
+        # アスペクト比を維持しながらリサイズ
+        final_img = self.maintain_aspect_ratio_resize(img, target_size)
+        # PNG形式で保存（透明度を保持）
+        img_byte_arr = io.BytesIO()
+        final_img.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+        return ContentFile(img_byte_arr), 'png'
     def form_valid(self, form):
-        with transaction.atomic():  # トランザクションを開始
-            # 商品情報を更新
-            # 表画像の背景処理
-            if 'front_image' in self.request.FILES:
-                front_image_file = self.request.FILES['front_image']
-                front_image_data = front_image_file.read()
-                front_image_result = remove(front_image_data)
-               
-                # 背景除去済みの画像をPillowで処理して保存
-                front_image_io = io.BytesIO(front_image_result)
-                front_image = Image.open(front_image_io)
-                front_image_format = front_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.front_image.save(
-                    f"front_image.{front_image_format}",
-                    ContentFile(front_image_result),
-                    save=False
-                )
-           
-            # 裏画像の背景処理
-            if 'back_image' in self.request.FILES:
-                back_image_file = self.request.FILES['back_image']
-                back_image_data = back_image_file.read()
-                back_image_result = remove(back_image_data)
- 
-                # 背景除去済みの画像をPillowで処理して保存
-                back_image_io = io.BytesIO(back_image_result)
-                back_image = Image.open(back_image_io)
-                back_image_format = back_image_file.content_type.split('/')[-1]  # 画像フォーマットを取得
-                form.instance.back_image.save(
-                    f"back_image.{back_image_format}",
-                    ContentFile(back_image_result),
-                    save=False
-                )
+        with transaction.atomic():
+            form.instance.admin_user = self.request.user
+            # 商品元から適切な画像サイズを取得
+            target_size = self.get_category_size(form.instance.product_origin)
+            if target_size:
+                # 表画像の処理
+                front_image_data = self.request.POST.get('front_image')
+                if front_image_data:
+                    image_content, ext = self.process_image_data(front_image_data, target_size)
+                    if image_content:
+                        form.instance.front_image.save(
+                            f"front_image.{ext}",
+                            image_content,
+                            save=False
+                        )
+                # 裏画像の処理
+                back_image_data = self.request.POST.get('back_image')
+                if back_image_data:
+                    image_content, ext = self.process_image_data(back_image_data, target_size)
+                    if image_content:
+                        form.instance.back_image.save(
+                            f"back_image.{ext}",
+                            image_content,
+                            save=False
+                        )
             response = super().form_valid(form)
-
-            # PriceHistory に新しい価格を登録
+            # PriceHistory に登録
             PriceHistory.objects.create(
-                product=self.object,  # 更新された Product インスタンス
-                price=form.cleaned_data['price']  # フォームの価格フィールドを利用
+                product=form.instance,
+                price=form.cleaned_data['price']
             )
-
-        return response
+            return response
     
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'fipleapp:admin_login'
@@ -1903,9 +2020,6 @@ def add_contact_category(request):
         form = ContactCategoryForm()
     
     return render(request, 'contact/add_contact_category.html', {'form': form})
-    
-def contact_manager(request):
-    return render(request, 'contact/contact_manager.html')
 
 @csrf_exempt  # 開発環境用、CSRFトークンを無効にする場合
 def submit_contact_form(request):
@@ -2281,7 +2395,7 @@ class SalesView(LoginRequiredMixin, ListView):
         payment_method = self.request.GET.get('payment_method') # 支払方法
         sort_by = self.request.GET.get('sort_by', 'sale_date')  # デフォルトは売上日
         order = self.request.GET.get('order', 'desc')  # デフォルトは降順
-        # フィルター適用
+        # フィルター適用 (売上日・支払方法によるフィルター)
         if start_date:
             queryset = queryset.filter(sale_date__gte=start_date)
         if end_date:
@@ -2290,24 +2404,106 @@ class SalesView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(payment_method=payment_method)
         # ソート適用
         if order == 'asc':
-            queryset = queryset.order_by(sort_by)
+            queryset = queryset.order_by(sort_by) # 昇順ソート
         else:
-            queryset = queryset.order_by(f'-{sort_by}')
+            queryset = queryset.order_by(f'-{sort_by}') # 降順ソート
         return queryset
+    def calculate_comparison(self, current_data, previous_data):
+        """
+        前期比を計算するヘルパーメソッド
+        ・current_data: 現在のデータ値
+        ・previous_data: 前期のデータ値
+        """
+        if not previous_data or previous_data == 0:
+            return 0 # 前期データが0の場合は0を返す
+        # 増減率の計算
+        difference = ((current_data - previous_data) / previous_data) * 100
+        return round(difference, 1)
+
+    def get_period_summary(self, queryset, period_start, period_end, previous_start, previous_end):
+        """
+        期間ごとの集計を行うヘルパーメソッド
+        ・現在と前期の売上データを集計し、比較結果を返す
+        """
+        # 現在の期間で売上データを集計
+        current_period = queryset.filter(
+            sale_date__gte=period_start,
+            sale_date__lte=period_end
+        ).aggregate(
+            total_amount=Sum('total_price'),
+            total_count=models.Count('id'),
+            average_amount=Avg('total_price')
+        )
+        # 前期の期間で売上データを集計
+        previous_period = queryset.filter(
+            sale_date__gte=previous_start,
+            sale_date__lte=previous_end
+        ).aggregate(
+            total_amount=Sum('total_price'),
+            total_count=models.Count('id'),
+            average_amount=Avg('total_price')
+        )
+        # 集計結果の取得
+        current_amount = current_period['total_amount'] or 0
+        previous_amount = previous_period['total_amount'] or 0
+        current_count = current_period['total_count'] or 0
+        previous_count = previous_period['total_count'] or 0
+        current_average = current_period['average_amount'] or 0
+        previous_average = previous_period['average_amount'] or 0
+
+        return {
+            'total_amount': current_amount, # 現在の売上金額
+            'total_count': current_count, # 現在の売上件数
+            'average_amount': current_average, # 現在の平均売上金額
+            'amount_comparison': self.calculate_comparison(current_amount, previous_amount), # 売上金額比較
+            'count_comparison': self.calculate_comparison(current_count, previous_count), # 売上件数比較
+            'average_comparison': self.calculate_comparison(current_average, previous_average) # 平均売上金額比較
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 本日の日付
         today = date.today()
-        # 本日の売上データ
-        today_sales = SalesRecord.objects.filter(sale_date=today)
-        # サマリー情報の計算 (本日の売上額・売上数・平均額の計算)
-        context['today_summary'] = {
-            'total_amount': today_sales.aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            'total_count': today_sales.count(),
-            'average_amount': today_sales.aggregate(Avg('total_price'))['total_price__avg'] or 0
-        }
-        # フィルターの選択肢
+        queryset = SalesRecord.objects.all()
+
+        # 日次データ（本日と前日の比較）
+        yesterday = today - timedelta(days=1)
+        context['daily_summary'] = self.get_period_summary(
+            queryset, today, today, yesterday, yesterday
+        )
+
+        # 週次データ（今週と前週の比較）
+        week_start = today - timedelta(days=today.weekday())
+        previous_week_start = week_start - timedelta(days=7)
+        context['weekly_summary'] = self.get_period_summary(
+            queryset, 
+            week_start, week_start + timedelta(days=6),
+            previous_week_start, previous_week_start + timedelta(days=6)
+        )
+
+        # 月次データ（今月と前月の比較）
+        month_start = today.replace(day=1)
+        previous_month_end = month_start - timedelta(days=1)
+        previous_month_start = previous_month_end.replace(day=1)
+        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        context['monthly_summary'] = self.get_period_summary(
+            queryset,
+            month_start, month_end,
+            previous_month_start, previous_month_end
+        )
+
+        # 年次データ（今年と前年の比較）
+        year_start = today.replace(month=1, day=1)
+        previous_year_start = year_start.replace(year=year_start.year-1)
+        previous_year_end = year_start - timedelta(days=1)
+        context['yearly_summary'] = self.get_period_summary(
+            queryset,
+            year_start, today,
+            previous_year_start, previous_year_end
+        )
+
+        # 既存のコンテキストデータ
         context['payment_methods'] = SalesRecord.PAYMENT_METHODS
+
         return context
 
     def export_csv(self):

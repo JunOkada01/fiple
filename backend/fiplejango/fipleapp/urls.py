@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
  
     path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
+    path('api/get_category_position/<int:product_origin_id>/', views.get_category_position, name='get_category_position'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('admin_create/', admin_create, name='admin_create'),
@@ -153,7 +154,6 @@ urlpatterns = [
     
     #Contact関連
     path('api/', include(router.urls)),
-    path('contact-manager/', views.contact_manager, name='contact_manager'),
     path('contacts/', views.contact_list, name='contact_list'),
     path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
