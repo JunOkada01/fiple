@@ -37,6 +37,11 @@ class SalesRecordAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'quantity', 'total_price', 'tax_amount', 'sale_date')
     list_filter = ('sale_date', 'payment_method')
     search_fields = ('product__product_origin__product_name', 'user__username')
+    
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'link', 'created_at', 'updated_at', 'admin_user')
+    search_fields = ('link',)
 
 admin.site.register(CustomUser)
 admin.site.register(AdminUser)

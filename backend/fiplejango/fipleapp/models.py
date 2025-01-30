@@ -444,3 +444,13 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user}さんが{self.product}を評価しました。"
+    
+class Banner(models.Model):
+    image = models.ImageField(upload_to='banners/')
+    link = models.URLField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    admin_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Banner {self.id} - {self.link}"

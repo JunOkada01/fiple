@@ -360,7 +360,7 @@ const CheckoutPage = () => {
             <div key={index} className="flex justify-between py-2 border-b">
                 <img 
                     alt={item.product.product_origin.product_name}
-                    src={`${item.product.images[0]?.image}`}
+                    src={`http://localhost:8000/${item.product.images[0]?.image}`}
                     className="itemImage w-24 h-24 object-cover mr-4"
                 />
                 <div>

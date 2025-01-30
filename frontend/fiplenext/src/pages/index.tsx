@@ -7,6 +7,8 @@ import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
 import ReactSlider from 'react-slider';
+import Notifications from '../components/Notifications';
+import BannerList from '../components/BannerList';
  
 // 基本的なモデルのインターフェース
 interface Tag {
@@ -181,6 +183,11 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* Navigation コンポーネント */}
       <Navigation onSearch={setSearchQuery} />
+      <div className={styles.container}>
+      <div className={styles.bannerAndNotifications}>
+        <BannerList />
+      </div>
+    </div>
       {/* 性別カテゴリメニュー */}
       {/* <AllMensLeadiesKidsFilter /> */}
       <AllMensLeadiesKidsFilter onGenderSelect={setSelectedGender} />

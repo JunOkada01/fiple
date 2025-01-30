@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from notifications.models import Notification
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -298,3 +299,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'product', 'user', 'subject', 'review_detail', 'rating', 'datetime', 'fit']
         read_only_fields = ['user', 'datetime']
+        
+class BannerSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
+
+    class Meta:
+        model = Banner
+        fields = ['id', 'image', 'link']
+        
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'created_at']

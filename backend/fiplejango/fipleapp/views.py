@@ -2182,3 +2182,38 @@ class SalesDetailView(LoginRequiredMixin, DetailView):
     他モデルからのデータ取得等の関数を追加予定
     売上詳細に必要なものを検討
     """
+    
+class BannerListAPIView(generics.ListAPIView):
+    queryset = Banner.objects.all()
+    serializer_class = BannerSerializer
+
+class BannerListView(LoginRequiredMixin, ListView):
+    model = Banner
+    template_name = 'banners/banner_list.html'
+    context_object_name = 'banners'
+    paginate_by = 10
+
+class BannerCreateView(LoginRequiredMixin, CreateView):
+    model = Banner
+    form_class = BannerForm
+    template_name = 'banners/banner_form.html'
+    success_url = reverse_lazy('fipleapp:banner_list')
+
+    def form_valid(self, form):
+        form.instance.admin_user = User.objects.get(pk=self.request.user.pk)
+        return super().form_valid(form)
+
+class BannerUpdateView(LoginRequiredMixin, UpdateView):
+    model = Banner
+    form_class = BannerForm
+    template_name = 'banners/banner_form.html'
+    success_url = reverse_lazy('fipleapp:banner_list')
+
+class BannerDeleteView(LoginRequiredMixin, DeleteView):
+    model = Banner
+    template_name = 'banners/banner_confirm_delete.html'
+    success_url = reverse_lazy('fipleapp:banner_list')
+    
+class NotificationList(generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer

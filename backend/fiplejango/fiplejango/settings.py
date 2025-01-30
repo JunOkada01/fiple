@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.humanize',
     'widget_tweaks',
+    'channels',
+    'notifications',
 ]
 
 INSTALLED_APPS += [
@@ -112,7 +114,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "fiplejango.wsgi.application"
-
+ASGI_APPLICATION = 'fiplejango.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -222,5 +224,14 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'ROTATE_REFRESH_TOKENS': True, 
-    'BLACKLIST_AFTER_ROTATION': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }
