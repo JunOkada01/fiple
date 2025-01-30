@@ -728,23 +728,116 @@ class AdminTop(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['user'] = self.request.user.name
-            print(self.request.user.name)
-        else:
-            print('ユーザーが見つかりません')
         
-        # 売上データを取得（全ての売上記録を取得）
-        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity', 'total_price').order_by('sale_date')
+        # 現在の日付を取得
+        today = datetime.now().date()
+        
+        # 月次データの計算
+        current_month = today.replace(day=1)
+        previous_month = (current_month - timedelta(days=1)).replace(day=1)
+        
+        # 週次データの計算（月曜日開始）
+        current_week_start = today - timedelta(days=today.weekday())
+        previous_week_start = current_week_start - timedelta(days=7)
+        
+        # 月間売上データ
+        current_month_sales = SalesRecord.objects.filter(
+            sale_date__year=current_month.year,
+            sale_date__month=current_month.month
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        previous_month_sales = SalesRecord.objects.filter(
+            sale_date__year=previous_month.year,
+            sale_date__month=previous_month.month
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        # 週間売上データ
+        current_week_sales = SalesRecord.objects.filter(
+            sale_date__range=[current_week_start, today]
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        previous_week_sales = SalesRecord.objects.filter(
+            sale_date__range=[previous_week_start, current_week_start - timedelta(days=1)]
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        # 前月比・前週比の計算
+        def calculate_percentage_change(current, previous):
+            if not previous or previous == 0:
+                return 0
+            return ((current - previous) / previous) * 100
 
-        # 日付を文字列形式に変換
-        formatted_sales_data = []
-        for record in sales_data:
-            formatted_sales_data.append({
+        # 売上件数の集計データ
+        context['order_stats'] = {
+            'monthly': {
+                'total': current_month_sales['total_quantity'] or 0,
+                'change': calculate_percentage_change(
+                    current_month_sales['total_quantity'] or 0,
+                    previous_month_sales['total_quantity'] or 0
+                )
+            },
+            'weekly': {
+                'total': current_week_sales['total_quantity'] or 0,
+                'average': (current_week_sales['total_quantity'] or 0) / 7,
+                'change': calculate_percentage_change(
+                    current_week_sales['total_quantity'] or 0,
+                    previous_week_sales['total_quantity'] or 0
+                )
+            }
+        }
+        
+        # 売上額の集計データ
+        context['amount_stats'] = {
+            'monthly': {
+                'total': current_month_sales['total_amount'] or 0,
+                'change': calculate_percentage_change(
+                    current_month_sales['total_amount'] or 0,
+                    previous_month_sales['total_amount'] or 0
+                )
+            },
+            'weekly': {
+                'total': current_week_sales['total_amount'] or 0,
+                'average': (current_week_sales['total_amount'] or 0) / 7,
+                'change': calculate_percentage_change(
+                    current_week_sales['total_amount'] or 0,
+                    previous_week_sales['total_amount'] or 0
+                )
+            }
+        }
+        
+        # チャート用のデータ取得（既存のコード）
+        sales_data = (
+            SalesRecord.objects
+            .values('sale_date')
+            .annotate(
+                total_quantity=Sum('quantity'),
+                total_price=Sum('total_price'),
+                order_count=Count('id')
+            )
+            .order_by('sale_date')
+        )
+        
+        formatted_sales_data = [
+            {
                 'sale_date': record['sale_date'].strftime('%Y-%m-%d'),
-                'quantity': record['quantity'],
-                'total_price': float(record['total_price'])  # Decimal型をfloatに変換
-            })
-        # コンテキストに追加
-        # JavaScriptで使用できる形式に変換
+                'quantity': record['total_quantity'],
+                'total_price': float(record['total_price']),
+                'order_count': record['order_count']
+            }
+            for record in sales_data
+        ]
+        
         context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
         return context
 

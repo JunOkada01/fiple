@@ -101,8 +101,6 @@ class ProductForm(forms.ModelForm):
             'stock': '在庫数',
             'price': '価格',
             'status': '販売ステータス',
-            'front_image': '正面画像',
-            'back_image': '背面画像',
         }
         
         def clean(self):
