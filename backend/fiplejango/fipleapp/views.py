@@ -1,12 +1,19 @@
+# Python Standard Library
+from django.shortcuts import redirect
+from django.core.files.base import ContentFile
+from rembg import remove
+from PIL import Image
 from datetime import datetime, timedelta, timezone
-import json,time,uuid,jwt,requests,base64
-
+from django.db.models import *
+import io, os, sys, json, jwt, uuid, csv, base64
 from decimal import Decimal
-
+# Djangoのインポート
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import (
-    authenticate, get_user_model, login, logout
+    authenticate, get_user_model,
+    login,
+    logout,
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,20 +21,73 @@ from django.core.mail import EmailMessage, send_mail
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import (
-    OuterRef, Subquery, Q, Prefetch, 
-    F, Sum, Count, Max, Min, Avg
+    Avg,
+    Count,
+    Prefetch,
 )
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.http import (
+    HttpResponse,
+    JsonResponse,
+)
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+    redirect,
+)
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+import requests
+from django.views.generic import (
+    TemplateView,
+    ListView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
+
+# DRFインポート
+import requests
+from rest_framework import generics, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.exceptions import NotFound
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status, viewsets, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .serializers import ProductListSerializer
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.db.models import Prefetch
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db import transaction
+from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import NotFound
+from rest_framework.pagination import PageNumberPagination
+import time
+from django.db.models import OuterRef, Subquery
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import (
     TemplateView, ListView, CreateView, 
     UpdateView, DeleteView, DetailView
 )
-
+from django_filters import rest_framework as filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import (
     generics, status, viewsets, permissions
 )
@@ -44,15 +104,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django_filters import rest_framework as filters
-from django_filters.rest_framework import DjangoFilterBackend
-from django.core.serializers.json import DjangoJSONEncoder
-
-from django.core.files.base import ContentFile
-from rembg import remove
-import io
-from PIL import Image
-
 from .models import *
 from .serializers import *
 from .forms import *
@@ -63,20 +114,6 @@ User = get_user_model()
 
 def data_view(request):
     return JsonResponse({"message": "Hello from Django!!!!"})
-
-def get_category_position(request, product_origin_id):
-    try:
-        product_origin = ProductOrigin.objects.get(id=product_origin_id)
-        return JsonResponse({
-            'category_position': product_origin.category.category_position
-        })
-    except ProductOrigin.DoesNotExist:
-        return JsonResponse({'error': '商品元が見つかりません'}, status=404)
-
-# class CustomPageNumberPagination(PageNumberPagination):
-#     page_size = 10  # 1ページに10件
-#     page_size_query_param = 'page_size'  # クライアントがページサイズを変更できるようにする
-#     max_page_size = 100  # ページサイズの最大値
 
 # フロントエンド商品関連------------------------------------------------------------------------------------------------
 
@@ -131,6 +168,41 @@ class APIProductReviewView(generics.RetrieveAPIView):
         except Product.DoesNotExist:
             return Response(
                 {"error": "商品が見つかりません"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+# カテゴリで商品をフィルタリング
+class ProductByCategoryView(APIView):
+    def get(self, request, category_name):
+        try:
+            # カテゴリ名でフィルタリング
+            category = Category.objects.get(category_name=category_name)
+            # サブクエリで同じ product_origin 内で最小の size_id を持つ商品のみを取得
+            subquery = Product.objects.filter(
+                product_origin=OuterRef('product_origin')
+            ).order_by('size_id').values('id')[:1]
+
+            products = Product.objects.filter(
+                product_origin__category=category,
+                id__in=Subquery(subquery)  # サブクエリで絞り込む
+            ).select_related(
+                'product_origin', 'product_origin__category', 'color', 'size'
+            ).prefetch_related('productimage_set')
+            
+            # 商品が見つからない場合の処理
+            if not products.exists():
+                return Response(
+                    {"message": "このカテゴリには商品がありません"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
+            # シリアライザーを使用してデータを変換
+            serializer = ProductListSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "カテゴリが見つかりません"},
                 status=status.HTTP_404_NOT_FOUND
             )
             
@@ -427,6 +499,8 @@ class CompletePaymentView(APIView):
                     admin_user=AdminUser.objects.first()  # システムデフォルトの管理者を設定
                 )
                 
+                self.create_sales_record(order, create_order_items)
+                
                 # カートをクリア
                 cart_items.delete()
                 
@@ -538,7 +612,7 @@ class DeliveryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Delivery
-    template_name = 'delivery_list.html'
+    template_name = 'delivery/delivery_list.html'
     context_object_name = 'deliveries'
     paginate_by = 20
 
@@ -554,7 +628,7 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
     model = Delivery
     form_class = DeliveryForm
-    template_name = 'delivery_form.html'
+    template_name = 'delivery/delivery_form.html'
     success_url = reverse_lazy('fipleapp:delivery-list')
 
     def form_valid(self, form):
@@ -573,41 +647,6 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
                 )
 
             return super().form_valid(form)
-
-# カテゴリで商品をフィルタリング
-class ProductByCategoryView(APIView):
-    def get(self, request, category_name):
-        try:
-            # カテゴリ名でフィルタリング
-            category = Category.objects.get(category_name=category_name)
-            # サブクエリで同じ product_origin 内で最小の size_id を持つ商品のみを取得
-            subquery = Product.objects.filter(
-                product_origin=OuterRef('product_origin')
-            ).order_by('size_id').values('id')[:1]
-
-            products = Product.objects.filter(
-                product_origin__category=category,
-                id__in=Subquery(subquery)  # サブクエリで絞り込む
-            ).select_related(
-                'product_origin', 'product_origin__category', 'color', 'size'
-            ).prefetch_related('productimage_set')
-            
-            # 商品が見つからない場合の処理
-            if not products.exists():
-                return Response(
-                    {"message": "このカテゴリには商品がありません"},
-                    status=status.HTTP_204_NO_CONTENT
-                )
-
-            # シリアライザーを使用してデータを変換
-            serializer = ProductListSerializer(products, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-            
-        except Category.DoesNotExist:
-            return Response(
-                {"error": "カテゴリが見つかりません"},
-                status=status.HTTP_404_NOT_FOUND
-            )
 
 
 # アカウント関連-----------------------------------------------------------------------------------------
@@ -1114,6 +1153,15 @@ def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'subcategory_name')
     return JsonResponse(list(subcategories), safe=False)
+
+def get_category_position(request, product_origin_id):
+    try:
+        product_origin = ProductOrigin.objects.get(id=product_origin_id)
+        return JsonResponse({
+            'category_position': product_origin.category.category_position
+        })
+    except ProductOrigin.DoesNotExist:
+        return JsonResponse({'error': '商品元が見つかりません'}, status=404)
     
 # 商品関連----------------------------------------------------------------------------------------------------------
 
@@ -1121,7 +1169,7 @@ class ProductPriceHistoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = PriceHistory
-    template_name = 'product_history_list.html'
+    template_name = 'price_history_list.html'
     context_object_name = 'price_histories'
     paginate_by = 20
     
@@ -1969,3 +2017,168 @@ def check_similar_fit_users(request, product_id):
     ).values('user').distinct().count()
 
     return JsonResponse({'similar_users_count': similar_users_count})
+
+# -------------------売上管理画面-------------------
+class SalesView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'sales/sales.html'
+    context_object_name = 'sales'
+    paginate_by = 20
+    model = SalesRecord
+    """
+    検索機能等の関数を追加予定
+    """
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # フィルターパラメータの取得
+        start_date = self.request.GET.get('start_date') # 売上日の開始日
+        end_date = self.request.GET.get('end_date') # 売上日の終了日
+        payment_method = self.request.GET.get('payment_method') # 支払方法
+        sort_by = self.request.GET.get('sort_by', 'sale_date')  # デフォルトは売上日
+        order = self.request.GET.get('order', 'desc')  # デフォルトは降順
+        # フィルター適用 (売上日・支払方法によるフィルター)
+        if start_date:
+            queryset = queryset.filter(sale_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(sale_date__lte=end_date)
+        if payment_method:
+            queryset = queryset.filter(payment_method=payment_method)
+        # ソート適用
+        if order == 'asc':
+            queryset = queryset.order_by(sort_by) # 昇順ソート
+        else:
+            queryset = queryset.order_by(f'-{sort_by}') # 降順ソート
+        return queryset
+    def calculate_comparison(self, current_data, previous_data):
+        """
+        前期比を計算するヘルパーメソッド
+        ・current_data: 現在のデータ値
+        ・previous_data: 前期のデータ値
+        """
+        if not previous_data or previous_data == 0:
+            return 0 # 前期データが0の場合は0を返す
+        # 増減率の計算
+        difference = ((current_data - previous_data) / previous_data) * 100
+        return round(difference, 1)
+
+    def get_period_summary(self, queryset, period_start, period_end, previous_start, previous_end):
+        """
+        期間ごとの集計を行うヘルパーメソッド
+        ・現在と前期の売上データを集計し、比較結果を返す
+        """
+        # 現在の期間で売上データを集計
+        current_period = queryset.filter(
+            sale_date__gte=period_start,
+            sale_date__lte=period_end
+        ).aggregate(
+            total_amount=Sum('total_price'),
+            total_count=models.Count('id'),
+            average_amount=Avg('total_price')
+        )
+        # 前期の期間で売上データを集計
+        previous_period = queryset.filter(
+            sale_date__gte=previous_start,
+            sale_date__lte=previous_end
+        ).aggregate(
+            total_amount=Sum('total_price'),
+            total_count=models.Count('id'),
+            average_amount=Avg('total_price')
+        )
+        # 集計結果の取得
+        current_amount = current_period['total_amount'] or 0
+        previous_amount = previous_period['total_amount'] or 0
+        current_count = current_period['total_count'] or 0
+        previous_count = previous_period['total_count'] or 0
+        current_average = current_period['average_amount'] or 0
+        previous_average = previous_period['average_amount'] or 0
+
+        return {
+            'total_amount': current_amount, # 現在の売上金額
+            'total_count': current_count, # 現在の売上件数
+            'average_amount': current_average, # 現在の平均売上金額
+            'amount_comparison': self.calculate_comparison(current_amount, previous_amount), # 売上金額比較
+            'count_comparison': self.calculate_comparison(current_count, previous_count), # 売上件数比較
+            'average_comparison': self.calculate_comparison(current_average, previous_average) # 平均売上金額比較
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = date.today()
+        queryset = SalesRecord.objects.all()
+
+        # 日次データ（本日と前日の比較）
+        yesterday = today - timedelta(days=1)
+        context['daily_summary'] = self.get_period_summary(
+            queryset, today, today, yesterday, yesterday
+        )
+
+        # 週次データ（今週と前週の比較）
+        week_start = today - timedelta(days=today.weekday())
+        previous_week_start = week_start - timedelta(days=7)
+        context['weekly_summary'] = self.get_period_summary(
+            queryset, 
+            week_start, week_start + timedelta(days=6),
+            previous_week_start, previous_week_start + timedelta(days=6)
+        )
+
+        # 月次データ（今月と前月の比較）
+        month_start = today.replace(day=1)
+        previous_month_end = month_start - timedelta(days=1)
+        previous_month_start = previous_month_end.replace(day=1)
+        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        context['monthly_summary'] = self.get_period_summary(
+            queryset,
+            month_start, month_end,
+            previous_month_start, previous_month_end
+        )
+
+        # 年次データ（今年と前年の比較）
+        year_start = today.replace(month=1, day=1)
+        previous_year_start = year_start.replace(year=year_start.year-1)
+        previous_year_end = year_start - timedelta(days=1)
+        context['yearly_summary'] = self.get_period_summary(
+            queryset,
+            year_start, today,
+            previous_year_start, previous_year_end
+        )
+
+        # 既存のコンテキストデータ
+        context['payment_methods'] = SalesRecord.PAYMENT_METHODS
+
+        return context
+
+    def export_csv(self):
+        response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = f'attachment; filename="sales_report_{datetime.now().strftime("%Y%m%d")}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['売上日', '商品名', '数量', '売上金額', '支払方法', '税額'])
+        # フィルター適用済みのクエリセットを使用
+        queryset = self.get_queryset()
+        for sale in queryset:
+            writer.writerow([
+                sale.sale_date,
+                sale.product.product_origin.product_name,
+                sale.quantity,
+                sale.total_price,
+                dict(SalesRecord.PAYMENT_METHODS)[sale.payment_method],
+                sale.tax_amount
+            ])
+        return response
+    def get(self, request, *args, **kwargs):
+        if 'export_csv' in request.GET:
+            return self.export_csv()
+        return super().get(request, *args, **kwargs)
+
+class SalesDetailView(LoginRequiredMixin, DetailView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    model = SalesRecord
+    template_name = 'sales/sales_detail.html'
+    context_object_name = 'sales'
+    pk_url_kwarg = 'sales_id'
+    paginate_by = 10
+    """
+    他モデルからのデータ取得等の関数を追加予定
+    売上詳細に必要なものを検討
+    """

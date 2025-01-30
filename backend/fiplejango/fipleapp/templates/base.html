@@ -61,10 +61,22 @@
                     </div>
                     <div class="side-content">
                         <ul class="side-main">
-                            <li class="side-item-main border-bottom"><a href="{% url 'fipleapp:admin_top' %}"><i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME</a></li>
+                            <li class="side-item-main border-bottom">
+                                <a href="{% url 'fipleapp:admin_top' %}">
+                                    <i class="fa-solid fa-house" style="font-size: 15px;"></i>HOME
+                                </a>
+                            </li>
+                            <!-- ユーザー管理 -->
+                            <li class="side-item-top border-bottom">
+                                <a href="{% url 'fipleapp:admin_user_list' %}" class="item-top">
+                                    <i class="fa-solid fa-user" style="font-size: 15px;"></i>ユーザー管理
+                                </a>
+                            </li>
                             <!-- 基盤設定 -->
                             <li class="side-item-top">
-                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top"><i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
+                                <a href="{% url 'fipleapp:base_settings' %}" class="item-top">
+                                    <i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span>
+                                </a>
                                 <ul class="submenu border-bottom">
                                     <li class="submenu-item">
                                         <a href="{% url 'fipleapp:category_top' %}">Category</a>
@@ -89,10 +101,6 @@
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_origin_list' %}">商品元管理</a></li>
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_list' %}">商品管理</a></li>
                                 </ul>
-                            </li>
-                            <!-- ユーザー管理 -->
-                            <li class="side-item-top">
-                                <a href="{% url 'fipleapp:admin_user_list' %}" class="item-top"><i class="fa-solid fa-user" style="font-size: 15px;"></i>ユーザー管理<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
                             </li>
                         </ul>
                     </div>

@@ -11,39 +11,43 @@
 		</a>
 	</div>
 
-	<div class="container d-flex justify-content-center">
+	<div class="d-flex justify-content-center">
 		<div class="size-list" style="max-width: 600px; width: 100%;">
 			<ul class="list-group">
 				{% for size in sizes %}
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div class="d-flex align-items-center">
 							<div>
-								<p class="mb-1"><strong>{{ size.size_name }}</strong></p>
+								<div class="d-flex align-items-center">
+									<p class="mb-0 fw-bold" style="font-size: 1em;">
+										{{ size.size_name }}
+									</p>
+								</div>
 								<small class="text-muted d-block mt-1" style="font-size: 0.75em;">
 									<span class="me-2">
-										<i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ size.created_at }}
+										<i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ size.created_at|date:"Y/m/d" }}
 									</span>
 									<span>
-										<i class="fa-solid fa-calendar-check me-1"></i>更新: {{ size.updated_at }}
+										<i class="fa-solid fa-calendar-check me-1"></i>更新: {{ size.updated_at|date:"Y/m/d" }}
 									</span>
 								</small>
 							</div>
 						</div>
 
-						<div class="d-flex flex-column">
+						<div class="btn-group">
 							<!-- 変更ボタン -->
-							<a href="{% url 'fipleapp:size_edit' size.id %}" class="icon-link d-flex align-items-center mt-1">
-								<i class="fa-regular fa-pen-to-square" style="color: gray; margin-right: 8px;"></i>
+							<a href="{% url 'fipleapp:size_edit' size.id %}" class="mt-1">
+								<i class="fa-regular fa-pen-to-square"></i>
 								<span style="margin-left: auto; color: gray;">変更</span>
 							</a>
 							<!-- 削除ボタン -->
-							<a href="{% url 'fipleapp:size_delete' size.id %}" class="icon-link d-flex align-items-center mt-2">
-								<i class="fa-regular fa-trash-can" style="color: gray; margin-right: 8px;"></i>
+							<a href="{% url 'fipleapp:size_delete' size.id %}" class="mt-2">
+								<i class="fa-regular fa-trash-can"></i>
 								<span style="margin-left: auto; color: gray;">削除</span>
 							</a>
 						</div>
 					</li>
-					{% empty %}
+				{% empty %}
 					<li>サイズがありません。</li>
 				{% endfor %}
 			</ul>

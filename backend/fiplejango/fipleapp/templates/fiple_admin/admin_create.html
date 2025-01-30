@@ -9,7 +9,9 @@
         <div class="register-form">
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                管理者名: {{ form.name }}<br>
+                パスワード: {{ form.password }}<br>
+                パスワード確認: {{ form.confirm_password }}<br>
                 <button type="submit" class="register-button">作成</button>
             </form>
         </div>

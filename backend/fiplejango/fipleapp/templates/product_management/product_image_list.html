@@ -1,66 +1,129 @@
 {% extends 'base.html' %}
 {% block title %}商品画像一覧{% endblock %}
 {% block content %}
-<h4>・商品画像一覧</h4>
-<br>
-<div class="col-lg-2 col-md-3 col-sm-4 col-6">
-	<a href="{% url 'fipleapp:product_image_add' %}"><div class="icon-tile">
-		<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#6F42C1"><path d="M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm56-97h489L578-473 446-302l-93-127-117 152Zm-56 97v-600 600Z"/></svg>
-		<h6>商品画像追加</h6>
-	</div></a>
+<div class="page-container">
+    <!-- 商品画像追加ボタン -->
+    <div class="mb-3 text-center">
+        <a href="{% url 'fipleapp:product_image_add' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-image icons" style="color: #ace7a7;"></i>
+                <p>商品画像追加</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 商品画像一覧 -->
+    <div class="d-flex justify-content-center">
+        <div class="category-list" style="max-width: 600px; width: 100%;">
+            <ul class="list-group">
+                {% for image in product_images %}
+                <li class="list-group-item d-flex flex-column">
+                    <div class="d-flex">
+                        <!-- 左側: 商品画像 -->
+                        <div class="me-3">
+                            <img src="{{ image.image.url }}" alt="{{ image.image_description }}" 
+								width="90" height="120" 
+								style="object-fit: cover; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+
+                        <!-- 右側: 商品情報 -->
+                        <div class="flex-grow-1 text-start">
+                            <!-- 商品名 -->
+                            <p class="mb-1 fw-bold" style="font-size: 1.1em;">
+                                {{ image.product.product_origin.product_name }}
+                            </p>
+
+                            <!-- カラー -->
+                            <p class="mb-1 text-muted">
+                                <span class="rounded-circle me-2 border" 
+                                    style="border-width: 1.5px; box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+                                        display: inline-block; width: 15px; height: 15px;
+                                        background-color: {{ image.product.color.color_code }};">
+                                </span>
+                                <span class="fw-semibold">{{ image.product.color.color_name }}</span>
+                            </p>
+
+                            <!-- 詳細トグルボタン -->
+                            <p class="img-detail-btn">
+								<a class="text-dark toggle-description" 
+									data-bs-toggle="collapse" 
+									href="#description-{{ forloop.counter }}" 
+									role="button" 
+									aria-expanded="false" 
+									aria-controls="description-{{ forloop.counter }}">
+									画像詳細
+									<i class="fa-solid fa-chevron-right rotate-icon ml-2"></i>
+								</a>
+							</p>							
+                            <!-- 詳細コンテンツ -->
+                            <div class="collapse" id="description-{{ forloop.counter }}">
+                                <p class="text-muted" style="font-size: 0.9em;">
+                                    {{ image.image_description }}
+                                </p>
+                            </div>
+
+                            <!-- 作成日と更新日 -->
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75em;">
+                                <span class="me-2">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ image.created_at|date:"Y/m/d" }}
+                                </span>
+                                <span>
+                                    <i class="fa-solid fa-calendar-check me-1"></i>更新: {{ image.updated_at|date:"Y/m/d" }}
+                                </span>
+                            </small>
+                        </div>
+
+                        <!-- 変更・削除ボタン -->
+                        <div class="btn-group align-self-start">
+                            <a href="{% url 'fipleapp:product_image_edit' image.id %}" class="me-2 mt-1">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                <span style="color: gray;">変更</span>
+                            </a>
+                            <a href="{% url 'fipleapp:product_image_delete' image.id %}" class="mt-1">
+                                <i class="fa-regular fa-trash-can"></i>
+                                <span style="color: gray;">削除</span>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item">商品画像がありません。</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    <nav aria-label="ページネーション">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
-<br>
-<ul>
-    {% for image in product_images %}
-        <li>
-            <img src="{{ image.image.url }}" alt="{{ image.image_description }}" width="100"><br>
-            商品名: {{ image.product }}<br>
-            画像説明: {{ image.image_description }}<br>
-            追加日時: {{ image.created_at }}<br>
-            更新日時: {{ image.updated_at }}<br>
-            <a href="{% url 'fipleapp:product_image_edit' image.id %}">変更
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg></a>
-			・
-            <a href="{% url 'fipleapp:product_image_delete' image.id %}">削除
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/></svg>
-			</a>
-        </li>
-        {% empty %}
-        <li>商品画像がありません。</li>
-    {% endfor %}
-</ul>
-
-<nav aria-label="ページネーション">
-	<ul class="pagination">
-
-		{% if page_obj.has_previous %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-		{% endif %}
-
-		{% for page_num in page_obj.paginator.page_range %} 
-			{% if page_num == page_obj.number %}
-				<li class="page-item active">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% else %}
-				<li class="page-item">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% endif %}
-		{% endfor %}
-
-		{% if page_obj.has_next %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{% endif %}
-
-	</ul>
-</nav>
 {% endblock %}
