@@ -70,12 +70,14 @@ urlpatterns = [
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
     path('orders/', OrderListView.as_view(), name='admin_order-list'),
+    path('orders/<int:pk>/detail/', views.OrderDetailView.as_view(), name='admin_order-detail'),
     path('orders/<int:order_id>/update-shipping/', ShippingUpdateView.as_view(), name='update-shipping'),
     path('deliveries/', DeliveryListView.as_view(), name='delivery-list'),
     path('delivery/<int:pk>/update/', DeliveryUpdateView.as_view(), name='delivery-update'),
     path('sales/', SalesView.as_view(), name='sales'),
     path('sales/<int:sales_id>/', SalesDetailView.as_view(), name='sales_detail'),
-
+    # 在庫管理
+    path('stock/', StockView.as_view(), name='stock'),
     # トークン
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 

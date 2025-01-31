@@ -97,7 +97,7 @@
                 <h3 class="title">平均売上額</h3>
                 <p class="data">¥{{ weekly_summary.average_amount|floatformat:0 }}</p>
                 <p class="">
-                    前週比: 
+                    前日比: 
                     {% if weekly_summary.average_comparison > 0 %}
                         <i class="fa-solid fa-arrow-up" style="color: green;"></i>
                         <span style="color: green;">{{ weekly_summary.average_comparison }}%</span>

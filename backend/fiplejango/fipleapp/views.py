@@ -501,6 +501,14 @@ class CompletePaymentView(APIView):
                 
                 self.create_sales_record(order, create_order_items)
                 
+                # 在庫数の更新
+                for cart_item in cart_items:
+                    product = cart_item.product
+                    product.stock -= cart_item.quantity # 注文数分在庫を減らす
+                    if product.stock < 0:
+                        raise ValueError(f"在庫が不足しています: {product.product_origin.product_name}")
+                    product.save()
+                
                 # カートをクリア
                 cart_items.delete()
                 
@@ -526,7 +534,7 @@ class OrderListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = Order
-    template_name = 'order_list.html'
+    template_name = 'order/order_list.html'
     context_object_name = 'orders'
     paginate_by = 20
 
@@ -561,6 +569,22 @@ class OrderListView(LoginRequiredMixin, ListView):
             'status_choices': Order.STATUS_CHOICES,
             'payment_method_choices': Order.PAYMENT_METHODS,
         })
+        return context
+    
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = 'order/order_detail.html'
+    context_object_name = 'order'
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 注文アイテムの取得
+        context['order_items'] = self.object.items.select_related(
+            'product',
+            'product__product_origin'
+        ).all()
         return context
 
 class ShippingUpdateView(LoginRequiredMixin, UpdateView):
@@ -836,26 +860,117 @@ class AdminTop(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['user'] = self.request.user.name
-            print(self.request.user.name)
-        else:
-            print('ユーザーが見つかりません')
-            
-        # 売上データを取得（全ての売上記録を取得）
-        sales_data = SalesRecord.objects.all().values('sale_date', 'quantity', 'total_price').order_by('sale_date')
+        
+        # 現在の日付を取得
+        today = datetime.now().date()
+        
+        # 月次データの計算
+        current_month = today.replace(day=1)
+        previous_month = (current_month - timedelta(days=1)).replace(day=1)
+        
+        # 週次データの計算（月曜日開始）
+        current_week_start = today - timedelta(days=today.weekday())
+        previous_week_start = current_week_start - timedelta(days=7)
+        
+        # 月間売上データ
+        current_month_sales = SalesRecord.objects.filter(
+            sale_date__year=current_month.year,
+            sale_date__month=current_month.month
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        previous_month_sales = SalesRecord.objects.filter(
+            sale_date__year=previous_month.year,
+            sale_date__month=previous_month.month
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        # 週間売上データ
+        current_week_sales = SalesRecord.objects.filter(
+            sale_date__range=[current_week_start, today]
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        previous_week_sales = SalesRecord.objects.filter(
+            sale_date__range=[previous_week_start, current_week_start - timedelta(days=1)]
+        ).aggregate(
+            total_quantity=Count('id'),
+            total_amount=Sum('total_price')
+        )
+        
+        # 前月比・前週比の計算
+        def calculate_percentage_change(current, previous):
+            if not previous or previous == 0:
+                return 0
+            return ((current - previous) / previous) * 100
 
-        # 日付を文字列形式に変換
-        formatted_sales_data = []
-        for record in sales_data:
-            formatted_sales_data.append({
+        # 売上件数の集計データ
+        context['order_stats'] = {
+            'monthly': {
+                'total': current_month_sales['total_quantity'] or 0,
+                'change': calculate_percentage_change(
+                    current_month_sales['total_quantity'] or 0,
+                    previous_month_sales['total_quantity'] or 0
+                )
+            },
+            'weekly': {
+                'total': current_week_sales['total_quantity'] or 0,
+                'average': (current_week_sales['total_quantity'] or 0) / 7,
+                'change': calculate_percentage_change(
+                    current_week_sales['total_quantity'] or 0,
+                    previous_week_sales['total_quantity'] or 0
+                )
+            }
+        }
+        
+        # 売上額の集計データ
+        context['amount_stats'] = {
+            'monthly': {
+                'total': current_month_sales['total_amount'] or 0,
+                'change': calculate_percentage_change(
+                    current_month_sales['total_amount'] or 0,
+                    previous_month_sales['total_amount'] or 0
+                )
+            },
+            'weekly': {
+                'total': current_week_sales['total_amount'] or 0,
+                'average': (current_week_sales['total_amount'] or 0) / 7,
+                'change': calculate_percentage_change(
+                    current_week_sales['total_amount'] or 0,
+                    previous_week_sales['total_amount'] or 0
+                )
+            }
+        }
+        
+        # チャート用のデータ取得（既存のコード）
+        sales_data = (
+            SalesRecord.objects
+            .values('sale_date')
+            .annotate(
+                total_quantity=Sum('quantity'),
+                total_price=Sum('total_price'),
+                order_count=Count('id')
+            )
+            .order_by('sale_date')
+        )
+        
+        formatted_sales_data = [
+            {
                 'sale_date': record['sale_date'].strftime('%Y-%m-%d'),
-                'quantity': record['quantity'],
-                'total_price': float(record['total_price'])  # Decimal型をfloatに変換
-            })
-
-        # コンテキストに追加
-        # JavaScriptで使用できる形式に変換
+                'quantity': record['total_quantity'],
+                'total_price': float(record['total_price']),
+                'order_count': record['order_count']
+            }
+            for record in sales_data
+        ]
+        
         context['sales_data'] = json.dumps(formatted_sales_data, cls=DjangoJSONEncoder)
-            
         return context
 
 def admin_logout(request):
@@ -2217,3 +2332,13 @@ class BannerDeleteView(LoginRequiredMixin, DeleteView):
 class NotificationList(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    
+class StockView(LoginRequiredMixin, ListView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'stock/stock_list.html'
+    context_object_name = 'stocks'
+    paginate_by = 20
+    model = Product
+    def get_queryset(self):
+        return Product.objects.all().select_related('product_origin', 'color', 'size')

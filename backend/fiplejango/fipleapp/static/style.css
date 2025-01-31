@@ -465,12 +465,14 @@ main {
 
 /* 商品画像管理 詳細トグル */
 
-.img-detail-btn .toggle-description {
+.img-detail-btn .toggle-description,
+.product-detail-btn .toggle-description {
     text-decoration: none; /* 下線をなくす */
     font-size: 0.9em; /* フォントサイズを少し小さく */
 }
 
-.img-detail-btn .toggle-description:hover {
+.img-detail-btn .toggle-description:hover,
+.product-detail-btn .toggle-description:hover {
     text-decoration: none; /* ホバー時も下線を表示しない */
 }
 /* アイコンの回転アニメーション */
@@ -492,8 +494,14 @@ a[aria-expanded="true"] .rotate-icon {
 .bg-body-light {
     background-color: #f6f7f9 !important;
 }
+.block-footer label {
+    font-size: 14px;
+}
+.block-footer .stat-value {
+    font-size: 25px;
+}
 
-
+/* - - - - 部位ラジオボタン - - - - */
 .radio-inline {
     padding: 0;
     margin: 0;
