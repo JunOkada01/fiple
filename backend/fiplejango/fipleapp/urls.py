@@ -116,6 +116,7 @@ urlpatterns = [
     path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/products/<int:product_id>/size-recommendation/', views.get_size_recommendation, name='size-recommendation'),#おすすめ
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
     path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),

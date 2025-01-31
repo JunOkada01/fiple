@@ -1706,3 +1706,51 @@ def check_similar_fit_users(request, product_id):
     ).values('user').distinct().count()
 
     return JsonResponse({'similar_users_count': similar_users_count})
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_size_recommendation(request, product_id):
+    try:
+        # 現在のユーザーの身長と体重を取得
+        user = request.user
+        user_height = user.height
+        user_weight = user.weight
+        
+        # 身長と体重の許容範囲を設定（例：±5cm, ±3kg）
+        height_range = 5
+        weight_range = 3
+        
+        # 同じような体格のユーザーのレビューを取得
+        similar_reviews = Review.objects.filter(
+            product__product_origin_id=product_id,
+            fit='ちょうどいい',
+            user__height__range=(user_height - height_range, user_height + height_range),
+            user__weight__range=(user_weight - weight_range, user_weight + weight_range)
+        )
+        
+        # サイズごとのレビュー数をカウント
+        size_counts = {}
+        for review in similar_reviews:
+            size_name = review.product.size.size_name
+            size_counts[size_name] = size_counts.get(size_name, 0) + 1
+        
+        # 5件以上のレビューがあるサイズを見つける
+        recommended_size = None
+        for size, count in size_counts.items():
+            if count >= 1:
+                recommended_size = size
+                break
+        
+        return Response({
+            'recommended_size': recommended_size
+        })
+        
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=400)

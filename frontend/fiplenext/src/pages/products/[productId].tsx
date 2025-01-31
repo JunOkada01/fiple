@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
 import ReviewList from '../../components/Review';
+import SizeRecommendation from '../../components/SizeRecommendation';
 
 export interface ProductDetailType {
     id: number;
@@ -208,7 +209,9 @@ const ProductDetail: React.FC = () => {
                         ))}
                     </div>
                 </div>
-        
+                
+                <SizeRecommendation productId={productId} /> 
+
                 {/* 右側: 商品情報テーブル */}
                 <div className="md:w-1/2 md:pl-6 mt-6">
                     <div className="mb-4">
