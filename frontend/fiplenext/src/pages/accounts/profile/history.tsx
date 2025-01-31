@@ -119,74 +119,75 @@ const OrderHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">注文履歴</h1>
-      
-      {orders.length === 0 ? (
-        <p className="text-gray-600">注文履歴がありません</p>
-      ) : (
-        orders.map((order) => (
-          <div key={order.id} className="bg-white shadow-md rounded-lg p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">注文 #{order.id}</h2>
-              <span className="text-sm text-gray-600">
-                注文日: {new Date(order.order_date).toLocaleDateString()}
-              </span>
-            </div>
-            
-            <div className="mb-4">
-              <p>合計金額: ¥{order.total_amount.toLocaleString()}</p>
-              <p>消費税: ¥{order.tax_amount.toLocaleString()}</p>
-              <p>支払方法: {order.payment_method}</p>
-              <p>配送先: {order.delivery_address}</p>
-              <p>状態: {order.status}</p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-2">注文商品</h3>
-              {order.items.map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b">
-                  <div className="flex items-center">
-                    <Link href={`products/${item.product.product_origin.id}`}>
-                      <img 
-                        src={`http://localhost:8000${item.product_image}`}
-                        alt={item.product.product_origin.product_name} 
-                        className="w-16 h-16 object-cover mr-4 rounded"
-                      />
-                    </Link>
-                    <div>
+    <div className="container flex items-center justify-center mx-auto px-4 py-8">
+      <div>
+        {orders.length === 0 ? (
+          <p className="text-gray-600">注文履歴がありません</p>
+        ) : (
+          orders.map((order) => (
+            <div key={order.id} className="bg-white w-[600px] shadow-md rounded-lg p-6 mb-6">
+              {/* 注文ボックス ヘッダー */}
+              <div className="flex justify-between items-center mb-4 border-b">
+                <h2 className="text-xl font-semibold">Order No.{order.id}</h2>
+                <span className="text-sm text-gray-600">
+                  注文日: {new Date(order.order_date).toLocaleDateString()}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">注文商品</h3>
+                {order.items.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b">
+                    <div className="flex items-center">
                       <Link href={`products/${item.product.product_origin.id}`}>
-                        <p className="font-medium text-blue-600 hover:underline">
-                          {item.product.product_origin.product_name}
-                        </p>
+                        <img 
+                          src={`http://localhost:8000${item.product_image}`}
+                          alt={item.product.product_origin.product_name} 
+                          className="w-16 h-16 object-cover mr-4 rounded"
+                        />
                       </Link>
-                      <p className="text-gray-600">数量: {item.quantity}</p>
+                      <div>
+                        <Link href={`products/${item.product.product_origin.id}`}>
+                          <p className="font-medium text-blue-600 hover:underline">
+                            {item.product.product_origin.product_name}
+                          </p>
+                        </Link>
+                        <p className="text-gray-600">数量: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <p className="font-medium mb-2">¥{item.unit_price.toLocaleString()}</p>
+                      {reviewedProducts.includes(item.product.id) ? (
+                        <button
+                          onClick={() => handleDeleteReview(item.product.id)}
+                          className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                        >
+                          レビュー削除
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleWriteReview(item.product.id)}
+                          className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                        >
+                          レビューを書く
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <p className="font-medium mb-2">¥{item.unit_price.toLocaleString()}</p>
-                    {reviewedProducts.includes(item.product.id) ? (
-                      <button
-                        onClick={() => handleDeleteReview(item.product.id)}
-                        className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                      >
-                        レビュー削除
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleWriteReview(item.product.id)}
-                        className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
-                      >
-                        レビューを書く
-                      </button>
-                    )}
-                  </div>
+                ))}
+              </div>
+              <div className="mb-4">
+                <p>支払方法: {order.payment_method}</p>
+                <p>配送先: {order.delivery_address}</p>
+                <p>状態: {order.status}</p>
+                <div className='flex justify-start items-center gap-4'>
+                  <p>消費税: ¥{order.tax_amount.toLocaleString()}</p>
+                  <p>合計金額: ¥{order.total_amount.toLocaleString()}</p>
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };
