@@ -165,5 +165,5 @@ urlpatterns = [
     path('reviews/<int:product_id>/', delete_review, name='delete_review'),
     path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
     # 商品おすすめ
-    path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
+    # path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
 ]

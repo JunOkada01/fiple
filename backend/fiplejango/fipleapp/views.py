@@ -52,6 +52,9 @@ from rembg import remove
 import io
 from PIL import Image
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 from .models import *
 from .serializers import *
 from .forms import *
@@ -1688,29 +1691,25 @@ class PasswordChangeView(APIView):
     
 # -------------------商品のおすすめ-------------------
 
-def check_similar_fit_users(request, product_id):
-    user = request.user
-    if not user.is_authenticated:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
+# def check_similar_fit_users(request, product_id):
+#     user = request.user
+#     if not user.is_authenticated:
+#         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
-    # ログイン中のユーザの身長・体重を取得
-    user_height = user.height
-    user_weight = user.weight
+#     # ログイン中のユーザの身長・体重を取得
+#     user_height = user.height
+#     user_weight = user.weight
 
-    # 商品の「ちょうどいい」レビューを持つユーザの数をカウント
-    similar_users_count = Review.objects.filter(
-        product_id=product_id,
-        fit='ちょうどいい',
-        user__height=user_height,
-        user__weight=user_weight
-    ).values('user').distinct().count()
+#     # 商品の「ちょうどいい」レビューを持つユーザの数をカウント
+#     similar_users_count = Review.objects.filter(
+#         product_id=product_id,
+#         fit='ちょうどいい',
+#         user__height=user_height,
+#         user__weight=user_weight
+#     ).values('user').distinct().count()
 
-    return JsonResponse({'similar_users_count': similar_users_count})
+#     return JsonResponse({'similar_users_count': similar_users_count})
 
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

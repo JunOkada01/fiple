@@ -210,10 +210,11 @@ const ProductDetail: React.FC = () => {
                     </div>
                 </div>
                 
-                <SizeRecommendation productId={productId} /> 
+                
 
                 {/* 右側: 商品情報テーブル */}
                 <div className="md:w-1/2 md:pl-6 mt-6">
+                <SizeRecommendation productId={productId} /> 
                     <div className="mb-4">
                         <h1 className="text-2xl">{product.product_name}</h1>
                         <div className="text-sm text-gray-600">
