@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}商品管理トップ{% endblock %}
+{% block content %}
+<div class="box-container">
+    <div class="icon-tile-area">
+        <a href="{% url 'fipleapp:product_image_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-image icons" style="color: #ace7a7;"></i>
+                <p>商品画像</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_tag_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-tags icons" style="color: #e7a7c7;"></i>
+                <p>商品タグ</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_origin_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-warehouse icons" style="color: #a7bae7;"></i>
+                <p>商品元一覧・追加</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-box-open icons" style="color: #e7c7a7;"></i>
+                <p>商品一覧・追加</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}商品一覧{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="mb-3 text-center">
+        <a href="{% url 'fipleapp:product_add' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-box-open icons" style="color: #e7c7a7;"></i>
+            <p>商品追加</p>
+            </div>
+        </a>
+    </div>
+    
+    <div class="d-flex justify-content-center">
+		<div class="category-list" style="max-width: 600px; width: 100%;">
+			<ul class="list-group">
+                {% for product in products %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex aligin-item-center">
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 text-start">
+                                    <p class="mb-0 fw-bold" style="font-size: 1em; margin-right: 10px;">
+                                        {{ product.product_origin.product_name }}
+                                    </p>
+                                    <p class="mb-1 text-muted">
+                                        <span class="rounded-circle me-2 border" 
+                                            style="border-width: 1.5px; box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+                                                display: inline-block; width: 15px; height: 15px;
+                                                background-color: {{ product.color.color_code }};">
+                                        </span>
+                                        <span class="fw-semibold">{{ product.color.color_name }}</span>
+                                    </p>
+                                    <p class="mb-0">{{ product.size.size_name }}サイズ</p>
+                                    <p class="mb-0">￥{{ product.price }}</p>
+                                    <p class="mb-0">在庫数 ×{{ product.stock }}</p>
+                                    販売ステータス: {{ product.status }}<br>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75em;">
+                                <span class="me-2">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ product.created_at|date:"Y/m/d" }}
+                                </span>
+                                <span>
+                                    <i class="fa-solid fa-calendar-check me-1"></i>更新: {{ product.updated_at|date:"Y/m/d" }}
+                                </span>
+                            </small>
+                        </div>
+            
+                        <!-- 表画像と裏画像の表示 -->
+                        <div class="m-2">
+                            {% if product.front_image %}
+                                <div>正面</div>
+                                <img src="{{ product.front_image.url }}" alt="正面画像" style="width: 110px; height: 120px; object-fit: cover;">
+                            {% else %}
+                                <div>正面画像なし</div>
+                            {% endif %}
+                        </div>
+                        <div class="m-2">
+                            {% if product.back_image %}
+                                <div>裏面</div>
+                                <img src="{{ product.back_image.url }}" alt="裏面画像" style="width: 110px; height: 120px; object-fit: cover;">
+                            {% else %}
+                                <div>裏面画像なし</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{% url 'fipleapp:product_edit' product.id %}" class="mt-1">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            <span style="color: gray;">変更</span>
+                        </a>
+                        <a href="{% url 'fipleapp:product_delete' product.id %}" class="mt-2">
+                            <i class="fa-regular fa-trash-can"></i>
+                            <span style="color: gray;">削除</span>                            </a>
+                    </div>
+                </li>
+                {% empty %}
+                <li>商品元がありません。</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <nav aria-label="ページネーション">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+    
+            {% for page_num in page_obj.paginator.page_range %}
+                {% if page_num == page_obj.number %}
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

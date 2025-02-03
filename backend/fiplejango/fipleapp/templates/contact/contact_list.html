@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}お問い合わせ一覧{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="contact-category-head">
+        <a href="/add-contact-category/" class="plus-circle">
+            <i class="fa-solid fa-plus fa-wrench animated-hover contact-plus-icon"></i>
+        </a>
+        <span>件名を追加</span>
+    </div>
+    <div class="contact-main">
+        <div class="contact-list">
+            {% if contacts %}
+                {% for contact in contacts %}
+                    名前{{ contact.name }}  
+                    件名{{ contact.category }}  
+                    お問い合わせ内容{{ contact.message|truncatewords:10 }}  
+                    お問い合わせ日{{ contact.created_at }}  
+                    <a href="{% url 'fipleapp:contact_detail' contact.id %}">詳細</a>
+                    <br>
+                {% endfor %}
+            {% else %}
+                <p>現在お問い合わせがありません。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

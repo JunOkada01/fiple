@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h4>注文一覧</h4>
+
+    <!-- 検索フィルター -->
+    <form method="get" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">状態で絞り込み</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="payment_method" class="form-select">
+                    <option value="">支払方法で絞り込み</option>
+                    {% for value, label in payment_method_choices %}
+                        <option value="{{ value }}" {% if request.GET.payment_method == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- 注文一覧テーブル -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>注文ID</th>
+                <th>ユーザー</th>
+                <th>注文日時</th>
+                <th>支払状態</th>
+                <th>支払方法</th>
+                <th>合計金額</th>
+                <th>発送状態</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td> <a href="{% url 'fipleapp:admin_order-detail' order.id %}">{{ order.id }}</a> </td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.order_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td>{{ order.get_payment_method_display }}</td>
+                <td>¥{{ order.total_amount }}</td>
+                <td>
+                    {% if order.status == '支払い完了' %}
+                        <div class="form-check">
+                            <input type="checkbox" 
+                                    class="form-check-input shipping-checkbox" 
+                                    data-order-id="{{ order.id }}"
+                                    {% if order.shipping.is_shipped %}checked{% endif %}>
+                            <label class="form-check-label">発送済み</label>
+                        </div>
+                    {% else %}
+                        {{ order.shipping.is_shipped|yesno:"発送済み,未発送" }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <nav aria-label="ページネーション">
+        <ul class="pagination">
+    
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+    
+            {% for page_num in page_obj.paginator.page_range %} 
+                {% if page_num == page_obj.number %}
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+    
+        </ul>
+    </nav>
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.shipping-checkbox').change(function() {
+            const orderId = $(this).data('order-id');
+            const isShipped = $(this).prop('checked');
+            
+            $.ajax({
+                url: `/orders/${orderId}/update-shipping/`,
+                method: 'POST',
+                data: {
+                    is_shipped: isShipped,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    alert('エラーが発生しました');
+                    $(this).prop('checked', !isShipped);
+                }
+            });
+        });
+    });
+    </script>
+
+{% endblock %}

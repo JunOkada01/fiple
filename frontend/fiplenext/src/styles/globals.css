@@ -2,26 +2,215 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* globals.css */
+body {  
+  color: var(--foreground);  
+  background: var(--background);  
+  font-family: 'Julius Sans One', sans-serif; /* デフォルトフォントを設定 */
+  zoom: 0.8; /* ページ全体の拡大率を設定 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* レイアウトコンテナ */  
+.container {
+  margin: 0 auto;  
+  padding: 0 auto; /* サイドのパディングを追加 */
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* ナビゲーション */
+.nav-container {  
+  display: flex;  
+  justify-content: center;  
+  align-items: center;  
+  gap: 2rem; /* Tailwind CSSのgap */
+  padding: 1rem 0; /* 上下のパディング */
+  border-bottom: 1px solid #ccc; /* ボーダーの追加 */
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.nav-container input {
+  border: none;
+  border-bottom: 2px solid #333;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 250px; /* 最大幅の設定 */
 }
+
+/* 商品カード */  
+.product-card {  
+  @apply bg-white rounded-sm border border-gray-300 p-2 w-full max-w-sm; /* Tailwindを使用 */
+}
+
+.product-card .image-container {  
+  position: relative;  
+  width: 100%;  
+  aspect-ratio: 3 / 4; /* アスペクト比の設定 */
+}
+
+.product-card img {  
+  width: 100%;  
+  height: auto;  
+  object-fit: cover;  
+}
+
+.product-card .details {  
+  @apply p-4;  
+}
+
+.product-card .details p {  
+  @apply text-gray-500 text-xs; /* カテゴリテキストのスタイル */
+}
+
+.product-card .price {  
+  @apply text-gray-900 text-lg mt-1; /* 価格のスタイル */
+}
+
+.product-card .buttons {  
+  @apply flex justify-end mt-2 space-x-4; /* ボタンエリア */
+}
+
+/* ページタイトル */  
+.page-title {  
+  font-size: 24px;  
+  text-align: center;  
+  padding: 50px;  
+}
+
+/* カートと注文 */  
+.content {  
+  display: flex;  
+  justify-content: space-between;  
+  width: 80%;  
+  margin-top: 0;  
+}
+
+.cartItems,  
+.orderSummary,  
+.productList {  
+  width: 60%;  
+  padding: 0px;  
+  border: 1.5px solid #000;  
+}  
+
+.summary,  
+.paymentSummary {  
+  width: 30%;  
+  padding: 20px;  
+  border: 1.5px solid #000;  
+  align-items: center;  
+}
+
+/* お気に入りリスト */  
+.favorites-list {  
+  display: grid;  
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* 自動で幅を調整 */
+  gap: 20px;  
+  padding: 0 30px;  
+  width: 100%;  
+}
+
+/* 注文確認画面 */  
+.confirmation-container {  
+  width: 80%;  
+  margin: 0 auto;  
+  text-align: center;  
+}
+
+.comp-title {  
+  font-size: 32px;  
+  margin-top: 20px;  
+}
+
+.comp-subtitle {  
+  font-size: 18px;  
+  margin: 10px 0;  
+}
+
+/* 注文概要 */  
+.order-summary {  
+  margin-top: 30px;  
+  padding: 20px;  
+  border: 1px solid #000;  
+  background-color: #ffffff;  
+}
+
+.summary-title {  
+  text-align: left;  
+  margin-bottom: 10px;  
+}
+
+/* スクロールバー非表示 */  
+.scrollbar-hide {  
+  -ms-overflow-style: none;  /* Internet Explorer and Edge */  
+  scrollbar-width: none;  /* Firefox */  
+}  
+.scrollbar-hide::-webkit-scrollbar {  
+  display: none;  /* Safari and Chrome */  
+}
+
+/* ローディングアニメーション */
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(188, 188, 188, 0.8); /* 半透明の背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* - - - - 試着中商品リストスクロールバー - - - - */
+
+/* スクロールバー全体 */
+.items-scrollbar::-webkit-scrollbar {
+  width: 6px;  /* 横幅を狭く設定 */
+}
+
+/* スクロールバーのトラック部分（背景） */
+.items-scrollbar::-webkit-scrollbar-track {
+  background: transparent;  /* 背景を透明に設定 */
+}
+
+/* スクロールバーのつまみ部分 */
+.items-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c9c9c9;  /* つまみ部分の色 */
+  border-radius: 20px;  /* つまみの角を丸く */
+}
+
+/* スクロールバーのつまみ部分がホバーした時の色 */
+.items-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #555;  /* ホバー時の色 */
+}
+
+/* ここからが金額絞り込みバーのcssです */
+.custom-slider {
+  height: 4px; /* スライダーの高さを細く設定 */
+  background: #f0f0f0; /* 明るい背景色 */
+  border-radius: 2px; /* 丸みを少しだけ付ける */
+  position: relative;
+}
+ 
+.custom-track {
+  background: #000; /* 黒色のトラック */
+  height: 100%;
+  border-radius: 2px; /* 丸みを付ける */
+}
+ 
+.custom-thumb {
+  height: 22px; /* 縦棒の高さを少し小さく */
+  width: 4px; /* 縦棒の幅を細く */
+  background: #000; /* 黒色の縦棒 */
+  border: none;
+  border-radius: 2px; /* 丸みを少しだけ付ける */
+  cursor: grab;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6); /* 影を強調 */
+  position: relative;
+  top: -8px; /* 縦棒を少し中央に調整 */
+  transition: all 0.2s ease-in-out; /* スムーズな動き */
+}
+ 
+.custom-thumb:active {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8); /* クリック時に影を強調 */
+}
+/* ここまでが金額絞り込みバーのcssです */

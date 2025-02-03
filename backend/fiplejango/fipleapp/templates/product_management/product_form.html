@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% block title %}商品追加{% endblock %}
+
+{% block content %}
+<h4>商品追加</h4>
+<br>
+<form method="post" enctype="multipart/form-data" id="productForm">
+    {% csrf_token %}
+    
+    <!-- その他のフォームフィールド -->
+    {% for field in form %}
+        {% if field.name != 'front_image' and field.name != 'back_image' %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+            <br>
+        {% endif %}
+    {% endfor %}
+
+    <!-- 画像サイズの注意書き -->
+    <p id="image-size-notice" class="image-size-notice"></p>
+
+    <!-- 表画像のアップロードと編集エリア -->
+    <div class="image-section">
+        <h5>表画像</h5>
+        <input type="file" id="frontImageInput" accept="image/*">
+        <div id="frontPreviewContainer" class="preview-container" style="display: none;">
+            <div class="crop-container">
+                <img id="frontPreview" class="image-preview">
+                <div id="frontCropArea" class="crop-area"></div>
+            </div>
+            <div class="crop-controls">
+                <button type="button" class="zoom-in" data-target="front">+</button>
+                <button type="button" class="zoom-out" data-target="front">-</button>
+                <button type="button" class="rotate-left" data-target="front">↺</button>
+                <button type="button" class="rotate-right" data-target="front">↻</button>
+            </div>
+        </div>
+        <input type="hidden" name="front_image" id="frontImageData">
+    </div>
+
+    <br>
+
+    <!-- 裏画像のアップロードと編集エリア -->
+    <div class="image-section">
+        <h5>裏画像</h5>
+        <input type="file" id="backImageInput" accept="image/*">
+        <div id="backPreviewContainer" class="preview-container" style="display: none;">
+            <div class="crop-container">
+                <img id="backPreview" class="image-preview">
+                <div id="backCropArea" class="crop-area"></div>
+            </div>
+            <div class="crop-controls">
+                <button type="button" class="zoom-in" data-target="back">+</button>
+                <button type="button" class="zoom-out" data-target="back">-</button>
+                <button type="button" class="rotate-left" data-target="back">↺</button>
+                <button type="button" class="rotate-right" data-target="back">↻</button>
+            </div>
+        </div>
+        <input type="hidden" name="back_image" id="backImageData">
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn btn-primary">追加</button>
+</form>
+
+<br>
+<a href="{% url 'fipleapp:product_list' %}"><h5>戻る</h5></a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let frontCropper = null;
+    let backCropper = null;
+    const productOriginSelect = document.getElementById('id_product_origin');
+    const noticeParagraph = document.getElementById('image-size-notice');
+
+    // カテゴリに応じたクロップサイズの設定
+    const cropSizes = {
+        'h': { width: 100, height: 100 },
+        'u': { width: 170, height: 170 },
+        'l': { width: 170, height: 170 },
+        'f': { width: 100, height: 80 }
+    };
+
+    async function updateImageSizeNotice() {
+        if (!productOriginSelect.value) {
+            noticeParagraph.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/get_category_position/${productOriginSelect.value}/`);
+            const data = await response.json();
+            
+            if (data.category_position in cropSizes) {
+                const size = cropSizes[data.category_position];
+                noticeParagraph.textContent = `画像サイズ: ${size.width}x${size.height} ピクセル`;
+                noticeParagraph.style.display = 'block';
+
+                // 固定枠のサイズを更新
+                updateCropAreaSize(data.category_position);
+            }
+        } catch (error) {
+            console.error('Error fetching category position:', error);
+        }
+    }
+
+    function updateCropAreaSize(categoryPosition) {
+        const size = cropSizes[categoryPosition];
+        if (!size) return;
+
+        // 表画像と裏画像の固定枠サイズを更新
+        ['front', 'back'].forEach(type => {
+            const cropArea = document.getElementById(`${type}CropArea`);
+            if (cropArea) {
+                cropArea.style.width = `${size.width}px`;
+                cropArea.style.height = `${size.height}px`;
+            }
+        });
+    }
+
+    function setupImageCropper(inputId, previewId, containerId, cropAreaId, hiddenInputId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const container = document.getElementById(containerId);
+        const cropArea = document.getElementById(cropAreaId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+
+        const cropperOptions = {
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
+            restore: false,
+            modal: false,
+            guides: false,
+            highlight: false,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            toggleDragModeOnDblclick: false,
+            ready: function() {
+                // クロッパーの準備完了時に固定枠のサイズを設定
+                const categoryPosition = document.querySelector('#id_product_origin option:checked').value;
+                if (categoryPosition) {
+                    const size = cropSizes[categoryPosition];
+                    if (size) {
+                        cropArea.style.width = `${size.width}px`;
+                        cropArea.style.height = `${size.height}px`;
+                    }
+                }
+            },
+            crop: function() {
+                const canvas = this.cropper.getCroppedCanvas({
+                    width: cropArea.offsetWidth,
+                    height: cropArea.offsetHeight
+                });
+                hiddenInput.value = canvas.toDataURL();
+            }
+        };
+
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    container.style.display = 'block';
+                    
+                    // 既存のクロッパーを破棄
+                    if (inputId === 'frontImageInput' && frontCropper) {
+                        frontCropper.destroy();
+                    } else if (inputId === 'backImageInput' && backCropper) {
+                        backCropper.destroy();
+                    }
+
+                    // 新しいクロッパーを初期化
+                    const cropper = new Cropper(preview, cropperOptions);
+
+                    // クロッパーの参照を保存
+                    if (inputId === 'frontImageInput') {
+                        frontCropper = cropper;
+                    } else {
+                        backCropper = cropper;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // コントロールボタンのイベントハンドラを設定
+    document.querySelectorAll('.crop-controls button').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.dataset.target;
+            const cropper = target === 'front' ? frontCropper : backCropper;
+            
+            if (!cropper) return;
+
+            switch (this.className) {
+                case 'zoom-in':
+                    cropper.zoom(0.1);
+                    break;
+                case 'zoom-out':
+                    cropper.zoom(-0.1);
+                    break;
+                case 'rotate-left':
+                    cropper.rotate(-90);
+                    break;
+                case 'rotate-right':
+                    cropper.rotate(90);
+                    break;
+            }
+        });
+    });
+
+    // 表画像と裏画像のクロッパーをセットアップ
+    setupImageCropper(
+        'frontImageInput',
+        'frontPreview',
+        'frontPreviewContainer',
+        'frontCropArea',
+        'frontImageData'
+    );
+    setupImageCropper(
+        'backImageInput',
+        'backPreview',
+        'backPreviewContainer',
+        'backCropArea',
+        'backImageData'
+    );
+
+    // 商品元選択時のイベント
+    productOriginSelect.addEventListener('change', updateImageSizeNotice);
+
+    // フォーム送信時の処理
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // クロップされた画像データを取得
+        if (frontCropper) {
+            const frontCanvas = frontCropper.getCroppedCanvas({
+                width: document.getElementById('frontCropArea').offsetWidth,
+                height: document.getElementById('frontCropArea').offsetHeight
+            });
+            document.getElementById('frontImageData').value = frontCanvas.toDataURL();
+        }
+        
+        if (backCropper) {
+            const backCanvas = backCropper.getCroppedCanvas({
+                width: document.getElementById('backCropArea').offsetWidth,
+                height: document.getElementById('backCropArea').offsetHeight
+            });
+            document.getElementById('backImageData').value = backCanvas.toDataURL();
+        }
+
+        this.submit();
+    });
+});
+</script>
+
+{% endblock %}

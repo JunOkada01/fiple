@@ -1,0 +1,20 @@
+{% extends 'fiple_admin/base.html' %}
+
+{% block title %}管理者ログイン{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-table">
+        <h1 class="login-title">管理者ログイン</h1>
+        <div class="login-form">
+            <form method="post">
+                {% csrf_token %}
+                管理者ID: {{ form.admin_id }}<br>
+                パスワード: {{ form.password }}<br>
+                <button type="submit" class="login-button">ログイン</button>
+            </form>
+        </div>
+        <a href="{% url 'fipleapp:admin_create' %}" class="admin-link">管理者登録</a>
+    </div>
+</div>
+{% endblock %}

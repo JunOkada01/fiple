@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}色一覧{% endblock %}
+{% block content %}
+<!-- 色追加カード -->
+<div class="page-container">
+    <div class="mb-3 text-center">
+        <a href="{% url 'fipleapp:color_add' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-palette icons" style="color: #fff38b;"></i>
+                <p>カラー追加</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 並び替えと絞り込みフォーム -->
+    <form method="get" class="mb-3">
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+            <div class="card-body">
+                <div class="row g-2">
+                    <!-- 並び順と順番をまとめて配置 -->
+                    <div class="col-6">
+                        <label for="sort_field" class="form-label small">並び順</label>
+                        <div class="input-group">
+                            <select id="sort_field" name="sort_field" class="form-select form-select-sm">
+                                <option value="" {% if not sort_field %}selected{% endif %}>デフォルト</option>
+                                <option value="color_name" {% if sort_field == 'color_name' %}selected{% endif %}>カラー名</option>
+                                <option value="color_code" {% if sort_field == 'color_code' %}selected{% endif %}>カラーコード</option>
+                                <option value="created_at" {% if sort_field == 'created_at' %}selected{% endif %}>作成日</option>
+                                <option value="updated_at" {% if sort_field == 'updated_at' %}selected{% endif %}>更新日</option>
+                            </select>
+                            <select id="sort_order" name="sort_order" class="form-select form-select-sm" style="max-width: 90px;">
+                                <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>昇順</option>
+                                <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>降順</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 絞り込み入力 -->
+                    <div class="col-6">
+                        <label for="filter" class="form-label small">絞り込み</label>
+                        <input type="text" id="filter" name="filter" class="form-control form-control-sm"
+                            placeholder="カラー名やコードを入力してください" value="{{ filter }}">
+                    </div>
+                </div>
+
+                <!-- ボタン群 -->
+                <div class="d-flex justify-content-end mt-2">
+                    <button type="submit" class="btn btn-sm btn-dark me-2">適用</button>
+                    <a href="{% url 'fipleapp:color_list' %}" class="btn btn-sm btn-outline-dark">リセット</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- 色一覧 (以下は以前のコードと同じ) -->
+    <div class="d-flex justify-content-center">
+        <div class="color-list" style="max-width: 600px; width: 100%;">
+            <ul class="list-group">
+                {% for color in colors %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <!-- カラーパレット -->
+                        <span 
+                            class="rounded-circle me-3 border" 
+                            style="
+                                border-width: 1px;
+                                box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+                                display: inline-block;
+                                width: 20px; height: 20px;
+                                background-color: {{ color.color_code }};
+                                ">
+                        </span>
+                        <div>
+                            <span class="mb-1"><strong>{{ color.color_name }}</strong></span>
+                            <span class="text-muted" style="font-size: 0.9em;">{{ color.color_code }}</span>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75em;">
+                                <span class="me-2">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ color.created_at|date:"Y/m/d" }}
+                                </span>
+                                <span>
+                                    <i class="fa-solid fa-calendar-check me-1"></i>更新: {{ color.updated_at|date:"Y/m/d" }}
+                                </span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <!-- 変更ボタン -->
+                        <a href="{% url 'fipleapp:color_edit' color.id %}" class="mt-1">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            <span style="color: gray;">変更</span>
+                        </a>
+                    
+                        <!-- 削除ボタン -->
+                        <a href="{% url 'fipleapp:color_delete' color.id %}" class="mt-2">
+                            <i class="fa-regular fa-trash-can"></i>
+                            <span style="color: gray;">削除</span>
+                        </a>
+                    </div>
+                    
+                </li>
+                {% empty %}
+                <li class="list-group-item">色がありません。</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    <nav aria-label="ページネーション" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for page_num in page_obj.paginator.page_range %}
+                {% if page_num == page_obj.number %}
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

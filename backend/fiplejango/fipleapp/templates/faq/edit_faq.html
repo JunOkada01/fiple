@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ編集{% endblock %}
+
+{% block content %}
+<h4>FAQ編集</h4>
+
+<form method="POST">
+  {% csrf_token %}
+  
+  <label for="question">質問:</label>
+  <input type="text" name="question" id="question" value="{{ faq.question }}" required>
+  
+  <label for="answer">答え:</label>
+  <textarea name="answer" id="answer" required>{{ faq.answer }}</textarea>
+  
+  <label for="category_id">カテゴリ:</label>
+  <select name="category_id" id="category_id">
+    {% for category in categories %}
+      <option value="{{ category.id }}" {% if category.id == faq.category.id %}selected{% endif %}>
+        {{ category.name }}
+      </option>
+    {% endfor %}
+  </select>
+  
+  <button type="submit">更新</button>
+</form>
+<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
+{% endblock %}

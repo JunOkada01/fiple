@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQカテゴリ一覧{% endblock %}
+
+{% block content %}
+<h4>FAQカテゴリ一覧</h4>
+<table>
+  <thead>
+    <tr>
+      <th>カテゴリ名</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for category in categories %}
+    <tr>
+      <td>{{ category.name }}</td>
+      <td>
+        <a href="{% url 'fipleapp:edit_question_category' category.id %}">編集</a>
+        |
+        <a href="{% url 'fipleapp:delete_question_category' category.id %}">削除</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{% url 'fipleapp:create_question_category' %}">新しいカテゴリを作成</a>
+<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
+{% endblock %}
