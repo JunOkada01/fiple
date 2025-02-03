@@ -123,7 +123,11 @@ const Profile: React.FC = () => {
                             <p>{user?.sex === 'M' ? '男性' : user?.sex === 'F' ? '女性' : 'その他'}</p>
                             <p>〒{user?.postal_code}</p>
                             <p><FontAwesomeIcon icon={faLocationDot} className='text-sm text-gray-400'/> {user?.address}</p>
-                            <p>{user?.phone}</p>
+                            <p>TEL {user?.phone}</p>
+                            <div>
+                                <p>{user?.height} cm</p>
+                                <span>{user?.weight} kg</span>
+                            </div>
                         </div>
                         <div className="w-auto text-right"> {/* 変更ボタンエリア */}
                             <Link href={'/accounts/profile/edit_profile'}>

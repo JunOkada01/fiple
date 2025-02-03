@@ -27,7 +27,14 @@
 											{{ product.category.category_name }}/{{ product.subcategory.subcategory_name }}
 										</p>
 										<p class="mb-0 text-muted">
-											性別: {{ product.gender }}
+											性別: 
+											{% if product.gender == "M" %}
+											男性
+											{% elif product.gender == "F" %}
+												女性
+											{% else %}
+												その他
+											{% endif %}
 										</p>
 										<!-- 詳細トグルボタン -->
 										<p class="product-detail-btn">

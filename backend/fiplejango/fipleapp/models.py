@@ -8,7 +8,6 @@ from django.conf import settings
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
-    
     class SexChoices(models.TextChoices):
         MALE = 'M', '男性'
         FEMALE = 'F', '女性'
@@ -107,7 +106,7 @@ class Size(models.Model):
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
     created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 更新日時
-    order = models.IntegerField(default=0)
+    order = models.IntegerField(default=0) # 表示順
 
     def save(self, *args, **kwargs):
         # orderが指定されていない場合、既存の最大値+1を設定
@@ -122,9 +121,9 @@ class Size(models.Model):
     
 class ProductOrigin(models.Model):
     GENDER_CHOICES = [
-        ('男性', '男性'),
-        ('女性', '女性'),
-        ('その他', 'その他'),
+        ('M', '男性'),
+        ('F', '女性'),
+        ('O', 'その他'),
     ]
 
     admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
