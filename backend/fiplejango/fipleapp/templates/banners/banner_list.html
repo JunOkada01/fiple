@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}バナー一覧{% endblock %}
+{% block content %}
+<h4>バナー一覧</h4>
+<a href="{% url 'fipleapp:banner_add' %}" class="btn btn-primary">バナー追加</a>
+<ul>
+    {% for banner in banners %}
+        <li>
+            <img src="{{ banner.image.url }}" alt="Banner Image" width="100">
+            <a href="{{ banner.link }}" target="_blank">{{ banner.link }}</a>
+            <a href="{% url 'fipleapp:banner_edit' banner.id %}">編集</a>
+            <a href="{% url 'fipleapp:banner_delete' banner.id %}">削除</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.conf import settings
+import random, string
 
 class CustomUser(AbstractUser):
     password = models.TextField(max_length=128, default='')  # パスワード
@@ -23,6 +24,7 @@ class CustomUser(AbstractUser):
     cancellation_day = models.DateField(null=True, blank=True, default=None)  # 退会日
     accounts_valid = models.BooleanField(default=True)  # アカウント有効
     last_login = models.DateField(null=True, blank=True, default=None)  # 最終ログイン日
+    
     @property
     def age(self):
         if self.birth:
@@ -36,6 +38,8 @@ class AdminUserManager(BaseUserManager):
             raise ValueError('名前を入力してください')
         user = self.model(name=name, **extra_fields)
         user.set_password(password)
+        if not user.admin_id:
+            user.admin_id = user.generate_admin_id()
         user.save(using=self._db)
         return user
 
@@ -45,13 +49,30 @@ class AdminUserManager(BaseUserManager):
 
 
 class AdminUser(AbstractBaseUser):
+    # 管理者ID生成メソッド
+    @staticmethod
+    def generate_admin_id():
+        """8桁のランダムな英数字の管理者IDを生成"""
+        chars = string.ascii_uppercase + string.digits
+        while True:
+            admin_id = ''.join(random.choices(chars, k=8))
+            if not AdminUser.objects.filter(admin_id=admin_id).exists():
+                return admin_id
+
+    admin_id = models.CharField(
+        max_length=8, 
+        unique=True, 
+        blank=True,
+        verbose_name="管理者ID"
+    )
+    
     name = models.CharField(max_length=255, unique=True)
     is_superuser = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
 
     objects = AdminUserManager()
 
-    USERNAME_FIELD = 'name'  # 認証に使用するフィールド
+    USERNAME_FIELD = 'admin_id'  # 認証に使用するフィールド
     REQUIRED_FIELDS = []  # スーパーユーザー作成時に追加で必要なフィールド
 
     def __str__(self):
@@ -63,12 +84,14 @@ class AdminUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_superuser
     
+    def save(self, *args, **kwargs):
+        if not self.admin_id:
+            self.admin_id = self.generate_admin_id()
+        super().save(*args, **kwargs)
+    
     
 class Category(models.Model):
     category_name = models.CharField(max_length=255, unique=True)  # カテゴリ名
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
-    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
-    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
     
     class positionChoices(models.TextChoices):
         head = 'h', '頭'
@@ -76,6 +99,10 @@ class Category(models.Model):
         lower_body = 'l', '下半身'
         foot = 'f', '足'
     category_position = models.CharField(max_length=10, choices=positionChoices.choices, default=positionChoices.head)  # 性別
+    
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
+    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
 
     def __str__(self):
         return self.category_name
@@ -155,8 +182,8 @@ class Product(models.Model):
     status = models.CharField(max_length=30, choices=STATUS_CHOICES) # 販売ステータス
     created_at = models.DateTimeField(auto_now_add=True)  # 商品追加日時
     updated_at = models.DateTimeField(auto_now=True)  # 商品更新日時
-    front_image = models.ImageField(upload_to='products/front/', null=True, blank=True, verbose_name="表画像")
-    back_image = models.ImageField(upload_to='products/back/', null=True, blank=True, verbose_name="裏画像")
+    front_image = models.ImageField(upload_to='product_images/front/', null=True, blank=True, verbose_name="表画像")
+    back_image = models.ImageField(upload_to='product_images/back/', null=True, blank=True, verbose_name="裏画像")
     
     class Meta:
         constraints = [
@@ -210,8 +237,6 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.id}"  # 商品名と画像IDを表示
     
-
-# cart
 class Cart(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -222,8 +247,7 @@ class Cart(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.product.product_origin.product_name}"
-
-# お気に入り
+    
 class Favorite(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -304,9 +328,9 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
 
-"""
-注文された個別の商品情報を管理するモデル
-"""
+    """
+    注文された個別の商品情報を管理するモデル
+    """
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -319,9 +343,82 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.product_origin.product_name} - {self.quantity} 個"
     
-"""
-売上管理用のモデル
-"""
+class Shipping(models.Model):
+    PRIORITY_CHOICES = [
+        (1, '最優先'),
+        (2, '優先'),
+        (3, '通常'),
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipping')
+    is_shipped = models.BooleanField(default=False)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=3)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"発送 #{self.id} - 注文 #{self.order.id}"
+    
+class Delivery(models.Model):
+    DELIVERY_STATUS_CHOICES = [
+        ('配送中', '配送中'),
+        ('配送済み', '配送済み'),
+        ('配送遅延', '配送遅延'),
+        ('配送エラー', '配送エラー'),
+        ('キャンセル', 'キャンセル')
+    ]
+    
+    @staticmethod
+    def generate_tracking_number():
+        """ランダムな12桁の追跡番号を生成"""
+        chars = string.ascii_uppercase + string.digits  # 大文字アルファベットと数字
+        return ''.join(random.choices(chars, k=12))
+    
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='delivery')
+    shipping = models.OneToOneField(Shipping, on_delete=models.CASCADE, related_name='delivery')
+    status = models.CharField(max_length=20, choices=DELIVERY_STATUS_CHOICES, default='配送中')
+    
+    # 配送業者情報
+    delivery_company = models.CharField(max_length=100)
+    tracking_number = models.CharField(max_length=12, blank=True, null=True)
+    scheduled_delivery_date = models.DateField()
+    
+    # 作業者情報
+    admin_user = models.ForeignKey(
+        AdminUser,
+        on_delete=models.CASCADE,
+        related_name='deliveries'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # 配送に関する備考
+    notes = models.TextField(blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.tracking_number:
+            # 追跡番号が未設定の場合、ユニークな番号を生成
+            while True:
+                tracking_number = self.generate_tracking_number()
+                if not Delivery.objects.filter(tracking_number=tracking_number).exists():
+                    self.tracking_number = tracking_number
+                    break
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"配送 #{self.id} - 注文 #{self.order.id}"
+
+class DeliveryStatusLog(models.Model):
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, related_name='status_logs')
+    status = models.CharField(max_length=20, choices=Delivery.DELIVERY_STATUS_CHOICES)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"{self.delivery} - {self.status} ({self.changed_at})"
+    
 class SalesRecord(models.Model):
     PAYMENT_METHODS = [
         ('card', 'クレジットカード'),
@@ -376,5 +473,14 @@ class Review(models.Model):
         unique_together = ('product', 'user')  # 同じユーザーが同じ商品に複数レビューできないように
 
     def __str__(self):
-        return f"Review by {self.user} on {self.product}"
+        return f"{self.user}さんが{self.product}を評価しました。"
     
+class Banner(models.Model):
+    image = models.ImageField(upload_to='banners/')
+    link = models.URLField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Banner {self.id} - {self.link}"

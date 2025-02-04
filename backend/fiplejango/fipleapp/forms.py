@@ -23,8 +23,15 @@ class AdminCreationForm(forms.ModelForm):
         return cleaned_data
 
 class AdminLoginForm(forms.Form):
-    name = forms.CharField(max_length=256)
-    password = forms.CharField(widget=forms.PasswordInput)
+    admin_id = forms.CharField(
+        max_length=8,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label='管理者ID'
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='パスワード'
+    )
     
     
 class CategoryForm(forms.ModelForm):
@@ -93,7 +100,7 @@ class ProductOriginForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status', 'front_image', 'back_image']
+        fields = ['product_origin', 'color', 'size', 'stock', 'price', 'status']
         labels = {
             'product_origin': '商品元',
             'color': '色',
@@ -140,7 +147,6 @@ class ProductImageForm(forms.ModelForm):
             'image': '画像',
             'image_description': '画像説明',
         }
-        
         
 class QuestionCategoryForm(forms.ModelForm):
     class Meta:
@@ -206,3 +212,30 @@ class ContactForm(forms.Form):
         required=True
     )
     message = forms.CharField(widget=forms.Textarea, required=True)
+
+class ShippingUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Shipping
+        fields = ['is_shipped']
+        widgets = {
+            'is_shipped': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+class DeliveryForm(forms.ModelForm):
+    class Meta:
+        model = Delivery
+        fields = ['status', 'delivery_company', 'tracking_number', 
+                'scheduled_delivery_date', 'notes']
+        widgets = {
+            'scheduled_delivery_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 4})
+        }
+        
+class BannerForm(forms.ModelForm):
+    class Meta:
+        model = Banner
+        fields = ['image', 'link']
+        widgets = {
+            'link': forms.URLInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

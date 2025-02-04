@@ -1,0 +1,16 @@
+<!-- notification_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}お知らせ配信フォーム{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h4>お知らせ配信フォーム</h4>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">送信</button>
+    </form>
+    <a href="{% url 'notification_list' %}">お知らせ一覧に戻る</a>
+</div>
+{% endblock %}

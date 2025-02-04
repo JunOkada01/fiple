@@ -1,0 +1,18 @@
+<!-- notification_confirm_delete.html -->
+{% extends 'base.html' %}
+
+{% block title %}お知らせ削除確認{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h4>お知らせ削除確認</h4>
+    <p>本当に削除しますか？</p>
+    <p>{{ notification.title }}</p>
+    <p>{{ notification.message }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">削除</button>
+        <a href="{% url 'notification_list' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+{% endblock %}

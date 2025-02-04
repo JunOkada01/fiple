@@ -4,21 +4,20 @@ import Link from 'next/link';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
-// import { color } from 'framer-motion';
+import { color } from 'framer-motion';
 
 interface ProductCardProps {
     id: number;
     product_id: number;
     productName: string;
     categoryName: string;
+    categoryPosition: string;
     subcategoryName: string;
     price: number;
     imageUrl: string;
-    categoryPosition: string;
-    // tags: string[];
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, subcategoryName, price, imageUrl, categoryPosition}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, categoryPosition, subcategoryName, price, imageUrl}) => {
     /* 現在の商品が試着されているのかを示す */
     const [isTryingOn, setIsTryingOn] = useState(false);
     /* 現在の商品がお気に入り登録されているかの状態を示す ＋ 登録された際にIDを返す */
@@ -55,9 +54,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
                     productName,
                     price,
                     categoryName,
+                    categoryPosition,
                     subcategoryName,
                     imageUrl,
-                    categoryPosition,
                 };
                 
                 const existingIndex = currentItems.findIndex(item => 
@@ -189,13 +188,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
             
             <div className="p-4">
                 <div className="flex justify-between items-center">
-                    <p className="text-gray-500 text-xs sm:text-[15px]">{`${productName}`}</p>
-                </div>
-                <div className="flex justify-between items-center">
                     <p className="text-gray-500 text-xs sm:text-[10px]">{`${categoryName} / ${subcategoryName}`}</p>
                 </div>
                 <p className="text-gray-900 text-base sm:text-lg mt-1">¥{price.toLocaleString()}</p>
-                
+
                 <div className="flex justify-end mt-2 space-x-10 sm:space-x-16 lg:space-x-20">
                     <div 
                         onClick={toggleTryingOn} 
@@ -223,5 +219,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         </div>
     );
 };
- 
 export default ProductCard;

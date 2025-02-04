@@ -26,8 +26,10 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/components/MannequinModel.jsxx", "src/pages/mannequin.jsx"  ],
+    "**/*.tsx",
+    "src/components/MannequinModel.jsxx",
+    "src/pages/mannequin.jsx"
+  ],
   "exclude": [
     "node_modules"
   ]

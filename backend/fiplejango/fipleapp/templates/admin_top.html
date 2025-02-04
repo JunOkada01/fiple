@@ -36,10 +36,16 @@
                 <p>売上管理</p>
             </div>
         </a>
-        <a href="" class="icon-link">
+        <a href="{% url 'fipleapp:admin_order-list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-receipt faa-float animated-hover icons" style="color:rgb(177, 241, 226);"></i>
+                <p>注文管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:delivery-list' %}" class="icon-link">
             <div class="icon-tile">
                 <i class="fa-solid fa-truck faa-float animated-hover icons" style="color: #b1b4f1;"></i>
-                <p>注文管理</p>
+                <p>配送管理</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:contact_list' %}" class="icon-link">
@@ -52,6 +58,24 @@
             <div class="icon-tile">
                 <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
                 <p>FAQ</p>
+            </div>
+        </a>
+        <a href="/notifications/list" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-message faa-float animated-hover icons" style="color: #59bbf9;"></i>
+                <p>お知らせ配信</p>
+            </div>
+        </a>
+        <a href="/banners" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-square-plus faa-float animated-hover icons" style="color: #59bbf9;"></i>
+                <p>バナー管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_price_history' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-yen faa-float animated-hover icons" style="color:rgb(224, 220, 0);"></i>
+                <p>商品価格履歴</p>
             </div>
         </a>
     </div>

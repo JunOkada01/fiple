@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from 'next/link';
 import Image from 'next/image';
 
 const Footer = () => {
@@ -12,12 +12,12 @@ const Footer = () => {
             ]
         },
         {
-        title: 'Support',
-        items: [
-            { label: 'お問い合わせ', href: '/contact/contact' },
-            // { label: 'ご利用ガイド', href: '/guide' },
-            { label: '特定商取引法', href: '/footer/tokushoho' },
-        ]
+            title: 'Support',
+            items: [
+                { label: 'お問い合わせ', href: '/contact/contact' },
+                // { label: 'ご利用ガイド', href: '/guide' },
+                { label: '特定商取引法', href: '/footer/tokushoho' },
+            ]
         },
         {
             title: 'Size Guide',
@@ -66,7 +66,7 @@ const Footer = () => {
                 </div>
             </div>
         </footer>
-    )
-}
+    );
+};
 
-export default Footer
+export default Footer;

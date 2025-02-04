@@ -12,8 +12,10 @@
         <!-- Font Awesomeの最新版CDN -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.2.1/font-awesome-animation.css" type="text/css" media="all" />
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     </head>
 
     <body>
@@ -51,7 +53,8 @@
                     <div class="admin-user-bord">
                         <div class="admin-user">
                             <i class="fa-solid fa-user-tie" style="font-size: 50px;"></i>
-                                <span class="admin-username">{{ user }}</span>
+                                <span class="admin-username">社員名: {{ name }}</span>
+                                <span class="admin-username">社員ID: {{ admin_id }}</span>
                             <div class="logout-link-btn">
                                 <a href="{% url 'fipleapp:admin_logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
                             </div>

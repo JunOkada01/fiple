@@ -3,23 +3,23 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 
 interface MannequinModelProps {
-    height: number;
-    weight: number;
+  height: number;
+  weight: number;
 }
 
 // 3Dモデルを表示するコンポーネント
 function Model({ height, weight }: MannequinModelProps) {
-    const { scene } = useGLTF('/models/mannequin.glb');
-    const scale = height / 180;
-    const widthScale = weight / 70;
+  const { scene } = useGLTF('/models/mannequin.glb');
+  const scale = height / 180;
+  const widthScale = weight / 70;
 
-    return (
-        <primitive
-        object={scene}
-        scale={[scale * widthScale, scale, scale * widthScale]}
-        position={[0, -1, 0]}
-        />
-    );
+  return (
+    <primitive
+      object={scene}
+      scale={[scale * widthScale, scale, scale * widthScale]}
+      position={[0, -1, 0]}
+    />
+  );
 }
 
 const MannequinModel: React.FC<MannequinModelProps> = ({ height, weight }) => {

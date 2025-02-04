@@ -138,7 +138,7 @@ const OrderHistoryPage: React.FC = () => {
                 {order.items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center py-2 border-b">
                     <div className="flex items-center">
-                      <Link href={`products/${item.product.product_origin.id}`}>
+                      <Link href={`http://localhost:3000/products/${item.product.product_origin.id}`}>
                         <img 
                           src={`http://localhost:8000${item.product_image}`}
                           alt={item.product.product_origin.product_name} 
@@ -146,7 +146,7 @@ const OrderHistoryPage: React.FC = () => {
                         />
                       </Link>
                       <div>
-                        <Link href={`products/${item.product.product_origin.id}`}>
+                        <Link href={`http://localhost:3000/products/${item.product.product_origin.id}`}>
                           <p className="font-medium text-blue-600 hover:underline">
                             {item.product.product_origin.product_name}
                           </p>

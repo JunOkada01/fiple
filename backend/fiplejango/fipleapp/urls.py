@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from django.urls import path, include
 from . import views
 from .views import *
 from django.views.generic import TemplateView
@@ -10,7 +9,6 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
-# REST APIルーター設定
 router = DefaultRouter()
 router.register(r'contacts',ContactViewSet)
 router.register(r'contact-categories',ContactCategoryViewSet)
@@ -18,13 +16,11 @@ router.register(r'delivery-addresses', DeliveryAddressViewSet, basename='deliver
 router.register(r'orders', OrderViewSet, basename='order')
 
 app_name = 'fipleapp'
-from .views import PasswordResetRequestView, PasswordResetConfirmView
 
 urlpatterns = [
-    path('users/', views.user_list, name='user-list'),
-    
-    path('users_list/', UserListView.as_view(), name='admin_user_list'),
-    path('users_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
+    path('users/', UserSettingView.as_view(), name='user_settings'),
+    path('user_list/', UserListView.as_view(), name='admin_user_list'),
+    path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
     path('register/', RegisterView.as_view(), name='register'),
     path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
  
@@ -36,7 +32,6 @@ urlpatterns = [
     path('admin_login/', admin_login, name='admin_login'),
     path('', AdminTop.as_view(), name='admin_top'),
     path('admin_logout/', admin_logout, name='admin_logout'),
-    # path('api/products/', ProductListView.as_view(), name='product-list'),
     path('base_settings/', BaseSettingView.as_view(), name='base_settings'),
     path('categories/top/', CategoryTopView.as_view(), name='category_top'),
     path('categories/', CategoryListView.as_view(), name='category_list'),
@@ -65,6 +60,7 @@ urlpatterns = [
     path('products/add/', ProductCreateView.as_view(), name='product_add'),
     path('products/edit/<int:pk>/', ProductUpdateView.as_view(), name='product_edit'),
     path('products/delete/<int:pk>/', ProductDeleteView.as_view(), name='product_delete'),
+    path('products/price_history/', ProductPriceHistoryListView.as_view(), name='product_price_history'),
     path('tags/', TagListView.as_view(), name='tag_list'),
     path('tags/add/', TagCreateView.as_view(), name='tag_add'),
     path('tags/edit/<int:pk>/', TagUpdateView.as_view(), name='tag_edit'),
@@ -77,42 +73,40 @@ urlpatterns = [
     path('product-images/add/', ProductImageCreateView.as_view(), name='product_image_add'),
     path('product-images/edit/<int:pk>/', ProductImageUpdateView.as_view(), name='product_image_edit'),
     path('product-images/delete/<int:pk>/', ProductImageDeleteView.as_view(), name='product_image_delete'),
-    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
-    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
-    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('orders/', OrderListView.as_view(), name='admin_order-list'),
+    path('orders/<int:pk>/detail/', views.OrderDetailView.as_view(), name='admin_order-detail'),
+    path('orders/<int:order_id>/update-shipping/', ShippingUpdateView.as_view(), name='update-shipping'),
+    path('deliveries/', DeliveryListView.as_view(), name='delivery-list'),
+    path('delivery/<int:pk>/update/', DeliveryUpdateView.as_view(), name='delivery-update'),
     path('sales/', SalesView.as_view(), name='sales'),
     path('sales/<int:sales_id>/', SalesDetailView.as_view(), name='sales_detail'),
     # 在庫管理
     path('stock/', StockView.as_view(), name='stock'),
-
-
     # トークン
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     # ログイン中のユーザーの情報を表示
     path('api/user/', CurrentUserView.as_view(), name='current-user'),
+    # 商品
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
-    path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
+    path('api/products/search/', ProductSearchView.as_view(), name='product-search'),#検索
     path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
-    #カート
+    # カート
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
     path('api/cart/', CartListView.as_view(), name='cart-list'),
     path('api/cart/<int:pk>/', CartUpdateView.as_view(), name='cart-update'),
     path('api/cart/<int:pk>/delete/', CartDeleteView.as_view(), name='cart-delete'),
-    #お気に入り
+    # お気に入り
     path('api/favorites/add/', views.add_to_favorite, name='add-to-favorite'),
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
-    
-    path('api/user/', CurrentUserView.as_view(), name='current-user'),#ログイン中のユーザ情報
-
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    
+    # パスワード
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     #FAQ関連
     path('faq-manager/', views.faq_manager, name='faq_manager'),
     path('api/faqs/', views.faq_list, name='faq_list'),
@@ -125,9 +119,18 @@ urlpatterns = [
     path('edit-question-category/<int:category_id>/', views.edit_question_category, name='edit_question_category'),
     path('edit-faq/<int:faq_id>/', views.edit_faq, name='edit_faq'),
     
+    #Contact関連
+    path('api/', include(router.urls)),
+    path('contact-manager/', views.contact_manager, name='contact_manager'),
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
+    path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
+    path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
+    
     path('api/user/', CurrentUserView.as_view(), name='current-user'),
     path('api/products/', APIProductListView.as_view(), name='api_product-list'),
     path('api/products/<int:pk>/', APIProductDetailView.as_view(), name='api_product-detail'),
+    path('api/get_category_position/<int:product_origin_id>/', views.get_category_position, name='get_category_position'),
     path('api/products/category/<str:category_name>/', ProductByCategoryView.as_view(), name='product-by-category'),
     path('api/categories/', APICategoryListView.as_view(), name='api-category-list'),
     path('api/cart/add/', views.add_to_cart, name='add-to-cart'),
@@ -138,6 +141,7 @@ urlpatterns = [
     path('api/favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('api/favorites/delete/<int:pk>/', FavoriteDeleteView.as_view(), name='favorite-delete'),
     
+    # トークン
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
@@ -156,24 +160,32 @@ urlpatterns = [
     
     #Contact関連
     path('api/', include(router.urls)),
+    path('contact-manager/', views.contact_manager, name='contact_manager'),
     path('contacts/', views.contact_list, name='contact_list'),
     path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
     path('api/submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
+    
     # 配達先関連
     path('api/', include(router.urls)),
+    
     # 注文関連
     path('api/complete-payment/', CompletePaymentView.as_view(), name='complete_payment'),
     path('api/', include(router.urls)),
+    
     # レビュー関連
     path('api/reviews/', ReviewListCreateView.as_view(), name='review-list'),
     path('api/reviews/write/', ReviewWriteView.as_view(), name='review-list-create'),
     path('reviews/', list_reviewed_products, name='list_reviewed_products'),
     path('reviews/<int:product_id>/', delete_review, name='delete_review'),
+    path('api/products/review/<int:pk>/', APIProductReviewView.as_view(), name='api_product-detail'),
     # 商品おすすめ
-    path('api/products/<int:product_id>/similar-fit/', check_similar_fit_users, name='similar-fit-users'),
-    # ユーザー関連
-    path('users/', UserSettingView.as_view(), name='user_settings'),
-    path('user_list/', UserListView.as_view(), name='admin_user_list'),
-    path('user_list/<int:user_id>/', UserDetailView.as_view(), name='admin_user_detail'),
+    path('api/products/<int:product_id>/size-recommendation/', views.get_size_recommendation, name='size-recommendation'),
+    # バナー
+    path('banners/', BannerListView.as_view(), name='banner_list'),
+    path('banners/add/', BannerCreateView.as_view(), name='banner_add'),
+    path('banners/edit/<int:pk>/', BannerUpdateView.as_view(), name='banner_edit'),
+    path('banners/delete/<int:pk>/', BannerDeleteView.as_view(), name='banner_delete'),
+    path('api/banners/', BannerListAPIView.as_view(), name='banner_list_api'),
+    path('api/notifications/', views.NotificationList.as_view(), name='notification-list'),
 ]

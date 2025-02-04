@@ -15,10 +15,6 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,11 +42,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'rest_framework',
-    'rest_framework.authtoken',
+	'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
     'django.contrib.humanize',
+    'widget_tweaks',
+    'channels',
+    'notifications',
 ]
+
 INSTALLED_APPS += [
     'django_filters',
 ]
@@ -108,13 +108,14 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "fipleapp.context_processors.admin_info",
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = "fiplejango.wsgi.application"
-
+ASGI_APPLICATION = 'fiplejango.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -224,5 +225,14 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'ROTATE_REFRESH_TOKENS': True, 
-    'BLACKLIST_AFTER_ROTATION': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }

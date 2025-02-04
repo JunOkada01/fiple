@@ -41,9 +41,12 @@ class SalesRecordAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'quantity', 'total_price', 'tax_amount', 'sale_date')
     list_filter = ('sale_date', 'payment_method')
     search_fields = ('product__product_origin__product_name', 'user__username')
+    
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'link', 'created_at', 'updated_at', 'admin_user')
+    search_fields = ('link',)
 
-
-# Registering other models without customization
 admin.site.register(CustomUser)
 admin.site.register(AdminUser)
 admin.site.register(Category)
@@ -56,7 +59,9 @@ admin.site.register(ProductTag)
 admin.site.register(ProductImage)
 admin.site.register(Cart)
 admin.site.register(Favorite)
-# admin.site.register(PaymentMethod)  # コメントアウトのまま維持
 admin.site.register(DeliveryAddress)
 admin.site.register(Order)
 admin.site.register(OrderItem)
+admin.site.register(Shipping)
+admin.site.register(Delivery)
+admin.site.register(DeliveryStatusLog)

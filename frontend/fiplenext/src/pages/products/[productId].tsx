@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
 import ReviewList from '../../components/Review';
+import SizeRecommendation from '../../components/SizeRecommendation';
 
 export interface ProductDetailType {
     id: number;
@@ -211,6 +212,7 @@ const ProductDetail: React.FC = () => {
         
                 {/* 右側: 商品情報テーブル */}
                 <div className="md:w-1/2 md:pl-6 mt-6">
+                <SizeRecommendation productId={productId} />
                     <div className="mb-4">
                         <h1 className="text-2xl">{product.product_name}</h1>
                         <div className="text-sm text-gray-600">
@@ -296,7 +298,7 @@ const ProductDetail: React.FC = () => {
                         <div className="mt-2 space-y-2">
                             <div className="flex border-b py-2">
                                 <span className="w-32 text-gray-600">性別</span>
-                                <span>{product.gender}</span>
+                                <span>{product.gender === 'M' ? '男性' : product.gender === 'F' ? '女性' : 'その他'}</span>
                             </div>
                             <div className="flex border-b py-2">
                                 <span className="w-32 text-gray-600">商品番号</span>

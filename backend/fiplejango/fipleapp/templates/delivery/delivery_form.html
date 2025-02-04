@@ -1,0 +1,113 @@
+<!-- delivery_form.html -->
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}配送情報編集{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-center mb-4">・配送情報編集</h4>
+                    
+                    <!-- 注文情報の表示 -->
+                    <div class="mb-4">
+                        <h5>注文情報</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>注文ID:</strong> {{ object.order.id }}</p>
+                                <p><strong>注文日:</strong> {{ object.order.order_date|date:"Y-m-d H:i" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>顧客:</strong> {{ object.order.user.username }}</p>
+                                <p><strong>支払方法:</strong> {{ object.order.get_payment_method_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- エラーメッセージ -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <p>{{ field.label }}: {{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group mb-3">
+                            <label>配送状態</label>
+                            {{ form.status|add_class:"form-select" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>配送業者</label>
+                            {{ form.delivery_company|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>追跡番号</label>
+                            {{ form.tracking_number|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>配送予定日</label>
+                            {{ form.scheduled_delivery_date|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>備考</label>
+                            {{ form.notes|add_class:"form-control" }}
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#FFFFFF">
+                                    <path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z"/>
+                                </svg>
+                                保存
+                            </button>
+                            <a href="{% url 'fipleapp:delivery-list' %}" class="btn btn-secondary">
+                                キャンセル
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- 配送状態変更履歴 -->
+                    {% if object.status_logs.exists %}
+                    <div class="mt-4">
+                        <h5>状態変更履歴</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>日時</th>
+                                        <th>状態</th>
+                                        <th>担当者</th>
+                                        <th>理由</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in object.status_logs.all %}
+                                    <tr>
+                                        <td>{{ log.changed_at|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ log.get_status_display }}</td>
+                                        <td>{{ log.admin_user.name }}</td>
+                                        <td>{{ log.reason|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

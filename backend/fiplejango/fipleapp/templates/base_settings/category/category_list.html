@@ -23,7 +23,15 @@
 										{{ category.category_name }}
 									</p>
 									<p class="mb-0">
-										{{ category.category_position}}
+										{% if category.category_position == "u" %}
+										上半身
+										{% elif category.category_position == "l" %}
+											下半身
+										{% elif category.category_position == "h" %}
+											頭
+										{% else %}
+											足
+										{% endif %}
 									</p>
 								</div>
 								<small class="text-muted d-block mt-1" style="font-size: 0.75em;">

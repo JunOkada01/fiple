@@ -253,7 +253,8 @@ const Register = () => {
                             type="tel"
                             value={phone}
                             onChange={e => setPhone(e.target.value)}
-                            placeholder="電話番号を入力してください"
+                            placeholder="(例)000-0000-0000"
+                            maxLength={13}
                             required
                             className="ml-4 mt-1 w-3/4 text-left text-xl border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 placeholder:text-base"
                         />

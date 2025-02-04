@@ -6,11 +6,6 @@ import Draggable from 'react-draggable';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 
-// マネキンモデルを動的にインポート
-const MannequinModel = dynamic(() => import('./MannequinModel'), {
-  ssr: false,
-});
-
 // ローディングアニメーション
 const LoadingWave = () => (
   <div className="flex space-x-3 items-center justify-center h-full">
@@ -44,8 +39,8 @@ interface ProductVariant {
     image: string;
     image_description: string | null;
   }>;
-  front_image: string;
-  back_image: string;
+  front_image: string; // 表画像URL
+  back_image: string;  // 裏画像URL
 }
 
 // 試着アイテムの型定義を拡張
@@ -54,14 +49,14 @@ interface FittingItem {
   product_id: number;
   productName: string;
   categoryName: string;
+  categoryPosition: string;
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  selectedFrontImageUrl?: string; // 表画像URL
+  selectedBackImageUrl?: string;  // 裏画像URL
   selectedColor?: string;
   selectedSize?: string;
-  selectedFrontImageUrl?: string; /* 正面画像 */
-  selectedBackImageUrl?: string; /* 背面画像 */
-  categoryPosition: string;
   variants: ProductVariant[];
 }
 
@@ -392,6 +387,7 @@ const FittingArea: React.FC = () => {
                 throw new Error(`Failed to fetch product details: ${response.statusText}`);
               }
               const productData = await response.json();
+              console.log(productData);
   
               // この商品の保存された選択状態を取得
               const savedVariant = savedVariants[item.id];
@@ -410,11 +406,11 @@ const FittingArea: React.FC = () => {
                 selectedColor: selectedVariant.color.color_name,
                 selectedSize: selectedVariant.size.size_name,
                 price: selectedVariant.price,
-                selectedFrontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`, /* 正面画像 */
-                selectedBackImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`, /* 背面画像 */
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
-                  : item.imageUrl
+                  : item.imageUrl,
+                selectedFrontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+                selectedBackImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
               };
             } catch (error) {
               console.error('Failed to fetch product details:', error);
@@ -463,7 +459,9 @@ const FittingArea: React.FC = () => {
               selectedSize: selectedVariant.size.size_name,
               imageUrl: selectedVariant.images[0]?.image 
                 ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
-                : item.imageUrl
+                : item.imageUrl,
+              frontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+              backImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
             };
             // 更新された商品情報を永続化
             const currentItems = JSON.parse(sessionStorage.getItem("fittingItems") || "[]");
@@ -685,6 +683,10 @@ const FittingArea: React.FC = () => {
                 <span className="ml-1">kg</span>
               </div>
             </div>
+            <div>
+              <p className='text-xs text-gray-500'>※表示が不安定なのでドラッグして</p>
+              <p className='text-xs text-gray-500'>位置を調整してください</p>
+            </div>
           </div>
         </div>
 
@@ -714,14 +716,13 @@ const FittingArea: React.FC = () => {
                   }`}
                 >
                   <div className="relative w-full h-full">
-                    <Image 
-                      // src={`/images/${select_heith}/mannequin-front.svg`}
-                      src={`/images/mannequin-front.svg`}
-                      alt='マネキン正面' 
-                      fill
-                      className="object-cover"
-                      priority
-                    />
+                      <Image 
+                        src='/images/mannequin-front.svg' 
+                        alt='マネキン正面' 
+                        fill
+                        className="object-cover"
+                        priority
+                      />
                   </div>
                 </div>
                 {/* 裏面画像 */}
@@ -731,62 +732,74 @@ const FittingArea: React.FC = () => {
                   }`}
                 >
                   <div className="relative w-full h-full">
-                    <Image 
-                      src='/images/mannequin-back.svg' 
-                      alt='マネキン裏面' 
-                      fill
-                      className="object-cover"
-                      priority
-                    />
+                      <Image 
+                        src='/images/mannequin-back.svg' 
+                        alt='マネキン裏面' 
+                        fill
+                        className="object-cover"
+                        priority
+                      />
                   </div>
-                </div>
-
-                {/* 仮の配置　上半身エリア */}
-                <div className="absolute border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                <p className='text-sm'>上半身</p>
-                </div>
-                {/* 仮の配置　下半身エリア */}
-                <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                <p className='text-sm'>下半身</p>
-                </div>
+                </div>  
 
                 {/* アイテム表示 */}
+
                 {/* 下半身のアイテム */}
-                <div className='absolute top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2'>
+                <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'l')
                     .map(item => (
-                      <Image 
+                      <Draggable
                         key={item.id}
-                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
-                        alt={isFrontView ? '商品正面' : '商品裏面'} 
-                        width={100}
-                        height={140}
-                      />
+                        bounds="parent"
+                        defaultPosition={{x: 0, y: 0}}
+                        grid={[5, 5]} // スナップグリッド（5pxごとに移動）
+                      >
+                        <div className="cursor-move">
+                          <Image 
+                            src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                            alt={isFrontView ? '商品正面' : '商品裏面'} 
+                            width={125}
+                            height={125}
+                            style={{ touchAction: 'none' }} // モバイルでのドラッグを改善
+                          />
+                        </div>
+                      </Draggable>
                     ))}
                 </div>
-                
+
                 {/* 上半身のアイテム */}
-                <div className="absolute top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+                <div className="absolute border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'u')
                     .map(item => (
-                      <Image 
+                      <Draggable
                         key={item.id}
-                        src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
-                        alt={isFrontView ? '商品正面' : '商品裏面'} 
-                        width={100}
-                        height={140}
-                      />
+                        bounds="parent"
+                        defaultPosition={{x: 0, y: 0}}
+                        grid={[5, 5]}
+                      >
+                        <div className="cursor-move">
+                          <Image 
+                            src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                            alt={isFrontView ? '商品正面' : '商品裏面'} 
+                            width={125}
+                            height={125}
+                            style={{ touchAction: 'none' }}
+                          />
+                        </div>
+                      </Draggable>
                     ))}
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
+
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
         {/* スクロール可能なアイテムリスト */}
         <div className="flex-1 overflow-hidden flex flex-col">
+          
           <div className="flex-1 overflow-y-auto">
           {fittingItems.length > 0 ? (
             <div className="p-2 space-y-4">
