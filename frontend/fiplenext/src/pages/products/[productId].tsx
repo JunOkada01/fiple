@@ -212,7 +212,6 @@ const ProductDetail: React.FC = () => {
         
                 {/* 右側: 商品情報テーブル */}
                 <div className="md:w-1/2 md:pl-6 mt-6">
-                <SizeRecommendation productId={productId} />
                     <div className="mb-4">
                         <h1 className="text-2xl">{product.product_name}</h1>
                         <div className="text-sm text-gray-600">
@@ -294,7 +293,8 @@ const ProductDetail: React.FC = () => {
         
                     {/* 追加情報 */}
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold">商品情報</h3>
+                    <SizeRecommendation productId={productId} />
+                        <h3 className="text-lg font-semibold mt-5">商品情報</h3>
                         <div className="mt-2 space-y-2">
                             <div className="flex border-b py-2">
                                 <span className="w-32 text-gray-600">性別</span>

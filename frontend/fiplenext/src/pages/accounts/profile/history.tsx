@@ -156,16 +156,16 @@ const OrderHistoryPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-end">
                       <p className="font-medium mb-2">¥{item.unit_price.toLocaleString()}</p>
-                      {reviewedProducts.includes(item.product.id) ? (
+                      {reviewedProducts.includes(item.product.product_origin.id) ? (
                         <button
-                          onClick={() => handleDeleteReview(item.product.id)}
+                          onClick={() => handleDeleteReview(item.product.product_origin.id)}
                           className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
                         >
                           レビュー削除
                         </button>
                       ) : (
                         <button
-                          onClick={() => handleWriteReview(item.product.id)}
+                          onClick={() => handleWriteReview(item.product.product_origin.id)}
                           className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
                         >
                           レビューを書く

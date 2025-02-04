@@ -7,7 +7,6 @@ body {
   color: var(--foreground);  
   background: var(--background);  
   font-family: 'Julius Sans One', sans-serif; /* デフォルトフォントを設定 */
-  zoom: 0.8; /* ページ全体の拡大率を設定 */
 }
 
 /* レイアウトコンテナ */  

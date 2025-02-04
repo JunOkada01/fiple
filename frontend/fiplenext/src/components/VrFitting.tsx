@@ -498,16 +498,26 @@ const FittingArea: React.FC = () => {
   const renderColorButtons = (item: FittingItem) => {
     if (!item.variants) return null;
   
-    const availableColors = getAvailableColors(item.variants, item.selectedSize || '');
-    
+    // 各カラーで利用可能なサイズを取得
+    const colorSizeMap = item.variants.reduce((acc: {[key: string]: string[]}, variant) => {
+      const colorName = variant.color.color_name;
+      if (!acc[colorName]) {
+        acc[colorName] = [];
+      }
+      if (variant.status !== '在庫なし') { // 在庫がある場合のみ
+        acc[colorName].push(variant.size.size_name);
+      }
+      return acc;
+    }, {});
+  
     // 重複を除いたカラー情報を取得
     const uniqueColors = Array.from(
       new Set(
         item.variants
-          .filter(v => v.size.size_name === item.selectedSize)
           .map(v => ({
-            name: v.color.color_name, 
-            code: v.color.color_code
+            name: v.color.color_name,
+            code: v.color.color_code,
+            availableSizes: colorSizeMap[v.color.color_name] || []
           }))
           .map(color => JSON.stringify(color))
       )
@@ -517,8 +527,8 @@ const FittingArea: React.FC = () => {
       <div className="mt-2">
         <p className="text-xs text-gray-500">カラー</p>
         <div className="flex flex-wrap gap-2 mt-1">
-          {uniqueColors.map(({ name, code }) => {
-            const isAvailable = availableColors.some(availableColor => availableColor === name);
+          {uniqueColors.map(({ name, code, availableSizes }) => {
+            const isAvailable = availableSizes.length > 0; // サイズが1つでもあれば選択可能
             return (
               <button
                 key={name}
@@ -528,17 +538,19 @@ const FittingArea: React.FC = () => {
                     ? 'border-black scale-110' 
                     : 'hover:border-gray-600'
                   }
-                  ${!isAvailable ? 'opacity-30 cursor-not-allowed' : ''}
+                  ${!isAvailable ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}
                 `}
                 style={{ 
-                  backgroundColor: code, 
-                  boxShadow: isAvailable ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
+                  backgroundColor: code,
+                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)'
                 }}
                 onClick={() => {
                   if (!isAvailable) return;
+                  // 選択されたカラーで利用可能な最初のサイズを選択
+                  const firstAvailableSize = availableSizes[0];
                   const variant = item.variants.find(v => 
                     v.color.color_name === name && 
-                    v.size.size_name === item.selectedSize
+                    v.size.size_name === firstAvailableSize
                   );
                   if (variant) handleVariantChange(item.id, variant.id);
                 }}
@@ -551,6 +563,7 @@ const FittingArea: React.FC = () => {
       </div>
     );
   };
+
   // マネキンの向きの状態を追加
   const [isFrontView, setIsFrontView] = useState(true);
 
@@ -653,7 +666,7 @@ const FittingArea: React.FC = () => {
         className={`fixed top-20 right-5 bg-white border border-black shadow-md w-[300px]
                   transition-all duration-500 ease-in-out z-40 flex flex-col
                   ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
-                  max-h-[100vh]`} // 最大高さを設定
+                  max-h-[80vh]`} // 最大高さを設定
       >
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
