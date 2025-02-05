@@ -117,6 +117,11 @@ const ProductDetail: React.FC = () => {
     return acc;
   }, {} as Record<string, typeof product.variants>);
 
+    // サイズの昇順ソートを行う
+    Object.keys(groupedVariants).forEach(colorName => {
+        groupedVariants[colorName].sort((a, b) => a.size.order - b.size.order); // size.orderで昇順ソート
+    });
+
   const selectedVariants = selectedColor
     ? groupedVariants[selectedColor]
     : product.variants;

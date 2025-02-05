@@ -80,9 +80,14 @@ class ColorForm(forms.ModelForm):
 class SizeForm(forms.ModelForm):
     class Meta:
         model = Size
-        fields = ['size_name']
+        fields = ['size_name', 'height_min_for_men', 'height_max_for_men', 'height_min_for_women', 'height_max_for_women', 'order']
         labels = {
             'size_name': 'サイズ名',
+            'height_min_for_men': '男性最低身長',
+            'height_max_for_men': '男性最高身長',
+            'height_min_for_women': '女性最低身長',
+            'height_max_for_women': '女性最高身長',
+            'order': '表示順',
         }
         
 class ProductOriginForm(forms.ModelForm):

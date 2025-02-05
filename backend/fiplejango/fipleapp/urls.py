@@ -43,7 +43,6 @@ urlpatterns = [
     path('colors/edit/<int:pk>/', ColorUpdateView.as_view(), name='color_edit'),
     path('colors/delete/<int:pk>/', ColorDeleteView.as_view(), name='color_delete'),
     path('sizes/', SizeListView.as_view(), name='size_list'),
-    path('sizes/add/', SizeCreateView.as_view(), name='size_add'),
     path('sizes/edit/<int:pk>/', SizeUpdateView.as_view(), name='size_edit'),
     path('sizes/delete/<int:pk>/', SizeDeleteView.as_view(), name='size_delete'),
     path('product-origins/', ProductOriginListView.as_view(), name='product_origin_list'),

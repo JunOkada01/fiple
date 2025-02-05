@@ -25,8 +25,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
     const [favoriteId, setFavoriteId] = useState<number | null>(null);
     /* 通知 */
     const [notification, setNotification] = useState<string | null>(null);
-    const [selectedColor, setSelectedColor] = useState<number | null>(null); // 選択中のカラーID
-    const [selectedSize, setSelectedSize] = useState<number | null>(null);   // 選択中のサイズID
     // 試着中の商品リストをセッションに保存
     const updateSessionFittingItems = (items: any[]) => {
         sessionStorage.setItem("fittingItems", JSON.stringify(items));
