@@ -53,6 +53,8 @@ interface FittingItem {
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   selectedFrontImageUrl?: string; // 表画像URL
   selectedBackImageUrl?: string;  // 裏画像URL
   selectedColor?: string;
@@ -367,44 +369,62 @@ const FittingArea: React.FC = () => {
   );
 
     // 試着アイテムの読み込みと詳細情報の取得
-  const loadItems = async () => {
+    const loadItems = async () => {
       const storedItems = sessionStorage.getItem("fittingItems");
       if (!storedItems) return;
-  
+    
       try {
         const items = JSON.parse(storedItems);
-        
-        // 保存された選択状態の取得
         const storedVariants = sessionStorage.getItem("selectedVariants");
         const savedVariants = storedVariants ? JSON.parse(storedVariants) : {};
-  
+    
         const enhancedItems = await Promise.all(
           items.map(async (item: FittingItem) => {
             try {
-              // product_origin_idを使用して商品詳細を取得
               const response = await fetch(`http://127.0.0.1:8000/api/products/${item.id}/`);
               if (!response.ok) {
                 throw new Error(`Failed to fetch product details: ${response.statusText}`);
               }
               const productData = await response.json();
-              console.log(productData);
-  
+    
               // この商品の保存された選択状態を取得
               const savedVariant = savedVariants[item.id];
               let selectedVariant = productData.variants[0];
-  
+    
               if (savedVariant) {
                 const matchingVariant = productData.variants.find((v: ProductVariant) => v.id === savedVariant);
                 if (matchingVariant) {
                   selectedVariant = matchingVariant;
                 }
               }
-  
+    
+              // サイズに基づいて画像サイズを決定する関数
+              const getImageSizeBySize = (sizeName: string) => {
+                switch (sizeName) {
+                  case 'XS':
+                    return { width: 115, height: 115 };
+                  case 'S':
+                    return { width: 120, height: 120 };
+                  case 'M':
+                    return { width: 125, height: 125 };
+                  case 'L':
+                    return { width: 130, height: 130 };
+                  case 'XL':
+                    return { width: 135, height: 135 };
+                  default:
+                    return { width: 125, height: 125 };
+                }
+              };
+    
+              const imageSize = getImageSizeBySize(selectedVariant.size.size_name);
+    
               return {
                 ...item,
                 variants: productData.variants,
                 selectedColor: selectedVariant.color.color_name,
                 selectedSize: selectedVariant.size.size_name,
+                imageWidth: imageSize.width,
+                imageHeight: imageSize.height,
                 price: selectedVariant.price,
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
@@ -414,12 +434,11 @@ const FittingArea: React.FC = () => {
               };
             } catch (error) {
               console.error('Failed to fetch product details:', error);
-              // エラー時は既存のデータを返す
               return item;
             }
           })
         );
-  
+    
         setFittingItems(enhancedItems);
       } catch (error) {
         console.error('Failed to load fitting items:', error);
@@ -435,35 +454,54 @@ const FittingArea: React.FC = () => {
 
   // バリアント選択の処理
   const handleVariantChange = (itemId: number, variantId: number) => {
-    // 選択状態を更新
     setSelectedVariants(prev => {
       const newVariants = {
         ...prev,
         [itemId]: variantId
       };
-      // 選択状態を永続化
       sessionStorage.setItem("selectedVariants", JSON.stringify(newVariants));
       return newVariants;
     });
-
-    // 商品情報を更新
+  
     setFittingItems(prev => 
       prev.map(item => {
         if (item.id === itemId) {
           const selectedVariant = item.variants?.find(v => v.id === variantId);
           if (selectedVariant) {
+            // サイズに基づいて画像サイズを決定
+            const getImageSizeBySize = (sizeName: string) => {
+              switch (sizeName) {
+                case 'XS':
+                  return { width: 115, height: 115 };
+                case 'S':
+                  return { width: 120, height: 120 };
+                case 'M':
+                  return { width: 125, height: 125 };
+                case 'L':
+                  return { width: 130, height: 130 };
+                case 'XL':
+                  return { width: 135, height: 135 };
+                default:
+                  return { width: 125, height: 125 };
+              }
+            };
+  
+            const imageSize = getImageSizeBySize(selectedVariant.size.size_name);
+  
             const updatedItem = {
               ...item,
               price: selectedVariant.price,
               selectedColor: selectedVariant.color.color_name,
               selectedSize: selectedVariant.size.size_name,
+              imageWidth: imageSize.width,
+              imageHeight: imageSize.height,
               imageUrl: selectedVariant.images[0]?.image 
                 ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
                 : item.imageUrl,
-              frontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
-              backImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
+              selectedFrontImageUrl: `http://127.0.0.1:8000/${selectedVariant.front_image}`,
+              selectedBackImageUrl: `http://127.0.0.1:8000/${selectedVariant.back_image}`,
             };
-            // 更新された商品情報を永続化
+  
             const currentItems = JSON.parse(sessionStorage.getItem("fittingItems") || "[]");
             const updatedItems = currentItems.map((stored: FittingItem) =>
               stored.id === itemId ? updatedItem : stored
@@ -772,8 +810,8 @@ const FittingArea: React.FC = () => {
                           <Image 
                             src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
                             alt={isFrontView ? '商品正面' : '商品裏面'} 
-                            width={125}
-                            height={125}
+                            width={item.imageWidth || 125}
+                            height={item.imageWidth || 125}
                             style={{ touchAction: 'none' }} // モバイルでのドラッグを改善
                           />
                         </div>
@@ -796,8 +834,8 @@ const FittingArea: React.FC = () => {
                           <Image 
                             src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
                             alt={isFrontView ? '商品正面' : '商品裏面'} 
-                            width={125}
-                            height={125}
+                            width={item.imageWidth || 125}
+                            height={item.imageWidth || 125}
                             style={{ touchAction: 'none' }}
                           />
                         </div>
