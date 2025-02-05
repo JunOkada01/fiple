@@ -47,17 +47,13 @@ const Notifications: React.FC = () => {
         }
     };
 
-    if (loading) {
-        return <div>読み込み中...</div>;
-    }
-
     if (error) {
         return <div className="text-red-500">{error}</div>;
     }
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h2 className="text-3xl font-bold mb-6">お知らせ一覧</h2>
+            <h2 className="text-3xl font-bold mb-6">おしらせ</h2>
             {notifications.length === 0 ? (
                 <p className="text-gray-600">お知らせがありません</p>
             ) : (

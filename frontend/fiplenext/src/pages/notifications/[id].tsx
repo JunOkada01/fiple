@@ -55,6 +55,11 @@ const NotificationDetail: React.FC = () => {
         }
     };
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+    };
+
     if (loading) {
         return <div>読み込み中...</div>;
     }
@@ -68,13 +73,22 @@ const NotificationDetail: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 bg-white text-black">
-        <h1 className="text-2xl font-bold mb-6 border-b pb-2">{notification.title}</h1>
-        <p className="mb-4">{notification.message}</p>
-        <small className="text-gray-500">{formatTimeAgo(notification.created_at)}</small>
-        <br />
-        <a href="/notifications" className="text-black no-underline hover:underline">お知らせ一覧に戻る</a>
-    </div>
+        <div className="max-w-xl mx-auto px-4 py-8 mt-5">
+            <h2 className="text-2xl font-bold mb-6 border-b pb-2">News</h2>
+            <p className="mb-4 text-xs text-gray-500">{formatDate(notification.created_at)}</p>
+            <div className=''>
+                <p className='mb-4 font-semibold text-gray-800'>{notification.title}</p>
+                <p className="mb-4 text-gray-800">{notification.message}</p>
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-500">
+                <span>{formatTimeAgo(notification.created_at)}</span>
+            </div>
+            <div className="mt-6 text-center">
+                <Link href="/notifications">
+                    <span className="text-black hover:underline cursor-pointer">お知らせ一覧に戻る</span>
+                </Link>
+            </div>
+        </div>
     );
 };
 

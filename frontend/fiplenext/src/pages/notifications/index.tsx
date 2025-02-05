@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import Notification from '../../components/Notifications';
 
 interface NotificationData {
     id: number;
@@ -20,9 +19,9 @@ const NotificationsPage: React.FC = () => {
             try {
                 const response = await axios.get<NotificationData[]>('http://localhost:8000/api/notifications/');
                 setNotifications(response.data);
-                setLoading(false);
             } catch (err) {
                 setError('お知らせの取得に失敗しました');
+            } finally {
                 setLoading(false);
             }
         };
@@ -31,34 +30,39 @@ const NotificationsPage: React.FC = () => {
     }, []);
 
     if (loading) {
-        return <div>読み込み中...</div>;
+        return <div className="text-center py-10 text-gray-600">読み込み中...</div>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <div className="text-center py-10 text-red-500">{error}</div>;
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 bg-white text-black">
-        <h2 className="text-2xl font-bold mb-6 border-b pb-2">お知らせ一覧</h2>
-        {notifications.length === 0 ? (
-            <p className="text-gray-600">お知らせがありません</p>
-        ) : (
-            <ul>
-                {notifications.map((notification) => (
-                    <li key={notification.id} className="mb-4 border-b pb-2">
-                        <Link href={`/notifications/${notification.id}`} legacyBehavior>
-                            <a className="text-black no-underline hover:underline">{notification.title}</a>
-                        </Link>
-                        <small className="text-gray-500">{formatTimeAgo(notification.created_at)}</small>
-                    </li>
-                ))}
-            </ul>
-        )}
-        <Link href="/" legacyBehavior>
-            <a className="text-black no-underline hover:underline">トップに戻る</a>
-        </Link>
-    </div>
+        <div className="max-w-xl mx-auto px-4 py-8 mt-5">
+            <h2 className="text-2xl font-bold mb-6 border-b pb-2">News</h2>
+            {notifications.length === 0 ? (
+                <p className="text-gray-600">お知らせがありません</p>
+            ) : (
+                <ul className="space-y-4">
+                    {notifications.map((notification) => (
+                        <li>
+                            <p className="text-xs text-gray-500 mx-2 my-2 ">{formatDate(notification.created_at)}</p>
+                            <Link href={`/notifications/${notification.id}`}>
+                                <li key={notification.id} className="p-4 border rounded-lg shadow-sm hover:bg-gray-100 transition">
+                                    <span className="block text-lg font-semibold text-gray-900">{notification.title}</span>
+                                    <p className="text-xs mt-3 text-gray-500">{formatTimeAgo(notification.created_at)}</p>
+                                </li>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            )}
+            <div className="mt-6 text-center">
+                <Link href="/">
+                    <span className="text-gray-600 hover:underline">トップに戻る</span>
+                </Link>
+            </div>
+        </div>
     );
 };
 
@@ -77,6 +81,11 @@ const formatTimeAgo = (dateString: string) => {
     } else {
         return `${diffMinutes}分前`;
     }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 };
 
 export default NotificationsPage;

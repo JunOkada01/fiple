@@ -304,7 +304,7 @@ const FittingArea: React.FC = () => {
     <div key={item.id} className="flex space-x-4 pb-4 border-b border-gray-100 last:border-b-0">
       <div className="relative group">
         {item.imageUrl && (
-          <div className='relative w-[90px] h-[120px] overflow-hidden rounded'>
+          <div className='relative w-[60px] h-[80px] overflow-hidden rounded'>
             <Image
               src={item.imageUrl}
               alt={item.productName}
@@ -318,8 +318,8 @@ const FittingArea: React.FC = () => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="font-medium truncate pr-2">{item.productName}</h4>
-            <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
+            <h4 className="text-sm font-medium truncate">{item.productName}</h4>
+            {/* <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p> */}
             <p className="text-md text-gray-600">¥ {item.price.toLocaleString()}</p>
             {renderColorButtons(item)}
             {renderSizeButtons(item)}
@@ -575,7 +575,7 @@ const FittingArea: React.FC = () => {
             return (
               <button
                 key={sizeName}
-                className={`px-2 py-1 text-xs rounded transition-all
+                className={`w-7 h-7 text-xs rounded-full transition-all
                   ${item.selectedSize === sizeName
                     ? 'bg-black text-white'
                     : isAvailable
@@ -632,6 +632,12 @@ const FittingArea: React.FC = () => {
           {notification}
         </div>
       )}
+      {/* 通知メッセージ */}
+      {isFavorite && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 py-3 px-6 bg-black text-white rounded-md shadow-lg z-50 transition-all duration-500">
+          {isFavorite}
+        </div>
+      )}
 
       {/* 試着エリア開閉ボタン */}
       <Draggable>
@@ -639,7 +645,7 @@ const FittingArea: React.FC = () => {
           onClick={toggleFittingArea}
           className="fixed bottom-10 right-10 z-50 w-12 h-12 flex items-center justify-center 
                     bg-white border border-black rounded-full shadow-lg cursor-pointer
-                    hover:scale-110 transition-all duration-300"
+                    hover:scale-110 transition-all duration-75"
         >
           <FontAwesomeIcon 
             icon={isOpen ? faXmark : faVest} 
@@ -653,7 +659,7 @@ const FittingArea: React.FC = () => {
         className={`fixed top-20 right-5 bg-white border border-black shadow-md w-[300px]
                   transition-all duration-500 ease-in-out z-40 flex flex-col
                   ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
-                  max-h-[80vh]`} // 最大高さを設定
+                  max-h-[90vh]`} // 最大高さを設定
       >
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
@@ -745,7 +751,7 @@ const FittingArea: React.FC = () => {
                 {/* アイテム表示 */}
 
                 {/* 下半身のアイテム */}
-                <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                <div className="absolute rounded-b  w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'l')
                     .map(item => (
@@ -769,7 +775,7 @@ const FittingArea: React.FC = () => {
                 </div>
 
                 {/* 上半身のアイテム */}
-                <div className="absolute border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                <div className="absolute rounded-t  w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'u')
                     .map(item => (
@@ -791,16 +797,14 @@ const FittingArea: React.FC = () => {
                       </Draggable>
                     ))}
                 </div>
-
-                            </div>
-                          </div>
-                        )}
-                      </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* スクロール可能なアイテムリスト */}
         <div className="flex-1 overflow-hidden flex flex-col">
-          
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden items-scrollbar">
           {fittingItems.length > 0 ? (
             <div className="p-2 space-y-4">
               {fittingItems.map(renderFittingItem)}
