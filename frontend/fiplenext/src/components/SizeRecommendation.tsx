@@ -28,7 +28,8 @@ const SizeRecommendation = ({ productId }) => {
                     setRecommendation(response.data.recommended_size);
                 }
             } catch (error) {
-                setError('サイズの推奨を取得できませんでした');
+                console.log(error);
+                // setError('サイズの推奨を取得できませんでした');
             } finally {
                 setLoading(false);
             }
