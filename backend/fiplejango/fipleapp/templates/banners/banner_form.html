@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}バナー追加{% endblock %}
 {% block content %}
-<h4>バナー追加</h4>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">追加</button>
-</form>
-<a href="/banners">戻る</a>
+
+<div class="banner-contaier">
+    <div class="banner-create">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">追加</button>
+        </form>
+        <a href="/banners">戻る</a>
+    </div>
+</div>
 {% endblock %}

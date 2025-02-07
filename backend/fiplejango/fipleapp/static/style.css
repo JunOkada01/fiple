@@ -195,11 +195,24 @@ main.sidebar-closed {
 }
 
 /* アイコンとテキスト間隔 */
+.sidebar .side-main li a {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 10px; /* アイコンとテキストの間隔 */
+    padding: 10px;
+}
+
+/* アイコンのサイズと間隔 */
 .sidebar .side-main li a i {
+    width: 20px;  /* 正方形のサイズ */
+    height: 20px; /* 正方形のサイズ */
     font-size: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px 0 10px;
 }
 
 /* --------------------------------------------------- */
@@ -218,23 +231,6 @@ main.sidebar-closed {
     position: relative;
     text-decoration: none; /* デフォルトの下線を無効化 */
     transition: color 0.3s ease;
-}
-
-/* 下線エフェクト */
-.submenu .submenu-item a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 0;
-    background-color: #202020;
-    transition: width 0.3s ease-in-out;
-}
-
-/* ホバー時に下線が左から右に伸びるエフェクト */
-.submenu .submenu-item a:hover::after {
-    width: 100%;
 }
 
 /* ホバー時のテキスト色変更 */
@@ -391,11 +387,10 @@ main {
     justify-content: center;
 }
 .icon-tile-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
+    justify-items: center;
 }
 .icon-link {
     display: inline-block; /* ブロック要素として扱う */
@@ -422,8 +417,9 @@ main {
 }
 
 .icon-tile:hover {
-    background-color: #f9f9f9;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fcfcfc;
+    transform: scale(1.03);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .icon-tile .icons {
@@ -908,3 +904,161 @@ input[type="file"] {
     border: 1px solid rgb(59, 59, 59);
     border-radius: 10px;
 }
+
+/* - - - - - - - - お知らせ配信用 - - - - - - - - */
+.news-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.news-header h2 {
+    font-size: 25px;
+}
+.news-main {
+    display: flex;
+    justify-content: center;
+}
+.news-main .list-group {
+    width: 100%;
+    max-width: 50%;
+    padding: 0;
+    gap: 8px;
+}
+.news-main .list-group .list-group-item {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+.news-main .list-group .list-group-item h2 {
+    font-size: 20px;
+}
+.news-main .list-group .list-group-item small {
+    color: gray;
+}
+.news-form {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+.news-form form {
+    display: flex;
+    flex-direction: column;
+}
+.news-form form p {
+    margin-bottom: 15px;
+}
+.news-form input,
+.news-form textarea,
+.news-form select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+/* テキストエリア専用の調整 */
+.news-form textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+.news-list-actions,
+.news-form .form-actions {
+    text-align: center;
+}
+.news-list-actions button {
+    padding: 7px 40px 7px 40px;
+    border: none;
+    border-radius: 5px;
+}
+.news-form .form-actions button {
+    padding: 7px 40px 7px 40px;
+    color: white;
+    background-color: rgb(70, 184, 255);
+    border: none;
+    border-radius: 5px;
+}
+.news-list-actions a,
+.news-form .form-actions a {
+    text-decoration: none;
+}
+.news-footer {
+    text-align: center;
+}
+.back-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* - - - - - - - - バナー管理 - - - - - - - - */
+/* コンテナ全体のスタイル */
+.banner-container {
+    max-width: 60%;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ヘッダー部分のスタイル */
+.banner-header {
+text-align: center;
+margin-bottom: 20px;
+}
+
+/* バナーリストの全体設定 */
+.banner-list {
+background-color: #fff;
+border: 1px solid #ddd;
+border-radius: 4px;
+overflow: hidden;
+}
+
+/* 各バナーアイテムのレイアウト */
+.banner-item {
+display: flex;
+align-items: center;
+padding: 15px;
+border-bottom: 1px solid #eee;
+}
+
+.banner-item:last-child {
+border-bottom: none;
+}
+
+/* バナー画像のスタイル */
+.banner-image {
+width: 100px;
+margin-right: 15px;
+}
+
+/* リンク部分のスタイル */
+.banner-info {
+flex-grow: 1;
+}
+
+.banner-link {
+color: #007bff;
+text-decoration: none;
+}
+
+/* 編集・削除ボタンの配置 */
+.banner-actions a {
+margin-left: 10px;
+}
+
+/* バナーが存在しない場合のメッセージ */
+.no-banner {
+padding: 15px;
+text-align: center;
+color: #888;
+}
+
+/* - - - - - - - - バナー管理ここまで - - - - - - - - */

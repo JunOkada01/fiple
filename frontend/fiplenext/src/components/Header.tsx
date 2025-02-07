@@ -9,11 +9,11 @@ const Header: React.FC = () => {
             <header className="flex justify-center items-center border-b">
                 <Link href="/">
                     <Image
-                        src="/fipleheader.png"
+                        src="/fiple3.png"
                         alt="fipleheader"
                         width={200}
                         height={80}
-                        className="w-32 h-16 sm:w-48 md:h-20 sm:w-56 sm:h-24 object-contain"
+                        className="w-50 h-20 sm:w-48 md:h-20 sm:w-56 sm:h-24 object-contain"
                     />
                 </Link>
             </header>

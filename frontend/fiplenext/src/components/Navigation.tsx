@@ -26,12 +26,12 @@ const Navigation: React.FC<NavigationProps> = ({ onSearch }) => {
   return (
     <nav className="flex justify-center items-center gap-7 py-5 border-b">
       <div className="relative max-w-[250px] w-full">
-        <span className="absolute inset-y-0 left-0 pl-2 flex items-center">
+        <span className="absolute inset-y-0 left-0 pl-2 pb-1 flex items-center">
           <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
         </span>
         <input
           type="text"
-          placeholder="検索"
+          placeholder="search..."
           value={searchInput}
           onChange={handleSearchChange}
           className="w-full border-b border-black px-4 pl-10 focus:outline-none text-gray-500"
