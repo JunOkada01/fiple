@@ -971,13 +971,19 @@ input[type="file"] {
 .news-form .form-actions {
     text-align: center;
 }
-.news-list-actions button {
-    padding: 7px 40px 7px 40px;
-    border: none;
+
+.news-list-actions .news-action-btn {
+    padding: 5px 15px;
+    border: 1;
     border-radius: 5px;
+    margin: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px; /* アイコンとテキストの間に余白を確保 */
 }
+/* お知らせフォームの送信ボタン */
 .news-form .form-actions button {
-    padding: 7px 40px 7px 40px;
+    padding: 7px 40px;
     color: white;
     background-color: rgb(70, 184, 255);
     border: none;
