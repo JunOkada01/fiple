@@ -173,6 +173,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         <BannerList />
       </div>
     </div>
+    <div>更新テスト</div>
       {/* 性別カテゴリメニュー */}
       {/* <AllMensLeadiesKidsFilter /> */}
       <AllMensLeadiesKidsFilter onGenderSelect={setSelectedGender} />
