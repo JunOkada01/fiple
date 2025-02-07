@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import Notification from '../../components/Notifications';
+// import Notification from '../../components/Notifications';
 
 interface NotificationData {
     id: number;
@@ -22,6 +22,7 @@ const NotificationsPage: React.FC = () => {
                 setNotifications(response.data);
                 setLoading(false);
             } catch (err) {
+                console.log(err);
                 setError('お知らせの取得に失敗しました');
                 setLoading(false);
             }

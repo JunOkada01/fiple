@@ -24,7 +24,11 @@ const NotificationDetail: React.FC = () => {
                     const response = await axios.get<Notification>(`http://localhost:8000/notifications/${id}/`);
                     setNotification(response.data);
                 } catch (err) {
-                    setError(`お知らせの取得に失敗しました: ${err.message}`);
+                    if (axios.isAxiosError(err) && err.response) {
+                        setError(`お知らせの取得に失敗しました: ${err.response.data.message}`);
+                    } else {
+                        setError(`お知らせの取得に失敗しました: ${(err as Error).message}`);
+                    }
                 } finally {
                     setLoading(false);
                 }
@@ -73,7 +77,7 @@ const NotificationDetail: React.FC = () => {
         <p className="mb-4">{notification.message}</p>
         <small className="text-gray-500">{formatTimeAgo(notification.created_at)}</small>
         <br />
-        <a href="/notifications" className="text-black no-underline hover:underline">お知らせ一覧に戻る</a>
+        <Link href="/notifications" className="text-black no-underline hover:underline">お知らせ一覧に戻る</Link>
     </div>
     );
 };

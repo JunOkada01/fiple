@@ -25,7 +25,8 @@ const NotificationDetail: React.FC = () => {
                     const response = await axios.get<Notification>(`http://localhost:8000/notifications/${id}/`);
                     setNotification(response.data);
                 } catch (err) {
-                    setError(`お知らせの取得に失敗しました: ${err.message}`);
+                    console.log(err);
+                    setError(`お知らせの取得に失敗しました`);
                 } finally {
                     setLoading(false);
                 }

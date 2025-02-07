@@ -15,7 +15,7 @@ interface OrderDetails {
 const OrderConfirmation: React.FC = () => {  
 
     const router = useRouter();
-    const [error, setError] = useState<string | null>(null);
+    // const [error, setError] = useState<string | null>(null);
     const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
 
 
@@ -70,7 +70,18 @@ const OrderConfirmation: React.FC = () => {
             <p className="note text-center text-sm text-gray-600">  
                 ご登録いただいたメールアドレスに詳細のメールをお送りしております。<br />  
                 メールが届かない場合はお手数ですがお電話またはメールなどでお問い合わせください。  
-            </p>  
+            </p>
+
+            {orderDetails && (
+                <div className="order-details bg-white shadow rounded p-4 mt-4">
+                    <h2 className="text-lg font-semibold mb-2">ご注文内容</h2>
+                    <p>注文ID: {orderDetails.orderId}</p>
+                    <p>合計金額: {orderDetails.total_amount}円</p>
+                    <p>消費税: {orderDetails.tax_amount}円</p>
+                    <p>支払い方法: {orderDetails.payment_method}</p>
+                    <p>配送先住所: {orderDetails.delivery_address}</p>
+                </div>
+            )}
         </div>  
     );  
 };  

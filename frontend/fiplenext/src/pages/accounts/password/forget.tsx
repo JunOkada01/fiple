@@ -15,6 +15,7 @@ const ForgetPassword = () => {
             });
             setMessage('パスワードリセットリンクをメールで送信しました。');
         } catch (error) {
+            console.log(error);
             setMessage('エラーが発生しました。正しいメールアドレスを入力してください。');
         } finally {
             setIsLoading(false);

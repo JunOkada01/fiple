@@ -34,7 +34,7 @@ const DeliveryAddressSelect: React.FC<DeliveryAddressSelectProps> = ({ onAddress
       setAddresses(response.data);
       
       // メインの住所があれば自動選択
-      const mainAddress = response.data.find(addr => addr.is_main);
+      const mainAddress = response.data.find((addr: DeliveryAddress) => addr.is_main);
       if (mainAddress) {
         setSelectedAddressId(mainAddress.id);
         // 住所IDと住所の詳細情報の両方を渡す
@@ -43,6 +43,7 @@ const DeliveryAddressSelect: React.FC<DeliveryAddressSelectProps> = ({ onAddress
       
       setLoading(false);
     } catch (err) {
+      console.log(err);
       setError('配送先情報の取得に失敗しました');
       setLoading(false);
     }
@@ -86,7 +87,8 @@ const DeliveryAddressSelect: React.FC<DeliveryAddressSelectProps> = ({ onAddress
                 name="deliveryAddress"
                 value={String(address.id)}
                 checked={selectedAddressId === String(address.id)}
-                onChange={(e) => {
+                onChange={(err) => {
+                  console.log(err);
                   console.log('選択した配達先:', address.postal_code, address.prefecture, address.city, address.street); 
                   setSelectedAddressId(address.id);
                   onAddressSelect(address.id, address);

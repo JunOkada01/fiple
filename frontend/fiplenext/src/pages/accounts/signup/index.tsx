@@ -39,6 +39,7 @@ const Register = () => {
                 setError('郵便番号に対応する住所が見つかりませんでした');
             }
         } catch (error) {
+            console.log(error);
             setError('住所の取得に失敗しました');
         }
     };
@@ -94,6 +95,7 @@ const Register = () => {
                 setError(errorData.message || '登録に失敗しました。入力内容をご確認ください。');
             }
         } catch (error) {
+            console.log(error)
             setError('サーバーとの通信に失敗しました。しばらく経ってからもう一度お試しください。');
         }
     };

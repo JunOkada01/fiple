@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import Router from 'next/router';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
@@ -28,25 +28,12 @@ interface User {
 }
 
 const Profile: React.FC = () => {
-    const router = useRouter();
+    // const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        Router.push({
-        pathname: '/accounts/login',
-        query: { 
-            error: 'authentication', 
-            message: 'セッションが期限切れです。再度ログインしてください。' 
-        }
-        });
-        return;
-    }
+  
     
     const logout = async () => {
         try {
@@ -60,11 +47,25 @@ const Profile: React.FC = () => {
             // 必要に応じてリダイレクトなどを行う
             window.location.href="/";
         } catch (error) {
-            console.error('Logout failed:');
+            console.error('Logout failed:',error);
         }
     };
 
     useEffect(() => {
+      const token = localStorage.getItem('access_token');
+      
+      if (!token) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          Router.push({
+          pathname: '/accounts/login',
+          query: { 
+              error: 'authentication', 
+              message: 'セッションが期限切れです。再度ログインしてください。' 
+          }
+          });
+          return;
+      }
         const fetchUserData = async () => {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/user/', {
@@ -76,6 +77,7 @@ const Profile: React.FC = () => {
                 setUser(response.data);  // 取得したユーザー情報を state にセット
                 setLoading(false);  // ローディング終了
             } catch (err) {
+                console.log(err)
                 localStorage.removeItem('access_token'); // トークンを削除
                 window.location.href = '/accounts/login'; // ログインページにリダイレクト
                 setError('ユーザー情報の取得に失敗しました');
@@ -85,6 +87,15 @@ const Profile: React.FC = () => {
 
         fetchUserData();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-xl">読み込み中...</p>
+            </div>
+        );
+    }
+
     if (error) {
         return (
             <div className="flex items-center justify-center h-screen">

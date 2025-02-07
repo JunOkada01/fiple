@@ -1,5 +1,5 @@
 import "@styles/styles/globals.css";
-import { Poppins } from "next/font/google";
+// import { Poppins } from "next/font/google";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Header from '../components/Header';
@@ -12,8 +12,8 @@ import'@fortawesome/react-fontawesome'
 import { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import Footer from '../components/Footer'
-import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
-import { motion } from "framer-motion";
+// import { GOOGLE_FONT_PROVIDER } from "next/dist/shared/lib/constants";
+// import { motion } from "framer-motion";
 
 
 

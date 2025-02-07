@@ -45,20 +45,28 @@ const Cart: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        Router.push({
-        pathname: '/accounts/login',
-        query: { 
-            error: 'authentication', 
-            message: 'セッションが期限切れです。再度ログインしてください。' 
-        }
-        });
-        return;
-    }
+    // const token = localStorage.getItem('access_token');
+
+    useEffect(() => {
+        const initializeCart = async () => {
+            const token = await refreshToken();
+            if (token) {
+                fetchCartItems(token);
+            } else {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                Router.push({
+                    pathname: '/accounts/login',
+                    query: { 
+                        error: 'authentication', 
+                        message: 'セッションが期限切れです。再度ログインしてください。' 
+                    }
+                });
+            }
+        };
+        initializeCart();
+    }, []);
+
     const fetchCartItems = async (token?: string) => {
         try {
             const response = await axios.get('http://localhost:8000/api/cart/', {
@@ -89,6 +97,19 @@ const Cart: React.FC = () => {
         };
         initializeCart();
     }, []);
+    
+    // if (!token) {
+    //     localStorage.removeItem('access_token');
+    //     localStorage.removeItem('refresh_token');
+    //     Router.push({
+    //     pathname: '/accounts/login',
+    //     query: { 
+    //         error: 'authentication', 
+    //         message: 'セッションが期限切れです。再度ログインしてください。' 
+    //     }
+    //     });
+    //     return;
+    // }
 
     const refreshToken = async () => {
         try {
@@ -123,8 +144,9 @@ const Cart: React.FC = () => {
                 )
             );
             setError(null);
-        } catch (error: any) {
-            setError(error.response?.data?.error || 'カートの更新に失敗しました');
+        } catch (error: unknown) {
+            const err = error as axios.AxiosError;
+            setError((err.response?.data as { error?: string })?.error || 'カートの更新に失敗しました');
         }
     };
 

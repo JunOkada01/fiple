@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
- 
-const SizeRecommendation = ({ productId }) => {
+ //ここのエラー修正ができているかわからないので、確認してほしいです。
+interface Props {
+  productId: string; // productIdの型をstring型として定義
+}
+
+const SizeRecommendation: React.FC<Props> = ({ productId }) => {
     const [recommendation, setRecommendation] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
  
     useEffect(() => {
         const fetchRecommendation = async () => {
@@ -39,7 +43,7 @@ const SizeRecommendation = ({ productId }) => {
     }, [productId]);
  
     if (loading) return null;
-    if (error) return null;
+    // if (error) return null;
     if (!recommendation) return null;
  
     return (

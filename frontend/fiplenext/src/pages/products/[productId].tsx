@@ -70,6 +70,7 @@ const ProductDetail: React.FC = () => {
                 setSelectedColor(response.data.variants[0].color.color_name);
                 }
             } catch (err) {
+                console.log(err)
                 setError('商品情報の取得に失敗しました');
             } finally {
                 setLoading(false);
@@ -123,6 +124,7 @@ const ProductDetail: React.FC = () => {
 
     return (
         <div className="container mx-auto p-4">
+          {message && <div className="mb-4 text-green-500">{message}</div>}
             <div className="flex flex-col md:flex-row">
                 {/* 左側: 商品画像セクション */}
                 <div className="md:w-1/2 mb-4">
@@ -293,7 +295,7 @@ const ProductDetail: React.FC = () => {
         
                     {/* 追加情報 */}
                     <div className="mt-6">
-                    <SizeRecommendation productId={productId} />
+                    <SizeRecommendation productId={typeof productId === 'string' ? productId : ''} />
                         <h3 className="text-lg font-semibold mt-5">商品情報</h3>
                         <div className="mt-2 space-y-2">
                             <div className="flex border-b py-2">

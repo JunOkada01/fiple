@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2022-11-15',
+    apiVersion: '2024-10-28.acacia',
     });
 
     export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +15,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
         const { items } = req.body;
 
         // カート内の商品をStripeのline_itemsに変換
-        const line_items = items.map((item: any) => ({
+        interface Item {
+            product: {
+                product_origin: {
+                    product_name: string;
+                };
+                color?: {
+                    color_name: string;
+                };
+                size?: {
+                    size_name: string;
+                };
+                price: number;
+            };
+            quantity: number;
+        }
+
+        const line_items = items.map((item: Item) => ({
         price_data: {
             currency: 'jpy',
             product_data: {

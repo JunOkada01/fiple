@@ -43,13 +43,18 @@ const ChangePass: React.FC = () => {
             setSuccessMessage(response.data.message);
             // 成功したらプロフィールページにリダイレクト
             setTimeout(() => router.push('/accounts/profile'), 2000);
-        } catch (error: any) {
-            if (error.response && error.response.data.error) {
-                setErrorMessage(error.response.data.error);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data.error) {
+                    setErrorMessage(error.response.data.error);
+                } else {
+                    setErrorMessage('パスワード変更に失敗しました。もう一度お試しください。');
+                }
             } else {
-                setErrorMessage('パスワード変更に失敗しました。もう一度お試しください。');
+                setErrorMessage('予期しないエラーが発生しました。');
             }
         }
+      
     };
 
     return (

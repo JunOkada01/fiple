@@ -28,6 +28,7 @@ const ResetPassword = () => {
                 router.push('/accounts/login');
             }, 2000);
         } catch (error) {
+            console.log(error);
             setMessage('エラーが発生しました。もう一度お試しください。');
         } finally {
             setIsLoading(false);

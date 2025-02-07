@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
-const RatingDistribution = ({ ratingCounts, totalReviews }) => {
+const RatingDistribution = ({ ratingCounts, totalReviews }: { ratingCounts: Record<number, number>, totalReviews: number }) => {
   return (
     <div className="w-full max-w-md mb-6 mx-auto">
       <h3 className="text-md font-medium mb-3 text-center">お客様の評価</h3>
@@ -58,6 +58,7 @@ const ProductReviews = () => {
                 setReviews(response.data.reviews);
                 setRatingDistribution(response.data.rating_distribution || {});
             } catch (err) {
+                console.log(err)
                 setError('レビューの取得に失敗しました');
             } finally {
                 setLoading(false);
@@ -75,6 +76,7 @@ const ProductReviews = () => {
                 const response = await axios.get(`http://127.0.0.1:8000/api/products/review/${productId}/`);
                 setProduct(response.data);
             } catch (err) {
+                console.log(err)
                 setError('商品情報の取得に失敗しました');
             } finally {
                 setLoading(false);

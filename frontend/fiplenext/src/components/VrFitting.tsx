@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Draggable from 'react-draggable';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import axios from 'axios';
 
 // ローディングアニメーション
@@ -59,6 +59,28 @@ interface FittingItem {
   selectedSize?: string;
   variants: ProductVariant[];
 }
+interface FavoriteProduct {
+  id: number;
+  product: {
+    id: number;
+    name: string;
+  };
+}
+interface CartItem {
+  product: {
+    id: number;
+    name: string;
+  };
+  quantity: number;
+}
+interface FavoriteProduct {
+  id: number;
+  product: {
+    id: number;
+    name: string;
+  };
+}
+
 
 const FittingArea: React.FC = () => {
   const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
@@ -69,7 +91,7 @@ const FittingArea: React.FC = () => {
   const [weight, setWeight] = useState<number>(60);
   const [notification, setNotification] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  // const [message, setMessage] = useState<string | null>(null);
   const [itemFavorites, setItemFavorites] = useState<{[key: number]: boolean}>({});
 
   // 試着エリアの開閉
@@ -91,11 +113,11 @@ const FittingArea: React.FC = () => {
 
     try {
       // 現在のお気に入り情報を取得
-      const favoriteResponse = await axios.get('http://localhost:8000/api/favorites/', {
+      const favoriteResponse = await axios.get<FavoriteProduct[]>('http://localhost:8000/api/favorites/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const existingFavorites = favoriteResponse.data || [];
-      const existingFavoriteIds = existingFavorites.map((fav: any) => fav.product.id);
+      const existingFavoriteIds = existingFavorites.map(fav => fav.product.id);
 
       // まだお気に入りに登録されていないアイテムをフィルタリング
       const itemsToAdd = fittingItems.filter(
@@ -156,7 +178,7 @@ const FittingArea: React.FC = () => {
         }
   
         // 選択されたバリアントがすでにカートに存在するかチェック
-        if (existingCartItems.some((cartItem: any) => cartItem.product.id === selectedVariant.id)) {
+        if (existingCartItems.some((cartItem: CartItem) => cartItem.product.id === selectedVariant.id)) {
           console.log(`バリアントはすでにカートに存在します: ${item.productName} (${item.selectedColor}, ${item.selectedSize})`);
           continue;
         }
@@ -203,7 +225,7 @@ const FittingArea: React.FC = () => {
       const response = await axios.get('http://localhost:8000/api/favorites/', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const isFavorite = response.data.some((fav: any) => fav.product.id === productId);
+      const isFavorite = response.data.some((fav: FavoriteProduct) => fav.product.id === productId);
       setItemFavorites(prev => ({ ...prev, [productId]: isFavorite }));
       return isFavorite;
     } catch (error) {
@@ -223,10 +245,10 @@ const FittingArea: React.FC = () => {
     try {
       if (itemFavorites[productId]) {
         // お気に入り解除
-        const favoriteResponse = await axios.get('http://localhost:8000/api/favorites/', {
+        const favoriteResponse = await axios.get<FavoriteProduct[]>('http://localhost:8000/api/favorites/', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const favorite = favoriteResponse.data.find((fav: any) => fav.product.id === productId);
+        const favorite = favoriteResponse.data.find((fav: FavoriteProduct) => fav.product.id === productId);
         if (favorite) {
           await axios.delete(`http://localhost:8000/api/favorites/delete/${favorite.id}/`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -477,14 +499,14 @@ const FittingArea: React.FC = () => {
     );
   };
 
-  // 選択されたサイズで利用可能なカラーを取得
-  const getAvailableColors = (variants: ProductVariant[], selectedSize: string) => {
-    return Array.from(new Set(
-      variants
-        .filter(v => v.size.size_name === selectedSize)
-        .map(v => v.color.color_name)
-    ));
-  };
+  // // 選択されたサイズで利用可能なカラーを取得
+  // const getAvailableColors = (variants: ProductVariant[], selectedSize: string) => {
+  //   return Array.from(new Set(
+  //     variants
+  //       .filter(v => v.size.size_name === selectedSize)
+  //       .map(v => v.color.color_name)
+  //   ));
+  // };
 
   // 選択されたカラーで利用可能なサイズを取得
   const getAvailableSizes = (variants: ProductVariant[], selectedColor: string) => {
@@ -645,6 +667,11 @@ const FittingArea: React.FC = () => {
           {notification}
         </div>
       )}
+      {isFavorite && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 py-3 px-6 bg-black text-white rounded-md shadow-lg z-50 transition-all duration-500">
+          {isFavorite}
+        </div>
+      )}
 
       {/* 試着エリア開閉ボタン */}
       <Draggable>
@@ -756,7 +783,6 @@ const FittingArea: React.FC = () => {
                 </div>  
 
                 {/* アイテム表示 */}
-
                 {/* 下半身のアイテム */}
                 <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
@@ -766,16 +792,26 @@ const FittingArea: React.FC = () => {
                         key={item.id}
                         bounds="parent"
                         defaultPosition={{x: 0, y: 0}}
-                        grid={[5, 5]} // スナップグリッド（5pxごとに移動）
+                        grid={[5, 5]}
                       >
                         <div className="cursor-move">
-                          <Image 
-                            src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
-                            alt={isFrontView ? '商品正面' : '商品裏面'} 
-                            width={125}
-                            height={125}
-                            style={{ touchAction: 'none' }} // モバイルでのドラッグを改善
-                          />
+                          {isFrontView && item.selectedFrontImageUrl ? (
+                            <Image 
+                              src={item.selectedFrontImageUrl}
+                              alt="商品正面"
+                              width={125}
+                              height={125}
+                              style={{ touchAction: 'none' }}
+                            />
+                          ) : item.selectedBackImageUrl ? (
+                            <Image 
+                              src={item.selectedBackImageUrl}
+                              alt="商品裏面"
+                              width={125}
+                              height={125}
+                              style={{ touchAction: 'none' }}
+                            />
+                          ) : null}
                         </div>
                       </Draggable>
                     ))}
@@ -793,13 +829,23 @@ const FittingArea: React.FC = () => {
                         grid={[5, 5]}
                       >
                         <div className="cursor-move">
-                          <Image 
-                            src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
-                            alt={isFrontView ? '商品正面' : '商品裏面'} 
-                            width={125}
-                            height={125}
-                            style={{ touchAction: 'none' }}
-                          />
+                          {isFrontView && item.selectedFrontImageUrl ? (
+                            <Image 
+                              src={item.selectedFrontImageUrl}
+                              alt="商品正面"
+                              width={125}
+                              height={125}
+                              style={{ touchAction: 'none' }}
+                            />
+                          ) : item.selectedBackImageUrl ? (
+                            <Image 
+                              src={item.selectedBackImageUrl}
+                              alt="商品裏面"
+                              width={125}
+                              height={125}
+                              style={{ touchAction: 'none' }}
+                            />
+                          ) : null}
                         </div>
                       </Draggable>
                     ))}

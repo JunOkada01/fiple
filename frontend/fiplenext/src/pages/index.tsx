@@ -7,14 +7,10 @@ import Navigation from '../components/Navigation';
 import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
 import ReactSlider from 'react-slider';
-import Notifications from '../components/Notifications';
+// import Notifications from '../components/Notifications';
 import BannerList from '../components/BannerList';
  
 // 基本的なモデルのインターフェース
-interface Tag {
-  id: number;
-  tag_name: string;
-}
  
 interface Category {
   id: number;
@@ -59,6 +55,7 @@ interface Product {
   images: Array<{ image: string }>;
   front_image_url?: string;
   back_image_url?: string;
+  category: Category;
 }
  
 // プロップスのインターフェース
@@ -67,16 +64,16 @@ interface ProductListProps {
 }
  
 // フィッティングアイテムのインターフェース
-interface FittingItem {
-  id: number;
-  product_id: number;
-  productName: string;
-  categoryName: string;
-  categoryPosition: string;
-  subcategoryName: string;
-  price: number;
-  imageUrl?: string;
-}
+// interface FittingItem {
+//   id: number;
+//   product_id: number;
+//   productName: string;
+//   categoryName: string;
+//   categoryPosition: string;
+//   subcategoryName: string;
+//   price: number;
+//   imageUrl?: string;
+// }
  
  
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
@@ -100,25 +97,13 @@ export const getServerSideProps: GetServerSideProps<ProductListProps> = async ()
 }
  
 export default function ProductList({ initialProducts }: ProductListProps) {
-  const [height, setHeight] = useState<number>(180);
-  const [weight, setWeight] = useState<number>(70);
-  const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
+  // const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
  
-  const removeItemFromFitting = (id: number) => {
-    setFittingItems(fittingItems.filter(item => item.id !== id));
-  };
  
-  const handleAddToCart = () => {
-    console.log('商品をカートに追加');
-  };
- 
-  const handleAddToFavorites = () => {
-    console.log('商品をお気に入りに追加');
-  };
  
   // 検索フィルタリング機能を更新
   useEffect(() => {
@@ -252,12 +237,12 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                 {categoriesMap[categoryName].slice(0, 20).map(product => (
                   <ProductCard
                     key={product.id}
-                    id={product.product_origin_id}
+                    id={product.product_origin.id}
                     product_id={product.id}
-                    productName={product.product_name}
+                    productName={product.product_origin.product_name}
                     categoryName={product.category.category_name}
                     categoryPosition={product.category.category_position}
-                    subcategoryName={product.subcategory.subcategory_name}
+                    subcategoryName={product.product_origin.subcategory.subcategory_name}
                     price={product.price}
                     imageUrl={`http://127.0.0.1:8000/${product.images[0]?.image}`} // 画像のURLを設定
                     // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加

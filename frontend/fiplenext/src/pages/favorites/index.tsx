@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Router from 'next/router';
 import ProductCard from '../../components/ProductCard'; // ProductCardをインポート
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faHeart } from '@fortawesome/free-solid-svg-icons';
 
 interface FavoriteItem {
     id: number;
@@ -35,22 +35,21 @@ interface FavoriteItem {
 
 const FavoriteList: React.FC = () => {
     const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        Router.push({
-        pathname: '/accounts/login',
-        query: { 
-            error: 'authentication', 
-            message: 'セッションが期限切れです。再度ログインしてください。' 
-        }
-        });
-        return;
-    }
-
     useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        
+        if (!token) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            Router.push({
+                pathname: '/accounts/login',
+                query: { 
+                    error: 'authentication', 
+                    message: 'セッションが期限切れです。再度ログインしてください。' 
+                }
+            });
+            return;
+        }
         const fetchFavorites = async () => {
             const token = localStorage.getItem('access_token');
             if (!token) {
@@ -92,9 +91,10 @@ const FavoriteList: React.FC = () => {
                                     product_id={favorite.product.id}
                                     productName={favorite.product.product_origin.product_name} // 商品名を渡す
                                     categoryName={favorite.product.product_origin.category.category_name}
+                                    categoryPosition={favorite.product.product_origin.category.category_name} // Add categoryPosition
                                     subcategoryName={favorite.product.product_origin.subcategory.subcategory_name}
                                     price={favorite.product.price}
-                                    imageUrl={favorite.product.images[0]?.image}
+                                    imageUrl={`http://localhost:8000/${favorite.product.images[0]?.image}`}
                                 />
                             </div>
                         ))}

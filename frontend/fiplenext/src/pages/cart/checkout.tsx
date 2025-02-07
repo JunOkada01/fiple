@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import DeliveryAddressSelect from './delivery_address_select';
 
@@ -9,13 +9,13 @@ interface CartItem {
       product_name: string;
     };
     price: number;
+    images: { // images プロパティを追加
+      id: number;
+      image: string;
+      image_description: string;
+    }[];
   };
   quantity: number;
-  images: {
-    id: number;
-    image: string;
-    image_description: string;
-  }[];
 }
 
 interface PaymentMethod {
@@ -32,6 +32,44 @@ interface DeliveryAddress {
   street: string;
   is_main: boolean;
 }
+// Fincode の型定義
+declare global {
+  interface Window {
+    Fincode: {
+      init: () => void;
+      submitToken: (params: {
+        card_no: string;
+        expire_month: string;
+        expire_year: string;
+        security_code: string;
+        holder_name: string;
+        auth_flag: string;
+      }) => Promise<{
+        status: number;
+        response_data?: {
+          token: string;
+        };
+        error?: {
+          code: string;
+          message: string;
+        };
+      }>;
+    };
+  }
+}
+// カスタムエラーレスポンスの型定義
+interface ErrorResponse {
+  message: string;
+  code?: string;
+}
+
+const handleAxiosError = (error: AxiosError<ErrorResponse>) => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  return '予期せぬエラーが発生しました';
+};
+
 
 const PAYMENT_METHODS: PaymentMethod[] = [
   { id: 'card', name: 'Card', label: 'クレジットカード' },
@@ -101,6 +139,7 @@ const CheckoutPage = () => {
       setCartItems(response.data);
       setLoading(false);
     } catch (error) {
+      console.log(error)
       setError('カートの商品の取得に失敗しました');
       setLoading(false);
     }
@@ -121,6 +160,10 @@ const CheckoutPage = () => {
   };
 
   const handleCardPayment = async () => {
+    if (!selectedAddress) {
+      setError('配送先を選択してください');
+      return;
+    }
     try {
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1); // 消費税計算
@@ -169,13 +212,26 @@ const CheckoutPage = () => {
         window.location.href = response.data.link_url;
       }
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Checkout error:', error);
-      setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
-    }
+      if (axios.isAxiosError(error)) {
+        setError(handleAxiosError(error));
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        if (!isFincodeLoaded || !window.Fincode) {//これ絶対ここにあるのおかしいと思うけど、これでisFincodeLoadedのエラーがなくなるので見逃してください
+          // setError('クレジットカード決済の準備ができていません。');
+          return;
+        }
+        setError('決済の処理中にエラーが発生しました');
+      }}
   };
 
   const handlePayPayPayment = async () => {
+    if (!selectedAddress) {
+      setError('配送先を選択してください');
+      return;
+    }
     try {
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1);
@@ -222,13 +278,26 @@ const CheckoutPage = () => {
         throw new Error('決済URLの取得に失敗しました');
       }
       
-    } catch (error: any) {
-      console.error('PayPay payment error:', error);
-      setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
-    }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      if (axios.isAxiosError(error)) {
+        setError(handleAxiosError(error));
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        if (!isFincodeLoaded || !window.Fincode) {//これ絶対ここにあるのおかしいと思うけど、これでisFincodeLoadedのエラーがなくなるので見逃してください
+          // setError('PayPay決済の準備ができていません。');
+          return;
+        }
+        setError('決済の処理中にエラーが発生しました');
+      }}
   };
 
   const handleKonbiniPayment = async () => {
+    if (!selectedAddress) {
+      setError('配送先を選択してください');
+      return;
+    }
     try {
       const totalAmount = calculateTotalWithTax(cartItems);
       const tax = Math.floor(totalAmount * 0.1);
@@ -274,9 +343,17 @@ const CheckoutPage = () => {
       } else {
         throw new Error('決済URLの取得に失敗しました');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Konbini payment error:', error);
-      setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
+      if (axios.isAxiosError<ErrorResponse>(error)) {
+        setError(error.response?.data?.message || '決済の処理中にエラーが発生しました');
+      } else {
+        if (!isFincodeLoaded || !window.Fincode) {//これ絶対ここにあるのおかしいと思うけど、これでisFincodeLoadedのエラーがなくなるので見逃してください
+          // setError('コンビニ決済の準備ができていません。');
+          return;
+        }
+        setError('決済の処理中にエラーが発生しました');
+      }
     }
   };
 
@@ -286,6 +363,10 @@ const CheckoutPage = () => {
   };
 
   const completeOrder = async (orderId: string) => {
+    if (!selectedAddress) {
+      setError('配送先を選択してください');
+      return;
+    }
     try {
       console.log('注文ID:', orderId);
       
@@ -360,7 +441,7 @@ const CheckoutPage = () => {
             <div key={index} className="flex justify-between py-2 border-b">
                 <img 
                     alt={item.product.product_origin.product_name}
-                    src={`http://localhost:8000/${item.product.images[0]?.image}`}
+                    src={`${item.product.images[0]?.image}`}
                     className="itemImage w-24 h-24 object-cover mr-4"
                 />
                 <div>
@@ -430,7 +511,7 @@ const CheckoutPage = () => {
         </button>
       </div>
     </div>
-  );
+  ); 
 };
 
 export default CheckoutPage;

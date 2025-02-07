@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const FINCODE_API_URL = 'https://api.test.fincode.jp/v1';
 
@@ -29,11 +29,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       session_id: response.data.id,
       link_url: response.data.link_url
     });
-  } catch (error: any) {
-    console.error('Session creation error:', error.response?.data || error);
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('Session creation error:', error.response?.data || error.message);
+      return res.status(500).json({ 
+        message: '決済セッションの作成に失敗しました',
+        error: error.response?.data || error.message
+      });
+    }
+
+    console.error('Unexpected error:', error);
     return res.status(500).json({ 
       message: '決済セッションの作成に失敗しました',
-      error: error.response?.data || error.message 
+      error: 'Unknown error occurred'
     });
   }
 }

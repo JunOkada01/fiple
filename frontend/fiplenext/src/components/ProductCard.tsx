@@ -4,7 +4,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faShirt } from '@fortawesome/free-solid-svg-icons';
-import { color } from 'framer-motion';
+// import { color } from 'framer-motion';
 
 interface ProductCardProps {
     id: number;
@@ -16,6 +16,23 @@ interface ProductCardProps {
     price: number;
     imageUrl: string;
 }
+interface FavoriteResponse {
+  id: number;
+  product: {
+      id: number;
+  };
+}
+
+interface FittingItem {
+  id: number;
+  product_id: number;
+  productName: string;
+  price: number;
+  categoryName: string;
+  categoryPosition: string;
+  subcategoryName: string;
+  imageUrl: string;
+}
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, categoryName, categoryPosition, subcategoryName, price, imageUrl}) => {
     /* 現在の商品が試着されているのかを示す */
@@ -25,14 +42,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
     const [favoriteId, setFavoriteId] = useState<number | null>(null);
     /* 通知 */
     const [notification, setNotification] = useState<string | null>(null);
-    const [selectedColor, setSelectedColor] = useState<number | null>(null); // 選択中のカラーID
-    const [selectedSize, setSelectedSize] = useState<number | null>(null);   // 選択中のサイズID
+    // const [selectedColor, setSelectedColor] = useState<number | null>(null); // 選択中のカラーID
+    // const [selectedSize, setSelectedSize] = useState<number | null>(null);   // 選択中のサイズID
     // 試着中の商品リストをセッションに保存
-    const updateSessionFittingItems = (items: any[]) => {
+    const updateSessionFittingItems = (items: FittingItem[]) => {
         sessionStorage.setItem("fittingItems", JSON.stringify(items));
     };
     // 試着中の商品リストをセッションから取得
-    const getSessionFittingItems = (): any[] => {
+    const getSessionFittingItems = (): FittingItem[] => {
         const items = sessionStorage.getItem("fittingItems");
         console.log('ローカルストレージ', items)
         return items ? JSON.parse(items) : [];
@@ -112,7 +129,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         });
         
         const favorite = response.data.find(
-            (fav: any) => fav.product.id === product_id
+            (fav: FavoriteResponse) => fav.product.id === product_id
         );
         
         if (favorite) {

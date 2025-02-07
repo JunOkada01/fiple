@@ -1,9 +1,9 @@
 import ProductCard from '@styles/components/ProductCard';
 import AllMensLeadiesKidsFilter from '@styles/components/AllMensLadiesKidsFilter';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { GetServerSideProps } from 'next';
 import axios from 'axios';
-import Navigation from '../../../components/Navigation';
+// import Navigation from '../../../components/Navigation';
 import FittingArea from '../../../components/VrFitting';
 import Link from 'next/link';
 
@@ -90,17 +90,17 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
 
 // カテゴリページコンポーネントの定義
 const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) => {
-    const [height] = useState<number>(180);
-    const [weight] = useState<number>(70);
-    const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
+    // const [height] = useState<number>(180);
+    // const [weight] = useState<number>(70);
+    // const [fittingItems, setFittingItems] = useState<FittingItem[]>([]);
 
-    const removeItemFromFitting = (id: number) => {
-        setFittingItems(fittingItems.filter(item => item.id !== id));
-    };
+    // const removeItemFromFitting = (id: number) => {
+    //     setFittingItems(fittingItems.filter(item => item.id !== id));
+    // };
 
-    const handleAddToCart = () => {
-        console.log('商品をカートに追加');
-    };
+    // const handleAddToCart = () => {
+    //     console.log('商品をカートに追加');
+    // };
 
 
     return (
@@ -126,6 +126,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
                                     product_id={product.id}
                                     productName={product.product_name}
                                     categoryName={product.category.category_name}
+                                    categoryPosition={product.category.id.toString()}
                                     subcategoryName={product.subcategory.subcategory_name}
                                     price={product.price}
                                     imageUrl={imageUrl} // 画像のURLを設定

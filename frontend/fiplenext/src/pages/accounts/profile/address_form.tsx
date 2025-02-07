@@ -80,12 +80,19 @@ const AddressManagement: React.FC = () => {
             };
             
             if (editingId) {
-                setEditedAddress(prev => ({ ...prev, ...updatedAddress }));
+                setEditedAddress(prev => ({
+                    ...prev!,
+                    ...updatedAddress
+                }));
             } else {
-                setNewAddress(prev => ({ ...prev, ...updatedAddress }));
+                setNewAddress(prev => ({
+                    ...prev,
+                    ...updatedAddress
+                }));
             }
             setError('');
         } catch (err) {
+            console.log(err)
             setError('郵便番号からの住所取得に失敗しました');
         } finally {
             setLoading(false);
