@@ -24,11 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #envファイルに移動予定
-SECRET_KEY = "django-insecure-zj+ky4&*4g5f*$vul4t=lt(9qdk6awz$9fo^!1*n51^n02sq)b"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #deploy時にFalseに変更
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
