@@ -15,6 +15,9 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
+# .envファイルの読み込み
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -181,8 +184,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # 必要に応じて追加（デフォルトバックエンド）
 ]
 
-# .envファイルの読み込み
-load_dotenv()
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-mail.outlook.com'
