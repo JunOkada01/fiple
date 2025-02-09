@@ -64,10 +64,10 @@
 								<span style="margin-left: auto; color: gray;">変更</span>
 							</a>
 							<!-- 削除ボタン -->
-							<a href="{% url 'fipleapp:size_delete' size.id %}" class="mt-2">
+							{% comment %} <a href="{% url 'fipleapp:size_delete' size.id %}" class="mt-2">
 								<i class="fa-regular fa-trash-can"></i>
 								<span style="margin-left: auto; color: gray;">削除</span>
-							</a>
+							</a> {% endcomment %}
 						</div>
 					</li>
 				{% empty %}
