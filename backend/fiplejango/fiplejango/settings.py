@@ -33,7 +33,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 #deploy時にFalseに変更
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["52.90.60.166", "localhost", "127.0.0.1"]
 
 
 # Application definition
