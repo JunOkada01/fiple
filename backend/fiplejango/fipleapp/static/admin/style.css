@@ -1,0 +1,79 @@
+.admin-table {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 50px auto; /* 水平方向に中央寄せ */
+    text-align: center;
+}
+
+.admin-table .register-title,
+.admin-table .login-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.admin-table .register-form,
+.admin-table .login-form {
+    margin-bottom: 20px;
+}
+
+.admin-table .register-form label,
+.admin-table .login-form label {
+    display: inline-block; /* ラベルをインラインブロックに */
+    width: 100px; /* ラベルの固定幅 */
+    text-align: left; /* テキストを右寄せ */
+    margin-right: 2px; /* ラベルと入力フィールドの間隔 */
+    color: #606060;
+}
+
+.admin-table .register-form input[type="text"],
+.admin-table .register-form input[type="password"],
+.admin-table .register-form input[type="password"],
+.admin-table .login-form input[type="text"],
+.admin-table .login-form input[type="password"] {
+    width: calc(100% - 120px); /* ラベルの幅に応じて入力フィールドの幅を調整 */
+    display: inline-block; /* インラインブロックで横並び */
+    padding: 5px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.admin-table .register-button,
+.admin-table .login-button {
+    width: 100%; /* ボタンの幅を親要素に合わせる */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    background-size: 200% 200%; /* 背景サイズを広げる */
+    background-color: [object object];
+    background-image: linear-gradient(130deg, rgb(161, 224, 255) 10%, rgb(115, 201, 255) 32%, rgba(48, 177, 255, 1) 56%, rgb(73, 131, 255) 76%, rgba(56, 119, 255, 1) 92%);
+}
+
+.admin-table .register-button:hover,
+.admin-table .login-button:hover {
+    background-position: 100% 0%; /* 背景の位置変更で切り替えるアニメーション効果 */
+    transform: scale(1.03); /* 少し拡大 */
+}
+
+.admin-table .admin-link {
+    display: inline-block; /* リンクをブロック状にする */
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.admin-table .admin-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
