@@ -1068,3 +1068,44 @@ color: #888;
 }
 
 /* - - - - - - - - バナー管理ここまで - - - - - - - - */
+
+/* - - - - - - - - FAQ - - - - - - - - */
+
+.faq-content {
+    width: 60%;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.faq-header h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.faq-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+.faq-links {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.faq-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.faq-button:hover {
+    background-color: #0056b3;
+}
+/* - - - - - - - - FAQここまで - - - - - - - - */

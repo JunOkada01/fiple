@@ -1757,6 +1757,17 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+# カテゴリ一覧表示ビュー
+def question_category_list(request):
+    categories = QuestionCategory.objects.all()
+    return render(request, 'faq/question_category_list.html', {'categories': categories})
+
+# FAQ一覧表示ビュー
+def faq_list_view(request):
+    faqs = FAQ.objects.all()
+    return render(request, 'faq/faq_list.html', {'faqs': faqs})
+
+# JSONレスポンス用FAQ一覧ビュー
 def faq_list(request):
     faqs = FAQ.objects.select_related('category').all()
     data = [
@@ -1769,6 +1780,7 @@ def faq_list(request):
     ]
     return JsonResponse(data, safe=False)
 
+# FAQカテゴリ作成ビュー
 def create_question_category(request):
     if request.method == 'POST':
         form = QuestionCategoryForm(request.POST)
@@ -1780,6 +1792,7 @@ def create_question_category(request):
         form = QuestionCategoryForm()
     return render(request, 'faq/create_question_category.html', {'form': form})
 
+# FAQ作成ビュー
 def create_faq(request):
     if request.method == 'POST':
         form = FAQForm(request.POST)
@@ -1791,35 +1804,7 @@ def create_faq(request):
         form = FAQForm()
     return render(request, 'faq/create_faq.html', {'form': form})
 
-# FAQカテゴリ削除ビュー
-def delete_question_category(request, category_id):
-    category = get_object_or_404(QuestionCategory, id=category_id)
-    if request.method == 'POST':
-        category.delete()
-        messages.success(request, 'カテゴリが削除されました。')
-        return redirect('fipleapp:create_question_category')  # カテゴリ一覧ページにリダイレクト
-    return render(request, 'faq/delete_question_category.html', {'category': category})
-
-# FAQ削除ビュー
-def delete_faq(request, faq_id):
-    faq = get_object_or_404(FAQ, id=faq_id)
-    if request.method == 'POST':
-        faq.delete()
-        messages.success(request, 'FAQが削除されました。')
-        return redirect('fipleapp:create_faq')  # FAQ一覧ページにリダイレクト
-    return render(request, 'faq/delete_faq.html', {'faq': faq})
-
-# カテゴリ一覧表示ビュー
-def question_category_list(request):
-    categories = QuestionCategory.objects.all()
-    return render(request, 'faq/question_category_list.html', {'categories': categories})
-
-# FAQ一覧表示ビュー
-def faq_list_view(request):
-    faqs = FAQ.objects.all()
-    return render(request, 'faq/faq_list.html', {'faqs': faqs})
-
-#FAQカテゴリ編集ビュー
+# FAQカテゴリ編集ビュー
 def edit_question_category(request, category_id):
     category = get_object_or_404(QuestionCategory, id=category_id)
     if request.method == 'POST':
@@ -1842,6 +1827,25 @@ def edit_faq(request, faq_id):
     categories = QuestionCategory.objects.all()
     return render(request, 'faq/edit_faq.html', {'faq': faq, 'categories': categories})
 
+# FAQカテゴリ削除ビュー
+def delete_question_category(request, category_id):
+    category = get_object_or_404(QuestionCategory, id=category_id)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'カテゴリが削除されました。')
+        return redirect('fipleapp:create_question_category')
+    return render(request, 'faq/delete_question_category.html', {'category': category})
+
+# FAQ削除ビュー
+def delete_faq(request, faq_id):
+    faq = get_object_or_404(FAQ, id=faq_id)
+    if request.method == 'POST':
+        faq.delete()
+        messages.success(request, 'FAQが削除されました。')
+        return redirect('fipleapp:create_faq')
+    return render(request, 'faq/delete_faq.html', {'faq': faq})
+
+# FAQ管理画面ビュー
 def faq_manager(request):
     return render(request, 'faq/faq_manager.html')
 
@@ -1867,11 +1871,11 @@ def add_contact_category(request):
         form = ContactCategoryForm(request.POST)
         if form.is_valid():
             form.save()
-            return render(request, 'contact/contact_manager.html')  # 管理画面にリダイレクト
+            return render(request, 'contact/contact_list.html')  # 管理画面にリダイレクト
     else:
         form = ContactCategoryForm()
-    
-    return render(request, 'contact/add_contact_category.html', {'form': form})
+    categories = ContactCategory.objects.all()
+    return render(request, 'contact/add_contact_category.html', {'form': form, 'categories': categories})
     
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')

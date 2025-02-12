@@ -160,7 +160,6 @@ urlpatterns = [
     
     #Contact関連
     path('api/', include(router.urls)),
-    path('contact-manager/', views.contact_manager, name='contact_manager'),
     path('contacts/', views.contact_list, name='contact_list'),
     path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
     path('add-contact-category/', views.add_contact_category, name='add_contact_category'),
