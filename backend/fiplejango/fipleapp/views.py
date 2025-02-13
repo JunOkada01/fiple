@@ -2377,3 +2377,15 @@ class StockView(LoginRequiredMixin, ListView):
     model = Product
     def get_queryset(self):
         return Product.objects.all().select_related('product_origin', 'color', 'size')
+
+# -------------------管理画面ガイド関連-------------------
+class GuideTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/guide_top.html'
+
+class ProductGuideView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/product_guide.html'
+# ------------------------------------------------------

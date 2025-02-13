@@ -190,55 +190,27 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       {/* 性別カテゴリメニュー */}
       {/* <AllMensLeadiesKidsFilter /> */}
       <AllMensLeadiesKidsFilter onGenderSelect={setSelectedGender} />
-      {/* 価格範囲スライダーと入力フォーム */}
-      <div className="mb-8 text-center">
-      {/* 金額入力フォーム */}
-      <div className="flex justify-center items-center mt-4 space-x-4">
-        <div className="flex items-center border rounded-lg px-3 py-1 shadow-sm w-28">
-          <span className="text-sm font-medium mr-1">¥</span>
-          <input
-            type="number"
-            value={priceRange[0]}
-            onChange={(e) => {
-              const newMin = Math.max(0, Math.min(Number(e.target.value), priceRange[1]));
-              setPriceRange([newMin, priceRange[1]]);
-            }}
-            className="w-full bg-transparent text-center focus:outline-none"
-            min="0"
-            max={priceRange[1]}
-          />
-        </div>
-        <span className="text-sm">～</span>
-        <div className="flex items-center border rounded-lg px-3 py-1 shadow-sm w-28">
-          <span className="text-sm font-medium mr-1">¥</span>
-          <input
-            type="number"
-            value={priceRange[1]}
-            onChange={(e) => {
-              const newMax = Math.min(100000, Math.max(Number(e.target.value), priceRange[0]));
-              setPriceRange([priceRange[0], newMax]);
-            }}
-            className="w-full bg-transparent text-center focus:outline-none"
-            min={priceRange[0]}
-            max="100000"
-          />
-        </div>
-      </div>
-
       {/* 価格範囲スライダー */}
-      <div className="max-w-xs mx-auto mt-4">
-        <ReactSlider
-          className="custom-slider"
-          thumbClassName="custom-thumb"
-          trackClassName="custom-track"
-          min={0}
-          max={100000}
-          step={100}
-          value={priceRange}
-          onChange={(values: [number, number]) => setPriceRange(values)}
-        />
+      <div className="mb-10 mt-10 text-center">
+        <div className="max-w-xs mx-auto mt-4">
+          <ReactSlider
+            className="custom-slider"
+            trackClassName="custom-track"
+            min={0}
+            max={100000}
+            step={100}
+            value={priceRange}
+            onChange={(values: [number, number]) => setPriceRange(values)}
+            renderThumb={(props, state) => (
+              <div {...props} className="custom-thumb">
+                <div className="thumb-label">
+                  ¥{state.valueNow.toLocaleString()}
+                </div>
+              </div>
+            )}
+          />
+        </div>
       </div>
-    </div>
       {/* その他のコンテンツ */}
       <div className="flex justify-center items-center flex-col">
         {Object.keys(categoriesMap).map(categoryName => (

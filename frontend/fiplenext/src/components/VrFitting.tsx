@@ -759,7 +759,7 @@ const FittingArea: React.FC = () => {
                         key={item.id}
                         bounds="parent"
                         defaultPosition={{x: 0, y: 0}}
-                        grid={[5, 5]} // スナップグリッド（5pxごとに移動）
+                        grid={[1, 1]} // スナップグリッド（5pxごとに移動）
                       >
                         <div className="cursor-move">
                           <Image 
@@ -783,7 +783,7 @@ const FittingArea: React.FC = () => {
                         key={item.id}
                         bounds="parent"
                         defaultPosition={{x: 0, y: 0}}
-                        grid={[5, 5]}
+                        grid={[1, 1]}
                       >
                         <div className="cursor-move">
                           <Image 

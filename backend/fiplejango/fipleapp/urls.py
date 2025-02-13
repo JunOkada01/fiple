@@ -187,4 +187,7 @@ urlpatterns = [
     path('banners/delete/<int:pk>/', BannerDeleteView.as_view(), name='banner_delete'),
     path('api/banners/', BannerListAPIView.as_view(), name='banner_list_api'),
     path('api/notifications/', views.NotificationList.as_view(), name='notification-list'),
+    # 管理画面ガイド
+    path('guide/', GuideTopView.as_view(), name='guide'),
+    path('guide/product-guide/', ProductGuideView.as_view(), name='product-guide'),
 ]
