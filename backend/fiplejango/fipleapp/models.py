@@ -130,21 +130,33 @@ class Color(models.Model):
 
     
 class Size(models.Model):
-    size_name = models.CharField(max_length=255, unique=True)  # サイズ名
-    admin_user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)  # 管理者ID（AdminUserモデルへの外部キー）
-    created_at = models.DateTimeField(auto_now_add=True)  # 追加日時
-    updated_at = models.DateTimeField(auto_now=True)  # 更新日時
-    order = models.IntegerField(default=0)
+    SIZE_CHOICES = [
+        ('XS', 'XS'),
+        ('S', 'S'),
+        ('M', 'M'),
+        ('L', 'L'),
+        ('XL', 'XL'),
+    ]
 
-    def save(self, *args, **kwargs):
-        # orderが指定されていない場合、既存の最大値+1を設定
-        if self.order == 0:
-            max_order = Size.objects.aggregate(max_order=models.Max('order'))['max_order'] or 0
-            self.order = max_order + 1
-        super().save(*args, **kwargs)  # 親クラスのsaveを呼び出す
+    size_name = models.CharField(max_length=255, unique=True, choices=SIZE_CHOICES)
+    height_min_for_men = models.IntegerField()  # サイズごとの男性の適正最小身長
+    height_max_for_men = models.IntegerField()  # サイズごとの男性の適正最大身長
+    height_min_for_women = models.IntegerField()  # サイズごとの女性の適正最小身長
+    height_max_for_women = models.IntegerField()  # サイズごとの女性の適正最大身長
+    order = models.IntegerField(unique=True)  # 表示順
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        ordering = ['order']  # orderフィールドで自動的にソート
+        
     def __str__(self):
-        return self.size_name  # サイズ名を返す
+        if self.size_name == 'XS':
+            return f"{self.size_name} - 男性: ~{self.height_max_for_men}cm | 女性: ~{self.height_max_for_women}cm"
+        elif self.size_name == "XL":
+            return f"{self.size_name} - 男性: {self.height_min_for_men}~cm | 女性: {self.height_min_for_women}~cm"
+        else:
+            return f"{self.size_name} - 男性: {self.height_min_for_men}~{self.height_max_for_men}cm | 女性: {self.height_min_for_women}~{self.height_max_for_women}cm"
 
     
 class ProductOrigin(models.Model):

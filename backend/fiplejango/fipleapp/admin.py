@@ -24,7 +24,7 @@ class ContactCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ('size_name', 'order', 'created_at', 'updated_at', 'admin_user')
+    list_display = ('size_name', 'order', 'created_at', 'updated_at')
     ordering = ('order',)
     list_editable = ('order',)  # リスト画面で「order」を直接編集可能にする
 

@@ -53,6 +53,8 @@ interface FittingItem {
   subcategoryName: string;
   price: number;
   imageUrl?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   selectedFrontImageUrl?: string; // 表画像URL
   selectedBackImageUrl?: string;  // 裏画像URL
   selectedColor?: string;
@@ -421,6 +423,26 @@ const FittingArea: React.FC = () => {
                   selectedVariant = matchingVariant;
                 }
               }
+
+              // サイズに基づいて画像サイズを決定する関数
+              const getImageSizeBySize = (sizeName: string) => {
+                switch (sizeName) {
+                  case 'XS':
+                    return { width: 115, height: 115 };
+                  case 'S':
+                    return { width: 120, height: 120 };
+                  case 'M':
+                    return { width: 125, height: 125 };
+                  case 'L':
+                    return { width: 130, height: 130 };
+                  case 'XL':
+                    return { width: 135, height: 135 };
+                  default:
+                    return { width: 125, height: 125 };
+                }
+              };
+    
+              const imageSize = getImageSizeBySize(selectedVariant.size.size_name);
   
               return {
                 ...item,
@@ -428,6 +450,8 @@ const FittingArea: React.FC = () => {
                 selectedColor: selectedVariant.color.color_name,
                 selectedSize: selectedVariant.size.size_name,
                 price: selectedVariant.price,
+                imageWidth: imageSize.width,
+                imageHeight: imageSize.height,
                 imageUrl: selectedVariant.images[0]?.image 
                   ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
                   : item.imageUrl,
@@ -474,11 +498,33 @@ const FittingArea: React.FC = () => {
         if (item.id === itemId) {
           const selectedVariant = item.variants?.find(v => v.id === variantId);
           if (selectedVariant) {
+            // サイズに基づいて画像サイズを決定
+            const getImageSizeBySize = (sizeName: string) => {
+              switch (sizeName) {
+                case 'XS':
+                  return { width: 115, height: 115 };
+                case 'S':
+                  return { width: 120, height: 120 };
+                case 'M':
+                  return { width: 125, height: 125 };
+                case 'L':
+                  return { width: 130, height: 130 };
+                case 'XL':
+                  return { width: 135, height: 135 };
+                default:
+                  return { width: 125, height: 125 };
+              }
+            };
+  
+            const imageSize = getImageSizeBySize(selectedVariant.size.size_name);
+
             const updatedItem = {
               ...item,
               price: selectedVariant.price,
               selectedColor: selectedVariant.color.color_name,
               selectedSize: selectedVariant.size.size_name,
+              imageWidth: imageSize.width,
+              imageHeight: imageSize.height,
               imageUrl: selectedVariant.images[0]?.image 
                 ? `http://127.0.0.1:8000/${selectedVariant.images[0].image}`
                 : item.imageUrl,
@@ -792,26 +838,18 @@ const FittingArea: React.FC = () => {
                         key={item.id}
                         bounds="parent"
                         defaultPosition={{x: 0, y: 0}}
-                        grid={[5, 5]}
+                        grid={[1, 1]}
                       >
                         <div className="cursor-move">
-                          {isFrontView && item.selectedFrontImageUrl ? (
+                          {item.selectedFrontImageUrl && item.selectedBackImageUrl && (
                             <Image 
-                              src={item.selectedFrontImageUrl}
-                              alt="商品正面"
-                              width={125}
-                              height={125}
-                              style={{ touchAction: 'none' }}
+                              src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                              alt={isFrontView ? '商品正面' : '商品裏面'} 
+                              width={item.imageWidth || 125}
+                              height={item.imageWidth || 125}
+                              style={{ touchAction: 'none' }} // モバイルでのドラッグを改善
                             />
-                          ) : item.selectedBackImageUrl ? (
-                            <Image 
-                              src={item.selectedBackImageUrl}
-                              alt="商品裏面"
-                              width={125}
-                              height={125}
-                              style={{ touchAction: 'none' }}
-                            />
-                          ) : null}
+                          )}
                         </div>
                       </Draggable>
                     ))}
@@ -826,27 +864,19 @@ const FittingArea: React.FC = () => {
                         key={item.id}
                         bounds="parent"
                         defaultPosition={{x: 0, y: 0}}
-                        grid={[5, 5]}
+                        grid={[1, 1]}
                       >
                         <div className="cursor-move">
-                          {isFrontView && item.selectedFrontImageUrl ? (
-                            <Image 
-                              src={item.selectedFrontImageUrl}
-                              alt="商品正面"
-                              width={125}
-                              height={125}
-                              style={{ touchAction: 'none' }}
-                            />
-                          ) : item.selectedBackImageUrl ? (
-                            <Image 
-                              src={item.selectedBackImageUrl}
-                              alt="商品裏面"
-                              width={125}
-                              height={125}
-                              style={{ touchAction: 'none' }}
-                            />
-                          ) : null}
-                        </div>
+                          {item.selectedFrontImageUrl && item.selectedBackImageUrl && (
+                              <Image 
+                                src={isFrontView ? item.selectedFrontImageUrl : item.selectedBackImageUrl} 
+                                alt={isFrontView ? '商品正面' : '商品裏面'} 
+                                width={item.imageWidth || 125}
+                                height={item.imageWidth || 125}
+                                style={{ touchAction: 'none' }} // モバイルでのドラッグを改善
+                              />
+                            )}
+                          </div>
                       </Draggable>
                     ))}
                 </div>
