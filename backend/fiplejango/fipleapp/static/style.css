@@ -61,6 +61,7 @@ html, body {
     transition: transform 0.5s ease, width 0.5s ease;
     transform: translateX(0); /* 開いた状態 */
 }
+
 .sidebar.closed {
     transform: translateX(-100%); /* 閉じた状態 */
 }
@@ -80,6 +81,7 @@ main.sidebar-closed {
 
 /* サイドバーのヘッダー部分 */
 .side-header {
+    position: relative;
     background-color: white;
     position: sticky; /* 固定 */
     top: 0;
@@ -96,6 +98,25 @@ main.sidebar-closed {
     margin-top: 5px;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+}
+
+/* デフォルトは閉じるボタンを非表示（d-md-noneで小画面のみ表示されるが、補足のスタイル） */
+.sidebar-close-btn {
+    position: absolute;
+    top: 5px;   /* ロゴ内での上下位置調整 */
+    right: 5px; /* ロゴ内での右側位置調整 */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+    display: none;  /* 基本は非表示、メディアクエリで表示 */
+}
+/* メディアクエリ：小さい画面では表示 */
+@media (max-width: 768px) {
+    .sidebar-close-btn {
+        display: block;
+    }
 }
 
 /* --------------------------------------------------- */
@@ -1388,6 +1409,7 @@ color: #888;
     padding: 0;
 }
 .category-add-buttons {
+    width: 50%;
     display: flex;
     align-items: center;
     justify-content: space-between;

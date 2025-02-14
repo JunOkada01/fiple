@@ -48,8 +48,11 @@
                         <a href="{% url 'fipleapp:admin_top' %}">
                             <img class="sidebar-logo" src="{% static 'images/Fiple-simple.png' %}" alt="Fiple-simple-logo">
                         </a>
+                        <!-- レスポンシブ用：小さい画面でのみ表示 -->
+                        <button id="sidebarClose" class="sidebar-close-btn d-md-none">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    
                     <div class="admin-user-bord">
                         <div class="admin-user">
                             <i class="fa-solid fa-user-tie" style="font-size: 50px;"></i>
@@ -166,11 +169,23 @@
                 const sidebar = document.getElementById('sidebar');
                 const sidebarToggle = document.getElementById('sidebarToggle');
                 const mainContent = document.querySelector('main');
+                const sidebarClose = document.getElementById('sidebarClose');
 
-                sidebarToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('closed');
-                    mainContent.classList.toggle('sidebar-closed');
-                });
+                // サイドバーのトグルボタン処理
+                if (sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function () {
+                        sidebar.classList.toggle('closed');
+                        mainContent.classList.toggle('sidebar-closed');
+                    });
+                }
+                
+                // サイドバー内の閉じるボタン処理（小さい画面用）
+                if (sidebarClose) {
+                    sidebarClose.addEventListener('click', function () {
+                        sidebar.classList.add('closed');
+                        mainContent.classList.add('sidebar-closed');
+                    });
+                }
             });
         </script>
 
