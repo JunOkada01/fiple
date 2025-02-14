@@ -9,7 +9,8 @@
         {{ form.as_p }}
         <button type="submit">追加</button>
     </form>
-    <br>
-    <a href="{% url 'fipleapp:subcategory_list' %}"><h5>戻る</h5></a>
+    <button onclick="window.history.back();" style="background: none; border: none; color: blue; cursor: pointer;">
+        戻る
+    </button>
 </div>
 {% endblock %}

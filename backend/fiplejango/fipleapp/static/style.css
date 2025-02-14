@@ -1361,3 +1361,125 @@ color: #888;
     background-color: #ebebeb;
 }
 /* - - - - - - - - ガイド関連ここまで - - - - - - - - */
+
+/* - - - - - - - - カテゴリ管理画面 - - - - - - - - */
+/* 全体のリストのリセット */
+.main-category-list, .sub-category-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.category-add-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+/* メインカテゴリカード */
+.main-category-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+.main-category-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.main-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 左寄せ */
+    padding: 5px 0;
+    gap: 10px; /* ボタンとテキストの間隔を調整 */
+}
+
+/* 開閉ボタンとカテゴリ名のグループ */
+.main-category-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.category-name {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+/* 編集・削除ボタンを右寄せ */
+.main-category-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+/* 開閉ボタン */
+.toggle-subcategory {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 10px;
+    transition: transform 0.5s ease;
+}
+.toggle-subcategory.active i {
+    transform: rotate(180deg);
+}
+/* サブカテゴリリスト */
+.sub-category-list {
+    margin-top: 10px;
+    margin-left: 20px;
+    display: none; /* 初期状態は非表示 */
+}
+.sub-category-item {
+    display: flex;
+    justify-content: space-between; /* 左右に要素を配置 */
+    align-items: center; /* 縦方向の中央揃え */
+    padding: 5px 0;
+    border-bottom: 1px dotted #ccc;
+    gap: 10px;
+}
+.sub-category-item:last-child {
+    border-bottom: none;
+}
+/* ボタンをグループ化 */
+.sub-category-actions {
+    display: flex;
+    gap: 10px;
+}
+/* ボタン類 */
+.btn-edit, .btn-delete, .btn-add{
+    font-size: 0.9em;
+    text-decoration: none;
+    color: #007bff;
+    margin-left: auto;
+}
+.btn-delete {
+    color: #dc3545;
+}
+.btn-add-main {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    background-color: lightcoral;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.btn-add-main:hover {
+    background-color: #d96c6c; /* 濃いめのコーラル */
+    transform: scale(1.05);
+}
+.btn-add-sub {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    background-color: lightskyblue;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.btn-add-sub:hover {
+    background-color: #5aaedc; /* 濃いめのスカイブルー */
+    transform: scale(1.05);
+}
+/* - - - - - - - - カテゴリ管理画面ここまで - - - - - - - - */
