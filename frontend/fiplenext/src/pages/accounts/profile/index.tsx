@@ -32,8 +32,10 @@ const Profile: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const token = localStorage.getItem('access_token');
+    // birthの年、月、日を分割
+    const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
     
     if (!token) {
         localStorage.removeItem('access_token');
@@ -65,26 +67,45 @@ const Profile: React.FC = () => {
     };
 
     useEffect(() => {
+        const token = localStorage.getItem('access_token');
+
+        if (!token) {
+            setErrorMessage('セッションが期限切れです。再度ログインしてください。');
+            
+            // 3秒後にログイン画面へリダイレクト
+            setTimeout(() => {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                router.push('/accounts/login');
+            }, 3000);
+
+            return;
+        }
+
         const fetchUserData = async () => {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/user/', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('access_token')}`,  // トークンをヘッダーに追加
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log(response.data);
-                setUser(response.data);  // 取得したユーザー情報を state にセット
-                setLoading(false);  // ローディング終了
+                setUser(response.data);
+                setLoading(false);
             } catch (err) {
-                localStorage.removeItem('access_token'); // トークンを削除
-                window.location.href = '/accounts/login'; // ログインページにリダイレクト
                 setError('ユーザー情報の取得に失敗しました');
-                setLoading(false);  // ローディング終了
+                setErrorMessage('セッションが期限切れです。再度ログインしてください。');
+
+                // 3秒後にログイン画面へリダイレクト
+                setTimeout(() => {
+                    localStorage.removeItem('access_token');
+                    router.push('/accounts/login');
+                }, 3000);
+
+                setLoading(false);
             }
         };
 
         fetchUserData();
-    }, []);
+    }, [router]);
+
     if (error) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -95,11 +116,18 @@ const Profile: React.FC = () => {
             </div>
         );
     }
+    if (errorMessage) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative w-96">
+                    <p className="font-bold">認証エラー</p>
+                    <p>{errorMessage}</p>
+                    <p className="text-sm mt-2">ログインページに移動します...</p>
+                </div>
+            </div>
+        );
+    }
     
-
-    // birthの年、月、日を分割
-    const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
-
     return (
         <div className="container mx-auto flex flex-col items-center pt-5">
             {/* アカウントアイコンとタイトル部分 */}
