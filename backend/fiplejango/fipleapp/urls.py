@@ -78,6 +78,9 @@ urlpatterns = [
     path('sales/<int:sales_id>/', SalesDetailView.as_view(), name='sales_detail'),
     # 在庫管理
     path('stock/', StockView.as_view(), name='stock'),
+    # 管理画面ガイド
+    path('guide/', GuideTopView.as_view(), name='guide'),
+    path('guide/product-guide/', ProductGuideView.as_view(), name='product-guide'),
     # トークン
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 

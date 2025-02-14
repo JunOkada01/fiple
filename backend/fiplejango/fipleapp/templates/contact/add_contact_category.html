@@ -13,7 +13,15 @@
         </div>
         <button type="submit" class="btn btn-primary">保存</button>
     </form>
-    <br>
-    <a href="{% url 'fipleapp:contact_manager' %}">管理画面に戻る</a>
+    <div class="contact-categories-content">
+        <h4>登録済みのお問い合わせ件名</h4>
+        <div class="contact-categories-list">
+            {% for category in categories %}
+                <li>{{ category.name }}</li>
+            {% empty %}
+                <li>お問い合わせの件名がありません。</li>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

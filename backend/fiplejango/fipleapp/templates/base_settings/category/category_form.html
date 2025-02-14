@@ -8,13 +8,13 @@
         {% csrf_token %}
         {{ form.category_name.label }}: {{ form.category_name }}
         <div class="radio-inline">
-            <br>
             部位: {{ form.category_position }}
         </div>
         <br>
         <button type="submit">追加</button>
     </form>
-    <br>
-    <a href="{% url 'fipleapp:category_list' %}"><h5>戻る</h5></a>
+    <button onclick="window.history.back();" style="background: none; border: none; color: blue; cursor: pointer;">
+        戻る
+    </button>
 </div>
 {% endblock %}

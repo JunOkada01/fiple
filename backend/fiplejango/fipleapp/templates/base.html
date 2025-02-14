@@ -48,13 +48,16 @@
                         <a href="{% url 'fipleapp:admin_top' %}">
                             <img class="sidebar-logo" src="{% static 'images/Fiple-simple.png' %}" alt="Fiple-simple-logo">
                         </a>
+                        <!-- レスポンシブ用：小さい画面でのみ表示 -->
+                        <button id="sidebarClose" class="sidebar-close-btn d-md-none">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    
                     <div class="admin-user-bord">
                         <div class="admin-user">
                             <i class="fa-solid fa-user-tie" style="font-size: 50px;"></i>
-                                <span class="admin-username">社員名: {{ name }}</span>
-                                <span class="admin-username">社員ID: {{ admin_id }}</span>
+                                <span class="admin-username">社員名 {{ name }}</span>
+                                <span class="admin-username">社員ID {{ admin_id }}</span>
                             <div class="logout-link-btn">
                                 <a href="{% url 'fipleapp:admin_logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
                             </div>
@@ -70,31 +73,29 @@
                             <!-- ユーザー管理 -->
                             <li class="side-item-top border-bottom">
                                 <a href="{% url 'fipleapp:admin_user_list' %}" class="item-top">
-                                    <i class="fa-solid fa-user" style="font-size: 15px;"></i>ユーザー管理
+                                    <i class="fa-solid fa-user" style="font-size: 15px;"></i>顧客管理
                                 </a>
                             </li>
                             <!-- 基盤設定 -->
-                            <li class="side-item-top">
+                            <li class="side-item-top border-bottom">
                                 <a href="{% url 'fipleapp:base_settings' %}" class="item-top">
                                     <i class="fa-solid fa-layer-group" style="font-size: 15px;"></i>基盤設定<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span>
                                 </a>
                                 <ul class="submenu border-bottom">
                                     <li class="submenu-item">
-                                        <a href="{% url 'fipleapp:category_top' %}">Category</a>
-                                        <!--
-                                        <ul>
-                                            <li class="side-item-submenu"><a href="{% url 'fipleapp:category_list' %}">カテゴリー</a></li>
-                                            <li class="side-item-submenu"><a href="{% url 'fipleapp:subcategory_list' %}">サブカテゴリー</a></li>
-                                        </ul>
-                                        -->
+                                        <a href="{% url 'fipleapp:category_top' %}">カテゴリー管理</a>
+                                        <!-- <ul>
+                                            <li class="side-item-submenu" style="font-size: 16px;"><a href="{% url 'fipleapp:category_list' %}">カテゴリー</a></li>
+                                            <li class="side-item-submenu" style="font-size: 16px;"><a href="{% url 'fipleapp:subcategory_list' %}">サブカテゴリー</a></li>
+                                        </ul> -->
                                     </li>
-                                    <li class="submenu-item"><a href="{% url 'fipleapp:color_list' %}">Color</a></li>
-                                    <li class="submenu-item"><a href="{% url 'fipleapp:size_list' %}">Size</a></li>
-                                    <li class="submenu-item"><a href="{% url 'fipleapp:tag_list' %}">Tag</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:color_list' %}">カラー管理</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:size_list' %}">サイズ管理</a></li>
+                                    <li class="submenu-item"><a href="{% url 'fipleapp:tag_list' %}">タグ管理</a></li>
                                 </ul>
                             </li>
                             <!-- 商品管理 -->
-                            <li class="side-item-top">
+                            <li class="side-item-top border-bottom">
                                 <a href="{% url 'fipleapp:product_management' %}" class="item-top"><i class="fa-solid fa-box" style="font-size: 15px;"></i>商品管理<span class="toggle-submenu"><i class="fa-solid fa-chevron-right"></i></span></a>
                                 <ul class="submenu border-bottom">
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_image_list' %}">商品画像管理</a></li>
@@ -103,10 +104,30 @@
                                     <li class="submenu-item"><a href="{% url 'fipleapp:product_list' %}">商品管理</a></li>
                                 </ul>
                             </li>
+                            <!-- 商品価格履歴 -->
+                            <li class="side-item-top border-bottom">
+                                <a href="{% url 'fipleapp:product_price_history' %}" class="item-top"><i class="fa-solid fa-yen" style="font-size: 15px;"></i>商品価格履歴</a>
+                            </li>
                             <!-- 売上管理 -->
-                            <li class="side-item-top">
+                            <li class="side-item-top border-bottom">
                                 <a href="{% url 'fipleapp:sales' %}" class="item-top"><i class="fa-solid fa-bag-shopping" style="font-size: 15px;"></i>売上管理</a>
+                            </li>
+                            <!-- FAQ よくある質問管理 -->
+                            <li class="side-item-top border-bottom">
+                                <a href="{% url 'fipleapp:faq_manager' %}" class="item-top"><i class="fa-regular fa-circle-question" style="font-size: 15px;"></i>FAQ管理</a>
                                 <ul class="submenu border-bottom"></ul>
+                            </li>
+                            <!-- お知らせ配信 -->
+                            <li class="side-item-top border-bottom">
+                                <a href="/notifications/list" class="item-top"><i class="fa-regular fa-message" style="font-size: 15px;"></i>おしらせ配信</a>
+                            </li>
+                            <!-- バナー -->
+                            <li class="side-item-top border-bottom">
+                                <a href="/banners" class="item-top"><i class="fa-solid fa-square-plus" style="font-size: 15px;"></i>バナー管理</a>
+                            </li>
+                            <!-- ガイド -->
+                            <li class="side-item-top border-bottom">
+                                <a href="/guide" class="item-top"><i class="fa-regular fa-circle-question" style="font-size: 15px;"></i>ガイド</a>
                             </li>
                         </ul>
                     </div>
@@ -148,11 +169,23 @@
                 const sidebar = document.getElementById('sidebar');
                 const sidebarToggle = document.getElementById('sidebarToggle');
                 const mainContent = document.querySelector('main');
+                const sidebarClose = document.getElementById('sidebarClose');
 
-                sidebarToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('closed');
-                    mainContent.classList.toggle('sidebar-closed');
-                });
+                // サイドバーのトグルボタン処理
+                if (sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function () {
+                        sidebar.classList.toggle('closed');
+                        mainContent.classList.toggle('sidebar-closed');
+                    });
+                }
+                
+                // サイドバー内の閉じるボタン処理（小さい画面用）
+                if (sidebarClose) {
+                    sidebarClose.addEventListener('click', function () {
+                        sidebar.classList.add('closed');
+                        mainContent.classList.add('sidebar-closed');
+                    });
+                }
             });
         </script>
 
