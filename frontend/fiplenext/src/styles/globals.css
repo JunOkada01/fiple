@@ -185,7 +185,7 @@ body {
 /* ここからが金額絞り込みバーのcssです */
 .custom-slider {
   height: 4px; /* スライダーの高さを細く設定 */
-  background: #e0e0e0; /* 明るい背景色 */
+  background: #f0f0f0; /* 明るい背景色 */
   border-radius: 2px; /* 丸みを少しだけ付ける */
   position: relative;
 }
@@ -197,34 +197,19 @@ body {
 }
  
 .custom-thumb {
-  height: 12px;
-  width: 12px;
-  background: #000;
-  border-radius: 50%;
+  height: 22px; /* 縦棒の高さを少し小さく */
+  width: 4px; /* 縦棒の幅を細く */
+  background: #000; /* 黒色の縦棒 */
+  border: none;
+  border-radius: 2px; /* 丸みを少しだけ付ける */
   cursor: grab;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-  top: -4px;
-  transition: all 0.02s ease-in-out;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6); /* 影を強調 */
+  position: relative;
+  top: -8px; /* 縦棒を少し中央に調整 */
+  transition: all 0.2s ease-in-out; /* スムーズな動き */
 }
  
 .custom-thumb:active {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.8); /* クリック時に影を強調 */
-}
-
-/* ラベルのスタイル */
-.thumb-label {
-  position: absolute;
-  bottom: 80%;  /* thumbの上部に配置 */
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  background-color: #fff;
-  color: #000;
-  border: 0.5px solid #878787;
-  border-radius: 4px;
-  white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 /* ここまでが金額絞り込みバーのcssです */

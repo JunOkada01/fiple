@@ -3,24 +3,18 @@
 {% block title %}FAQ登録{% endblock %}
 
 {% block content %}
-<div class="page-container">
-  <div class="faq-content">
-    <div class="faq-header">
-      <h2>FAQ登録</h2>
-    </div>
-    <div class="faq-links">
-      {% if messages %}
-      <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">FAQを登録</button>
-      </form>
-      </div>
-      <a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
+<h4>・FAQの登録</h4>
+{% if messages %}
+<ul>
+  {% for message in messages %}
+    <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">FAQを登録</button>
+</form>
+<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
 {% endblock %}

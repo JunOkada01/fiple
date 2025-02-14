@@ -6,34 +6,76 @@
 <!-- Icon Tiles -->
 <div class="box-container">
     <div class="icon-tile-area">
-        <a href="{% url 'fipleapp:contact_list' %}" class="icon-link">
+        <a href="{% url 'fipleapp:admin_user_list' %}" class="icon-link">
             <div class="icon-tile">
-                <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #8AA7D1;"></i>
-                <p>お問い合わせ</p>
+                <i class="fa-solid fa-user faa-float animated-hover icons" style="color: #d0e7a7;"></i>
+                <p>顧客管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:base_settings' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-layer-group faa-float animated-hover icons" style="color: #A7C7E7;"></i>
+                <p>基盤設定</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:product_management' %}" class="icon-link">
             <div class="icon-tile">
-                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #89B8A4;"></i>
+                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #A8D8A1;"></i>
                 <p>商品管理</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:stock' %}" class="icon-link">
             <div class="icon-tile">
-                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #F2D08A;"></i>
+                <i class="fa-solid fa-box faa-float animated-hover icons" style="color: #d8cba1;"></i>
                 <p>在庫管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:sales' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-bag-shopping faa-float animated-hover icons" style="color: #bfb1f1;"></i>
+                <p>売上管理</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:admin_order-list' %}" class="icon-link">
             <div class="icon-tile">
-                <i class="fa-solid fa-receipt faa-float animated-hover icons" style="color: #B9A2D8;"></i>
+                <i class="fa-solid fa-receipt faa-float animated-hover icons" style="color:rgb(177, 241, 226);"></i>
                 <p>注文管理</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:delivery-list' %}" class="icon-link">
             <div class="icon-tile">
-                <i class="fa-solid fa-truck faa-float animated-hover icons" style="color: #8AB8C2;"></i>
+                <i class="fa-solid fa-truck faa-float animated-hover icons" style="color: #b1b4f1;"></i>
                 <p>配送管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:contact_list' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-envelope faa-float animated-hover icons" style="color: #F8C8A3;"></i>
+                <p>お問い合わせ</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:faq_manager' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-circle-question faa-float animated-hover icons" style="color: #F1B1D2;"></i>
+                <p>FAQ</p>
+            </div>
+        </a>
+        <a href="/notifications/list" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-regular fa-message faa-float animated-hover icons" style="color: #59bbf9;"></i>
+                <p>お知らせ配信</p>
+            </div>
+        </a>
+        <a href="/banners" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-square-plus faa-float animated-hover icons" style="color: #59bbf9;"></i>
+                <p>バナー管理</p>
+            </div>
+        </a>
+        <a href="{% url 'fipleapp:product_price_history' %}" class="icon-link">
+            <div class="icon-tile">
+                <i class="fa-solid fa-yen faa-float animated-hover icons" style="color:rgb(224, 220, 0);"></i>
+                <p>商品価格履歴</p>
             </div>
         </a>
     </div>
@@ -46,7 +88,7 @@
     <div class="row">
         <!-- 左側の売上数グラフ -->
         <div class="col-md-6">
-            <div class="block shadow w-100 rounded-3 border">
+            <div class="block shadow w-100 rounded-4 border">
                 <div class="block-header p-3 d-flex justify-content-between align-items-center">
                     <div class="block-title px-2">Sales orders / 売上件数</div>
                 </div>
@@ -89,7 +131,7 @@
         
         <!-- 右側の売上額グラフ -->
         <div class="col-md-6">
-            <div class="block shadow w-100 rounded-3 border">
+            <div class="block shadow w-100 rounded-4 border">
                 <div class="block-header p-3 d-flex justify-content-between align-items-center">
                     <div class="block-title px-2">Sales Amount / 売上額</div>
                 </div>
@@ -169,45 +211,45 @@
             labels: dates,
             datasets: [{
                 label: '売上件数',
-                data: orderCounts, //売上件数データ
-                borderColor: 'rgba(54, 162, 235, 1)', //線のカラー
-                backgroundColor: 'rgba(54, 162, 235, 0.4)', //背景色
-                fill: true, //グラフ領域の塗りつぶし
-                tension: 0.4, //線の滑らかさ
-                pointRadius: 6, //各データポイントのサイズ
-                pointBackgroundColor: 'rgba(54, 162, 235, 1)', //データポイントのカラー
-                pointBorderColor: '#fff', //データポイントの枠線カラー
-                pointBorderWidth: 2, //データポイントの枠線の幅
-                hoverBackgroundColor: '#fff', //ホバー時のデータポイントのカラー
-                hoverBorderColor: 'rgba(54, 162, 235, 1)', // ホバー時の枠線カラー
-                hoverRadius: 10, //ホバー時のデータポイントサイズ
+                data: orderCounts,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                hoverBackgroundColor: '#fff',
+                hoverBorderColor: 'rgba(54, 162, 235, 1)',
+                hoverRadius: 10,
             }]
         },
         options: {
-            responsive: true, // 画面サイズに応じてグラフを調整
+            responsive: true,
             scales: {
-                y: { beginAtZero: true, display: false }, // y軸の表示を非表示
-                x: { display: false } // x軸のラベルを非表示
+                y: { beginAtZero: true, display: false },
+                x: { display: false }
             },
             interaction: {
-                mode: 'index', // 複数データセットがある場合のインタラクション
-                intersect: false // 交差点でのツールチップ表示を無効化
+                mode: 'index',
+                intersect: false
             },
             plugins: {
                 tooltip: {
                     callbacks: {
                         title: function(tooltipItem) {
-                            return tooltipItem[0].label; // ツールチップのタイトル（売上日）
+                            return tooltipItem[0].label;
                         },
                         label: function(tooltipItem) {
-                            return ' ' + tooltipItem.raw + ' 件'; // ツールチップのデータ（売上件数）
+                            return ' ' + tooltipItem.raw + ' 件';
                         }
                     },
-                    caretPadding: 10, // ツールチップの位置調整
-                    intersect: false, // 交差点での表示を無効化
-                    mode: 'nearest' // 一番近いポイントのツールチップを表示
+                    caretPadding: 10,
+                    intersect: false,
+                    mode: 'nearest'
                 },
-                legend: { display: false } // 凡例を非表示
+                legend: { display: false }
             }
         }
     });
@@ -220,45 +262,45 @@
             labels: dates,
             datasets: [{
                 label: '売上額',
-                data: totals, //売上額データ
-                borderColor: 'rgba(75, 192, 192, 1)', //線のカラー
-                backgroundColor: 'rgba(75, 192, 192, 0.4)', //背景色
-                fill: true, //グラフ領域の塗りつぶし
-                tension: 0.4, //線の滑らかさ
-                pointRadius: 6, //各データポイントのサイズ
-                pointBackgroundColor: 'rgba(75, 192, 192, 1)', //データポイントのカラー
-                pointBorderColor: '#fff', //データポイントの枠線カラー
-                pointBorderWidth: 2, //データポイントの枠線の幅
-                hoverBackgroundColor: '#fff', //ホバー時のデータポイントのカラー
-                hoverBorderColor: 'rgba(75, 192, 192, 1)', // ホバー時の枠線カラー
-                hoverRadius: 10, //ホバー時のデータポイントサイズ
+                data: totals,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                hoverBackgroundColor: '#fff',
+                hoverBorderColor: 'rgba(75, 192, 192, 1)',
+                hoverRadius: 10,
             }]
         },
         options: {
-            responsive: true, // 画面サイズに応じてグラフを調整
+            responsive: true,
             scales: {
-                y: { beginAtZero: true, display: false }, // y軸の表示を非表示
-                x: { display: false } // x軸のラベルを非表示
+                y: { beginAtZero: true, display: false },
+                x: { display: false }
             },
             interaction: {
-                mode: 'index', // 複数データセットがある場合のインタラクション
-                intersect: false // 交差点でのツールチップ表示を無効化
+                mode: 'index',
+                intersect: false
             },
             plugins: {
                 tooltip: {
                     callbacks: {
                         title: function(tooltipItem) {
-                            return tooltipItem[0].label; // ツールチップのタイトル（売上日）
+                            return tooltipItem[0].label;
                         },
                         label: function(tooltipItem) {
-                            return ' ¥' + tooltipItem.raw.toLocaleString(); // ツールチップのデータ（売上額）
+                            return ' ¥' + tooltipItem.raw.toLocaleString();
                         }
                     },
-                    caretPadding: 10, // ツールチップの位置調整
-                    intersect: false, // 交差点での表示を無効化
-                    mode: 'nearest' // 一番近いポイントのツールチップを表示
+                    caretPadding: 10,
+                    intersect: false,
+                    mode: 'nearest'
                 },
-                legend: { display: false } // 凡例を非表示
+                legend: { display: false }
             }
         }
     });

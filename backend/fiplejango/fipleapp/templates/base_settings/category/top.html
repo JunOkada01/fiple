@@ -6,91 +6,15 @@
         <a href="{% url 'fipleapp:category_list' %}" class="icon-link">
             <div class="icon-tile">
                 <i class="fa-regular fa-bookmark icons" style="color: lightcoral;"></i>
-                <p>メインカテゴリ一管理</p>
+                <p>カテゴリ一覧・追加</p>
             </div>
         </a>
         <a href="{% url 'fipleapp:subcategory_list' %}" class="icon-link">
             <div class="icon-tile">
                 <i class="fa-regular fa-bookmark icons" style="color: lightskyblue;"></i>
-                <p>サブカテゴリ一管理</p>
+                <p>サブカテゴリ一覧・追加</p>
             </div>
         </a>
     </div>
 </div>
-
-<div class="category-area">
-    <div class="category-list">
-        <div class="category-add-buttons">
-            <!-- メインカテゴリ新規追加 d-flex justify-content-center -->
-            <a href="{% url 'fipleapp:category_add' %}" class="btn-add-main">
-                <i class="fa-solid fa-plus"></i>
-                メインカテゴリ登録
-            </a>
-            <!-- サブカテゴリ新規追加 -->
-            <a href="{% url 'fipleapp:subcategory_add' %}" class="btn-add-sub">
-                <i class="fa-solid fa-plus"></i>
-                サブカテゴリ追加
-            </a>
-        </div>
-        <!-- メインカテゴリ一覧 -->
-        <ul class="main-category-list">
-            {% for category in categories %}
-            <li class="main-category-item">
-                <div class="main-category-header">
-                    <!-- 開閉ボタン。data-targetに対象のサブカテゴリリストIDを指定 -->
-                    <div class="main-category-name-wrapper">
-                        <button class="toggle-subcategory" data-target="#subcat-{{ category.id }}">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                        <span class="category-name">{{ category.category_name }}</span>
-                    </div>
-                    <!-- 編集・削除リンク等を追加する場合はここに -->
-                    <div class="main-category-actions">
-                        <a href="{% url 'fipleapp:category_edit' category.id %}" class="btn-edit">
-                            編集
-                        </a>
-                        <a href="{% url 'fipleapp:category_delete' category.id %}" class="btn-delete">
-                            削除
-                        </a>
-                    </div>
-                </div>
-                <!-- サブカテゴリ一覧（初期状態は非表示） -->
-                <ul id="subcat-{{ category.id }}" class="sub-category-list">
-                    {% for sub in category.subcategories.all %}
-                    <li class="sub-category-item">
-                        <span>{{ sub.subcategory_name }}</span>
-                        <div class="sub-category-actions">
-                            <a href="{% url 'fipleapp:subcategory_edit' category.id %}" class="btn-edit">編集</a>
-                            <a href="{% url 'fipleapp:subcategory_delete' category.id %}" class="btn-delete">削除</a>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-
-<!-- JavaScript：クリックで対象のサブカテゴリリストの表示切替 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButtons = document.querySelectorAll('.toggle-subcategory');
-        toggleButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                const targetSelector = button.getAttribute('data-target');
-                const targetElem = document.querySelector(targetSelector);
-                if(targetElem) {
-                    if(targetElem.style.display === 'none' || targetElem.style.display === '') {
-                        targetElem.style.display = 'block';
-                        button.classList.add('active');
-                    } else {
-                        targetElem.style.display = 'none';
-                        button.classList.remove('active');
-                    }
-                }
-            });
-        });
-    });
-    </script>
 {% endblock %}

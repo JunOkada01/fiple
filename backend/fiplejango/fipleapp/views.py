@@ -1002,13 +1002,6 @@ class CategoryTopView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/category/top.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # ログイン中の管理者が作成したメインカテゴリをすべて取得（サブカテゴリもまとめて）
-        context['categories'] = Category.objects.filter(
-            admin_user=self.request.user
-        ).prefetch_related('subcategories')
-        return context
 
 class CategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
@@ -2336,7 +2329,6 @@ class SalesDetailView(LoginRequiredMixin, DetailView):
     売上詳細に必要なものを検討
     """
     
-# バナー管理----------------------------------------------------------------------------------------------------------
 class BannerListAPIView(generics.ListAPIView):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
@@ -2368,12 +2360,10 @@ class BannerDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'banners/banner_confirm_delete.html'
     success_url = reverse_lazy('fipleapp:banner_list')
     
-# 通知--------------------------------------------------------------------------------------------------------------
 class NotificationList(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     
-# 在庫管理------------------------------------------------------------------------------------------------------
 class StockView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
@@ -2383,15 +2373,3 @@ class StockView(LoginRequiredMixin, ListView):
     model = Product
     def get_queryset(self):
         return Product.objects.all().select_related('product_origin', 'color', 'size')
-    
-# -------------------管理画面ガイド関連-------------------
-class GuideTopView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'guide/guide_top.html'
-
-class ProductGuideView(LoginRequiredMixin, TemplateView):
-    login_url = 'fipleapp:admin_login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'guide/product_guide.html'
-# ------------------------------------------------------
