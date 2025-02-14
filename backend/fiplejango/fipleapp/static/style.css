@@ -1338,6 +1338,7 @@ color: #888;
 }
 .guide-content li {
     width: 100%;
+    min-width: 300px;
 }
 .guide-link-box {
     width: 100%;
@@ -1350,6 +1351,7 @@ color: #888;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     background-color: #fff;
     transition: background-color 0.3s ease;
+    gap: 10px;
 }
 .guide-link-box i,
 .guide-content a {
@@ -1364,7 +1366,23 @@ color: #888;
 
 /* - - - - - - - - カテゴリ管理画面 - - - - - - - - */
 /* 全体のリストのリセット */
+.category-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.category-area .category-list {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
 .main-category-list, .sub-category-list {
+    width: 50%;
+    min-width: 300px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1426,7 +1444,6 @@ color: #888;
 }
 /* サブカテゴリリスト */
 .sub-category-list {
-    margin-top: 10px;
     margin-left: 20px;
     display: none; /* 初期状態は非表示 */
 }
@@ -1437,6 +1454,7 @@ color: #888;
     padding: 5px 0;
     border-bottom: 1px dotted #ccc;
     gap: 10px;
+    margin-left: 30px;
 }
 .sub-category-item:last-child {
     border-bottom: none;
@@ -1458,7 +1476,6 @@ color: #888;
 }
 .btn-add-main {
     display: inline-block;
-    margin-bottom: 20px;
     padding: 8px 12px;
     background-color: lightcoral;
     color: #fff;
@@ -1471,7 +1488,6 @@ color: #888;
 }
 .btn-add-sub {
     display: inline-block;
-    margin-bottom: 20px;
     padding: 8px 12px;
     background-color: lightskyblue;
     color: #fff;
