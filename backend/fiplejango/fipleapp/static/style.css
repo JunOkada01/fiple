@@ -913,6 +913,9 @@ input[type="file"] {
     justify-content: center;
     margin: auto;
 }
+.faq-main {
+    flex-direction: column;
+}
 .contact-main ul,
 .contact-category-main ul,
 .faq-main ul,
@@ -1001,6 +1004,8 @@ input[type="file"] {
 }
 /* - - - - - - - - FAQ - - - - - - - - */
 .faq-category {
+    width: 500px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1044,7 +1049,6 @@ input[type="file"] {
 /* - - - - - - - - FAQここまで - - - - - - - - */
 /* - - - - - - - - バナー管理 - - - - - - - - */
 /* コンテナ全体のスタイル */
-.contact-main,
 .faq-main,
 .banner-container {
     max-width: 60%;
