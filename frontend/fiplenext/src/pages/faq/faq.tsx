@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 
 interface FAQ {
   question: string;
@@ -88,7 +89,7 @@ const FAQPage: React.FC = () => {
         </ul>
       )}
       <div className="mt-6 text-center">
-        <a href="/" className="text-gray-600 hover:underline">トップに戻る</a>
+        <Link href="/" className="text-gray-600 hover:underline">トップに戻る</Link>
       </div>
     </div>
   );
