@@ -34,9 +34,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-# ALLOWED_HOSTS = ["3.89.194.200", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1"]
 # ↓デプロイ時に変更
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
