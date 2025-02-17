@@ -77,6 +77,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Next.jsのURL
     "http://127.0.0.1:3000", # Next.jsのURL
     "https://fiple.vercel.app", # デプロイ後のURL
+    "http://54.221.185.90", # デプロイ後のURL
 ]
 
 CORS_ALLOW_CREDENTIALS = True
