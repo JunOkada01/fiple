@@ -1,20 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}カテゴリ追加{% endblock %}
+{% block title %}メインカテゴリ登録変更{% endblock %}
 {% block content %}
 <div class="page-container">
-    <h4>カテゴリ追加</h4>
-    <br>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.category_name.label }}: {{ form.category_name }}
-        <div class="radio-inline">
-            <br>
-            部位: {{ form.category_position }}
-        </div>
-        <br>
-        <button type="submit">追加</button>
-    </form>
-    <br>
-    <a href="{% url 'fipleapp:category_list' %}"><h5>戻る</h5></a>
+    <div class="form-header">
+        <h4>メインカテゴリ</h4>
+        <p>メインカテゴリーの登録変更を行います</p>
+    </div>
+    <div class="form-content">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.category_name.id_for_label }}">{{ form.category_name.label }}</label>
+                {{ form.category_name }}
+            </div>
+            <div class="form-group">
+                <label>部位</label>
+                <div class="radio-inline">
+                    {{ form.category_position }}
+                </div>
+            </div>
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">追加</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

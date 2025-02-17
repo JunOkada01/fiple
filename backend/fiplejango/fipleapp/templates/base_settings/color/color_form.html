@@ -2,15 +2,16 @@
 {% block title %}色追加{% endblock %}
 {% block content %}
 <div class="page-container">
-    <div class="card p-4" style="max-width: 500px; width: 100%; border-radius: 12px;">
-        <h4 class="text-center mb-4">新しい色を追加</h4>
-
+    <div class="form-header">
+        <h4>カラー</h4>
+        <p>カラーの登録変更を行います</p>
+    </div>
+    <div class="form-content">
         <form method="post" novalidate>
             {% csrf_token %}
-
             <!-- カラー名フィールド -->
-            <div class="mb-4">
-                {{ form.color_name.label_tag }}
+            <div class="form-group">
+                <label for="{{ form.color_name.id_for_label }}">{{ form.color_name.label }}</label>
                 {{ form.color_name }}
                 {% if form.color_name.errors %}
                 <small class="text-danger d-block mt-1">
@@ -20,8 +21,9 @@
             </div>
 
             <!-- カラーコードフィールド -->
-            <div class="mb-4">
-                {{ form.color_code.label_tag }}
+            <div class="form-group">
+                <label for="{{ form.color_code.id_for_label }}">{{ form.color_code.label }}</label>
+
                 <div class="d-flex align-items-center">
                     {{ form.color_code }}
                 </div>
@@ -33,14 +35,10 @@
             </div>
 
             <!-- ボタン群 -->
-            <div class="d-flex justify-content-between mt-4">
-                <!-- 戻るボタン -->
-                <a href="{% url 'fipleapp:color_list' %}" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-arrow-left me-1"></i> 戻る
-                </a>
-                <!-- 追加ボタン -->
-                <button type="submit" class="btn btn-outline-success">
-                    <i class="fa-solid fa-plus me-2"></i> 追加
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">追加</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
                 </button>
             </div>
         </form>

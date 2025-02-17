@@ -1,65 +1,92 @@
 {% extends 'base.html' %}
 {% block title %}商品タグ一覧{% endblock %}
 {% block content %}
-<h4>・商品タグ一覧</h4>
-<br>
-<div class="col-lg-2 col-md-3 col-sm-4 col-6">
-	<a href="{% url 'fipleapp:product_tag_add' %}"><div class="icon-tile">
-		<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#20C997"><path d="M440-160v-60h171l195-260-195-260H140v260H80v-260q0-24.75 17.63-42.38Q115.25-800 140-800h471q14.25 0 27 6.37 12.75 6.38 21 17.63l222 296-221 296q-8.25 11.25-21 17.62-12.75 6.38-27 6.38H440Zm33-320ZM200-120v-120H80v-60h120v-120h60v120h120v60H260v120h-60Z"/></svg>
-		<h6>商品のタグ追加</h6>
-	</div></a>
-</div>
-<br>
-<ul>
-    {% for tag in product_tags %}
-        <li>
-            商品名:{{ tag.product_origin.product_name }}<br>
-            タグ名:{{ tag.tag.tag_name }}<br>
-			追加日時: {{ tag.created_at }}<br>
-            更新日時: {{ tag.updated_at }}<br>
-            <a href="{% url 'fipleapp:product_tag_edit' tag.id %}">変更
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg></a>
-			・
-            <a href="{% url 'fipleapp:product_tag_delete' tag.id %}">削除
-			<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#000000"><path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/></svg>
-			</a>
-        </li>
-        {% empty %}
-        <li>タグがありません。</li>
-    {% endfor %}
-</ul>
+<div class="page-container">
+	<div class="mb-3 text-center">
+		<a href="{% url 'fipleapp:product_tag_add' %}" class="icon-link">
+			<div class="icon-tile">
+				<i class="fa-solid fa-tags icons" style="color: #e7a7c7;"></i>
+				<p>商品ハッシュタグ追加</p>
+			</div>
+		</a>
+	</div>
+	<div class="d-flex justify-content-center">
+		<div class="tag-list" style="max-width: 600px; width: 100%;">
+			<ul class="list-group">
+				{% for tag in product_tags %}
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div class="d-flex aligin-item-center">
+							<div>
+								<div class="flex-grow-1 text-start">
+									<p class="mb-0 fw-bold" style="font-size: 0.9em;">
+										{{ tag.product_origin.product_name }}
+									<p class="mb-0 fw-bold" style="font-size: 1em;">
+										<i class="fa-solid fa-tag"></i>
+										{{ tag.tag.tag_name }}
+									</p>
+								</div>
+								<small class="text-muted d-block mt-1" style="font-size: 0.75em;">
+									<span class="me-2">
+										<i class="fa-solid fa-calendar-plus me-1"></i>作成: {{ tag.created_at|date:"Y/m/d" }}
+									</span>
+									<span>
+										<i class="fa-solid fa-calendar-check me-1"></i>更新: {{ tag.updated_at|date:"Y/m/d" }}
+									</span>
+								</small>
+							</div>
+						</div>
+						<div class="btn-group">
+							<!-- 変更ボタン -->
+							<a href="{% url 'fipleapp:product_tag_edit' tag.id %}" class="mt-1">
+								<i class="fa-regular fa-pen-to-square"></i>
+								<span style="color: gray;">変更</span>
+							</a>
+							<!-- 削除ボタン -->
+							<a href="{% url 'fipleapp:product_tag_delete' tag.id %}" class="mt-2">
+								<i class="fa-regular fa-trash-can"></i>
+								<span style="color: gray;">削除</span>
+							</a>
+						</div>
+					</li>
+					{% empty %}
+					<li>タグがありません。</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
 
-<nav aria-label="ページネーション">
-	<ul class="pagination">
+	<nav aria-label="ページネーション">
+		<ul class="pagination">
 
-		{% if page_obj.has_previous %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-		{% endif %}
-
-		{% for page_num in page_obj.paginator.page_range %} 
-			{% if page_num == page_obj.number %}
-				<li class="page-item active">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-				</li>
-			{% else %}
+			{% if page_obj.has_previous %}
 				<li class="page-item">
-					<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
 				</li>
 			{% endif %}
-		{% endfor %}
 
-		{% if page_obj.has_next %}
-			<li class="page-item">
-				<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{% endif %}
+			{% for page_num in page_obj.paginator.page_range %} 
+				{% if page_num == page_obj.number %}
+					<li class="page-item active">
+						<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					</li>
+				{% else %}
+					<li class="page-item">
+						<a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+					</li>
+				{% endif %}
+			{% endfor %}
 
-	</ul>
-</nav>
+			{% if page_obj.has_next %}
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			{% endif %}
+
+		</ul>
+	</nav>
+</div>
 {% endblock %}

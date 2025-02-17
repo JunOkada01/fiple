@@ -89,8 +89,6 @@ const FittingArea: React.FC = () => {
   const [selectedVariants, setSelectedVariants] = useState<{[key: number]: number}>({});
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [height, setHeight] = useState<number>(170);
-  const [weight, setWeight] = useState<number>(60);
   const [notification, setNotification] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   // const [message, setMessage] = useState<string | null>(null);
@@ -328,7 +326,7 @@ const FittingArea: React.FC = () => {
     <div key={item.id} className="flex space-x-4 pb-4 border-b border-gray-100 last:border-b-0">
       <div className="relative group">
         {item.imageUrl && (
-          <div className='relative w-[90px] h-[120px] overflow-hidden rounded'>
+          <div className='relative w-[60px] h-[80px] overflow-hidden rounded'>
             <Image
               src={item.imageUrl}
               alt={item.productName}
@@ -342,8 +340,8 @@ const FittingArea: React.FC = () => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="font-medium truncate pr-2">{item.productName}</h4>
-            <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p>
+            <h4 className="text-sm font-medium truncate">{item.productName}</h4>
+            {/* <p className="text-xs text-gray-600">{item.categoryName}/{item.subcategoryName}</p> */}
             <p className="text-md text-gray-600">¥ {item.price.toLocaleString()}</p>
             {renderColorButtons(item)}
             {renderSizeButtons(item)}
@@ -610,7 +608,7 @@ const FittingArea: React.FC = () => {
                 `}
                 style={{ 
                   backgroundColor: code,
-                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)'
+                  boxShadow: isAvailable ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
                 }}
                 onClick={() => {
                   if (!isAvailable) return;
@@ -656,7 +654,7 @@ const FittingArea: React.FC = () => {
             return (
               <button
                 key={sizeName}
-                className={`px-2 py-1 text-xs rounded transition-all
+                className={`w-7 h-7 text-xs rounded-full transition-all
                   ${item.selectedSize === sizeName
                     ? 'bg-black text-white'
                     : isAvailable
@@ -735,45 +733,17 @@ const FittingArea: React.FC = () => {
       </Draggable>
 
       {/* 試着エリアメイン */}
-      <div 
-        className={`fixed top-20 right-5 bg-white border border-black shadow-md w-[300px]
+      <div className={`fixed top-20 right-5 bg-white border border-black shadow-md w-[300px]
                   transition-all duration-500 ease-in-out z-40 flex flex-col
                   ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
-                  max-h-[80vh]`} // 最大高さを設定
+                  max-h-[90vh]`} // 最大高さを設定
       >
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
-          {/* 身長体重入力 */}
-          <div className="p-2">
-            <div className="flex justify-center space-x-4">
-              <div className="flex items-center">
-                <input
-                  type="number"
-                  value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
-                  className="w-16 p-1 border rounded text-center"
-                  min={100}
-                  max={200}
-                />
-                <span className="ml-1">cm</span>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="number"
-                  value={weight}
-                  onChange={(e) => setWeight(Number(e.target.value))}
-                  className="w-16 p-1 border rounded text-center"
-                  min={30}
-                  max={150}
-                />
-                <span className="ml-1">kg</span>
-              </div>
-            </div>
-            <div>
+          <div className='row justify-center text-center m-3'>
               <p className='text-xs text-gray-500'>※表示が不安定なのでドラッグして</p>
               <p className='text-xs text-gray-500'>位置を調整してください</p>
             </div>
-          </div>
         </div>
 
         {/* マネキンエリア（固定） */}

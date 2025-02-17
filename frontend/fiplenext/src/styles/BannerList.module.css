@@ -2,8 +2,11 @@
   position: relative;
   overflow: hidden;
   width: 50%; /* 横幅を半分に設定 */
-  height: 150px; /* 縦幅を150pxに設定 */
+  height: 200px; /* 縦幅を150pxに設定 */
   margin: 0 auto; /* 真ん中に配置 */
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .banner {
@@ -28,11 +31,17 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
+  background-color: rgba(0, 0, 0, 0.3); /* より透明で明るい背景 */
+  color: rgb(255, 255, 255, 0.8);
   border: none;
-  padding: 10px;
+  border-radius: 50%; /* 完全な丸 */
+  width: 30px; /* サイズを拡大 */
+  height: 30px; /* サイズを拡大 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .arrowLeft {

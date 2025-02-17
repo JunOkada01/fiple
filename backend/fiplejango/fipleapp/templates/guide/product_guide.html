@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}商品管理ガイド{% endblock %}
+{% block content %}
+    <div class="page-container">
+        <div class="process-header">
+            <h4 class="process-title">商品管理ガイド</h4>
+            <p>商品管理では商品に関するデータを登録し出品をします</p>
+            <p>こちらが新規商品登録のプロセスです</p>
+        </div>
+        <div class="process-area">
+            <div class="process-guide-content">
+                <ol class="process-steps">
+                    <li class="step">
+                        <a href="{% url 'fipleapp:product_origin_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-warehouse icons" style="color: #a7bae7;"></i>
+                                <p>商品元登録</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="arrow">
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:product_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-box-open icons" style="color: #e7c7a7;"></i>
+                                <p>商品登録</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="arrow">
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:product_image_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-image icons" style="color: #ace7a7;"></i>
+                                <p>商品画像登録</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="arrow">
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:product_tag_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-tags icons" style="color: #e7a7c7;"></i>
+                                <p>商品ハッシュタグ追加</p>
+                            </div>
+                        </a>
+                    </li>
+                </ol>
+            </div>
+        
+            <div class="process-detail">
+                <h4>各ステップのご説明</h4>
+                <ol class="step-descriptions">
+                    <li>
+                        <h5>1. 商品元登録</h5>
+                        <p>商品元データを登録します</p>
+                    </li>
+                    <li>
+                        <h5>2. 商品登録</h5>
+                        <p>商品元データをもとに各商品の詳細を登録します<br>
+                        色・サイズ・在庫数・価格・販売ステータスを登録します</p>
+                    </li>
+                    <li>
+                        <h5>3. 商品画像登録</h5>
+                        <p>複数のアングルや詳細の画像を登録します</p>
+                    </li>
+                    <li>
+                        <h5>4. 商品ハッシュタグ追加</h5>
+                        <p>商品に関連するハッシュタグを登録します<br>
+                        ※基盤設定で登録したハッシュタグから選択します</p>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

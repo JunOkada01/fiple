@@ -4,16 +4,45 @@
 
 {% block content %}
 <div class="page-container">
-    <h4>お問い合わせ内容の追加</h4>
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_name">お問い合わせ内容</label>
-            {{ form.name }}
+    <div class="form-header">
+        <h4>お問い合わせ</h4>
+        <p>お問い合わせの件名の登録を行います</p>
+    </div>
+    <div class="form-content">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>お問い合わせ件名</label>
+                {{ form.name }}
+            </div>
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">追加</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="created-contact-category">
+        <div class="created-contact-category-header">
+            登録済みお問い合わせ件名
         </div>
-        <button type="submit" class="btn btn-primary">保存</button>
-    </form>
-    <br>
-    <a href="{% url 'fipleapp:contact_manager' %}">管理画面に戻る</a>
+        <div class="contact-category-main">
+            <ul>
+                {% for category in categories %}
+                    <li>
+                        <div class="contact-link-box">
+                            <h2>
+                                <p>{{ category.name }}</p>
+                            </h2>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li>お問い合わせの件名がありません。</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
 {% endblock %}

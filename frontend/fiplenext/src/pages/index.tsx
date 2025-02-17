@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import FittingArea from '../components/VrFitting';
 import Navigation from '../components/Navigation';
-import styles from '../styles/Home.module.css';
 import ProductCard from '../components/ProductCard';
 import ReactSlider from 'react-slider';
 // import Notifications from '../components/Notifications';
@@ -168,61 +167,30 @@ export default function ProductList({ initialProducts }: ProductListProps) {
     <div className="container mx-auto max-w-screen-xl px-4">
       {/* Navigation コンポーネント */}
       <Navigation onSearch={setSearchQuery} />
-      <div className={styles.container}>
-      <div className={styles.bannerAndNotifications}>
+      <div className='BannerArea pt-5'>
         <BannerList />
       </div>
-    </div>
       {/* 性別カテゴリメニュー */}
       {/* <AllMensLeadiesKidsFilter /> */}
       <AllMensLeadiesKidsFilter onGenderSelect={setSelectedGender} />
-      {/* 価格範囲スライダーと入力フォーム */}
-      <div className="mb-8 text-center">
-        {/* 金額入力フォーム */}
-        <div className="flex justify-center items-center mt-4 space-x-4">
-          <div className="flex items-center">
-           {/* <label className="text-sm font-medium mr-2">最低価格 (¥)</label> */}
-            <input
-              type="number"
-              value={priceRange[0]}
-              onChange={(e) => {
-                const newMin = Math.max(0, Math.min(Number(e.target.value), priceRange[1]));
-                setPriceRange([newMin, priceRange[1]]);
-              }}
-              className="border rounded-lg px-2 py-1 text-center shadow-sm w-20" // 幅を小さく
-              min="0"
-              max={priceRange[1]}
-            />
-            <div>円</div>
-          </div>
-          <div className="mx-2">～</div> {/* 中央の余白を調整 */}
-          <div className="flex items-center">
-            {/* <label className="text-sm font-medium mr-2">最高価格 (¥)</label> */}
-            <input
-              type="number"
-              value={priceRange[1]}
-              onChange={(e) => {
-                const newMax = Math.min(100000, Math.max(Number(e.target.value), priceRange[0]));
-                setPriceRange([priceRange[0], newMax]);
-              }}
-              className="border rounded-lg px-2 py-1 text-center shadow-sm w-20" // 幅を小さく
-              min={priceRange[0]}
-              max="100000"
-            />
-            <div>円</div>
-          </div>
-        </div>
-        <div style={{ maxWidth: '200px', margin: '0 auto', marginTop: '20px' }}> {/* スライダーの横幅を半分に */}
-          {/* 価格範囲スライダー */}
+      {/* 価格範囲スライダー */}
+      <div className="mb-10 mt-10 text-center">
+        <div className="max-w-xs mx-auto mt-4">
           <ReactSlider
             className="custom-slider"
-            thumbClassName="custom-thumb"
             trackClassName="custom-track"
             min={0}
             max={100000}
             step={100}
             value={priceRange}
             onChange={(values: [number, number]) => setPriceRange(values)}
+            renderThumb={(props, state) => (
+              <div {...props} className="custom-thumb">
+                <div className="thumb-label">
+                  ¥{state.valueNow.toLocaleString()}
+                </div>
+              </div>
+            )}
           />
         </div>
       </div>

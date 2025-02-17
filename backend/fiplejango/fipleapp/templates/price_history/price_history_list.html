@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}商品価格履歴{% endblock %}
+{% load humanize %}
+
+{% block content %}
+<div class="page-container">
+    <div class="price-history-header">
+        <div class="price-history-title">
+            <h4>商品価格履歴</h4>
+            <p>商品ごとの価格履歴を管理します</p>
+        </div>
+        <!-- 検索フォーム -->
+        <div class="price-history-search">
+            <form method="get">
+                <div class="search-group">
+                    <input type="text" a
+                            name="search" 
+                            value="{{ search_query }}" 
+                            placeholder="商品名で検索" >
+                    <div class="search-action-btn">
+                        <button type="submit" class="search-btn">
+                            <i class="fa-solid fa-search"></i>
+                            <span>検索</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="price-history-main">  <!-- 中央寄せのためのコンテナ -->
+        <!-- 価格履歴テーブル -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>商品名</th>
+                        <th>価格</th>
+                        <th>更新日時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for history in price_histories %}
+                    <tr>
+                        <td>{{ history.product.product_origin.product_name }}</td>
+                        <td>¥{{ history.price|intcomma }}</td>
+                        <td>{{ history.created_at|date:"Y/m/d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center;">
+                            価格履歴が見つかりません
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="ページネーション">
+            <ul class="pagination">
+        
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="前へ">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+        
+                {% for page_num in page_obj.paginator.page_range %} 
+                    {% if page_num == page_obj.number %}
+                        <li class="page-item active">
+                            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+        
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="次へ">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+        
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

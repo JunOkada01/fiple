@@ -61,6 +61,7 @@ html, body {
     transition: transform 0.5s ease, width 0.5s ease;
     transform: translateX(0); /* 開いた状態 */
 }
+
 .sidebar.closed {
     transform: translateX(-100%); /* 閉じた状態 */
 }
@@ -80,6 +81,7 @@ main.sidebar-closed {
 
 /* サイドバーのヘッダー部分 */
 .side-header {
+    position: relative;
     background-color: white;
     position: sticky; /* 固定 */
     top: 0;
@@ -96,6 +98,25 @@ main.sidebar-closed {
     margin-top: 5px;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+}
+
+/* デフォルトは閉じるボタンを非表示（d-md-noneで小画面のみ表示されるが、補足のスタイル） */
+.sidebar-close-btn {
+    position: absolute;
+    top: 5px;   /* ロゴ内での上下位置調整 */
+    right: 5px; /* ロゴ内での右側位置調整 */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+    display: none;  /* 基本は非表示、メディアクエリで表示 */
+}
+/* メディアクエリ：小さい画面では表示 */
+@media (max-width: 768px) {
+    .sidebar-close-btn {
+        display: block;
+    }
 }
 
 /* --------------------------------------------------- */
@@ -174,6 +195,7 @@ main.sidebar-closed {
     list-style: none;
     padding: 0;
     margin: 0;
+    margin-bottom: 100px;
 }
 
 .sidebar .side-main li {
@@ -195,11 +217,24 @@ main.sidebar-closed {
 }
 
 /* アイコンとテキスト間隔 */
+.sidebar .side-main li a {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 10px; /* アイコンとテキストの間隔 */
+    padding: 10px;
+}
+
+/* アイコンのサイズと間隔 */
 .sidebar .side-main li a i {
+    width: 20px;  /* 正方形のサイズ */
+    height: 20px; /* 正方形のサイズ */
     font-size: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px 0 10px;
 }
 
 /* --------------------------------------------------- */
@@ -218,23 +253,6 @@ main.sidebar-closed {
     position: relative;
     text-decoration: none; /* デフォルトの下線を無効化 */
     transition: color 0.3s ease;
-}
-
-/* 下線エフェクト */
-.submenu .submenu-item a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 0;
-    background-color: #202020;
-    transition: width 0.3s ease-in-out;
-}
-
-/* ホバー時に下線が左から右に伸びるエフェクト */
-.submenu .submenu-item a:hover::after {
-    width: 100%;
 }
 
 /* ホバー時のテキスト色変更 */
@@ -391,11 +409,10 @@ main {
     justify-content: center;
 }
 .icon-tile-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
+    justify-items: center;
 }
 .icon-link {
     display: inline-block; /* ブロック要素として扱う */
@@ -422,8 +439,9 @@ main {
 }
 
 .icon-tile:hover {
-    background-color: #f9f9f9;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fcfcfc;
+    transform: scale(1.03);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .icon-tile .icons {
@@ -432,6 +450,8 @@ main {
 }
 
 .icon-tile p {
+    font-size: 16px;
+    font-weight: bold;
     color: #606060;
 }
 
@@ -500,7 +520,6 @@ a[aria-expanded="true"] .rotate-icon {
 .block-footer .stat-value {
     font-size: 25px;
 }
-
 /* - - - - 部位ラジオボタン - - - - */
 .radio-inline {
     padding: 0;
@@ -509,14 +528,14 @@ a[aria-expanded="true"] .rotate-icon {
 
 .radio-inline div {
     display: inline-block;
-    margin-right: 20px;
 }
 
 .radio-inline input[type="radio"] {
-    margin-right: 5px;
+    margin-right: 0;
 }
 
 .radio-inline label {
+    font-weight: normal;
     cursor: pointer;
     font-size: 16px;
 }
@@ -863,50 +882,876 @@ input[type="file"] {
     width: 100%;
     max-width: 400px;
 }
-
 /* お問い合わせ関連 */
-.contact-category-head {
+.created-contact-category {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.created-contact-category-header {
+    width: 60%;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+}
+
+/* - - - - - - - - お知らせ配信用 - - - - - - - - */
+/* - - - - - - - - ※バナーやFAQで再利用可能な場合も利用 - - - - - - - - */
+.contact-main,
+.contact-category-main,
+.faq-main,
+.banner-list,
+.news-main {
+    width: 60%;
+    min-width: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: auto;
+}
+.faq-main {
+    flex-direction: column;
+}
+.contact-main ul,
+.contact-category-main ul,
+.faq-main ul,
+.banner-list ul,
+.news-main ul {
+    padding: 0;
+}
+.contact-main li,
+.contact-category-main li,
+.faq-main li,
+.banner-list li,
+.news-main li {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+}
+.banner-list small,
+.news-main small {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 5px 10px;
+}
+.contact-link-box,
+.faq-link-box,
+.banner-link-box,
+.news-link-box {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+    gap: 10px;
+}
+.faq-info,
+.news-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 5px;
-    margin: 20px;
 }
-.plus-circle {
+.contact-link-box h2,
+.faq-link-box h2,
+.news-link-box h2 {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: #0073ff;
-    width: 25px;
-    height: 25px;
-    /* border: 2px solid rgb(37, 99, 255); */
-    border-radius: 50%;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.5s;
-}
-.plus-circle .contact-plus-icon {
-    color: #fff;
-    font-size: 16px;
-}
-.contact-category-head span {
-    font-size: 16px;
-    font-weight: normal;
+    font-size: 20px;
     color: #333;
+    margin: 0;
+    gap: 5px;
+    text-align: left;
 }
-.contact-main {
+.contact-link-box p,
+.faq-link-box p,
+.news-link-box p {
+    font-size: 16px;
+    margin-bottom: 3px;
+    text-align: left;
+}
+.faq-actions,
+.banner-actions,
+.news-actions {
+    min-width: 60px;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+.faq-actions .faq-edit-btn,
+.faq-actions .faq-delete-btn,
+.banner-actions .banner-edit-btn,
+.banner-actions .banner-delete-btn,
+.news-actions .news-edit-btn,
+.news-actions .news-delete-btn {
+    color: #959595;
+    text-decoration: none;
+}
+/* - - - - - - - - FAQ - - - - - - - - */
+.faq-category {
+    width: 500px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
 }
-.contact-list {
-    width: 80%;
-    min-height: 500px;
+.faq-category h3 {
+    font-size: 20px;
+    text-align: left;
+    margin: 15px 0;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-left: 4px solid lightcoral;
+    border-radius: 3px;
     display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.faq-category h3 i {
+    font-size: 24px;
+    color: lightcoral;
+}
+.faq-links {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.faq-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.faq-button:hover {
+    background-color: #0056b3;
+}
+/* - - - - - - - - FAQここまで - - - - - - - - */
+/* - - - - - - - - バナー管理 - - - - - - - - */
+/* コンテナ全体のスタイル */
+.faq-main,
+.banner-container {
+    max-width: 60%;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ヘッダー部分のスタイル */
+.price-history-header,
+.contact-header,
+.faq-header,
+.banner-header,
+.news-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+.contact-add-btn,
+.faq-add-btn,
+.banner-add-btn,
+.news-add-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    background-color: lightcoral;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.banner-item:last-child {
+    border-bottom: none;
+}
+
+/* バナー画像のスタイル */
+.banner-image {
+    width: 100px;
+}
+
+/* リンク部分のスタイル */
+.banner-info {
+    margin: auto;
+}
+
+.banner-link {
+    color: gray;
+    text-decoration: none;
+}
+
+/* バナーが存在しない場合のメッセージ */
+.no-banner {
+    padding: 15px;
+    text-align: center;
+    color: #888;
+}
+
+/* - - - - - - - - バナー管理ここまで - - - - - - - - */
+/* - - - - - - - - 商品管理画面 - - - - - - - - */
+.process-area {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.process-guide-content {
+    width: 50%;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
     background-color: #fff;
-    border: 1px solid rgb(59, 59, 59);
-    border-radius: 10px;
 }
+.process-header {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 10px;
+    margin: auto;
+}
+.process-header .process-title {
+    text-align: left;
+    color: #545454;
+    font-size: 24px;
+}
+.process-header p {
+    color: #7e7e7e;
+    margin-bottom: 5px;
+}
+.process-steps {
+    width: 80%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.step {
+    margin: 10px 0;
+}
+.arrow {
+    font-size: 18px;
+    color: #888;
+    margin: 5px 0;
+}
+.step-link {
+    display: inline-block; /* ブロック要素として扱う */
+    width: 450px; /* 親のタイルと同じ幅 */
+    text-decoration: none; /* 下線をなくす */
+    color: inherit; /* テキスト色を継承する */
+}
+.step-tile {
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;  /* テキストを中央に配置 */
+    align-items: center;
+    position: relative;       /* 絶対配置の子要素の基準に */
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
+}
+.step-tile:hover {
+    background-color: #fcfcfc;
+    transform: scale(1.03);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+.step-tile .icons {
+    font-size: 30px;
+    position: absolute;
+    left: 15px;             /* タイルの左パディングに合わせる */
+    top: 50%;               /* 垂直方向中央に */
+    transform: translateY(-50%);
+}
+.step-tile p {
+    color: #606060;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+/* 説明側 */
+/* プロセス詳細側のスタイル */
+.process-detail {
+    width: 50%;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.process-detail h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* 各ステップ説明のレイアウト */
+.step-descriptions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.step-descriptions li {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.step-descriptions li:last-child {
+    border-bottom: none;
+}
+
+.step-descriptions li h5 {
+    flex: 0 0 150px;
+    font-size: 15px;
+    text-align: left;
+    margin: 0;
+    color: #484848;
+}
+
+.step-descriptions li p {
+    flex: 1;
+    text-align: left;
+    margin: 0;
+    color: #555;
+}
+
+/* レスポンシブ対応：画面幅が狭い場合は全体を縦並びに */
+@media (max-width: 768px) {
+    .process-area {
+    flex-direction: column;
+    align-items: center;
+}
+.process-guide-content,
+.process-detail {
+    width: 90%;
+}
+/* 各ステップの説明カード内も縦並びに */
+.step-descriptions li {
+    flex-direction: column;
+    gap: 5px;
+}
+.step-descriptions li h5 {
+    flex: none;
+    margin-bottom: 5px;
+}
+/* タイルの横幅調整 */
+.step-link {
+    width: 300px;
+}
+}
+
+/* - - - - - - - - 商品管理画面ここまで - - - - - - - - */
+/* - - - - - - - - ガイド関連 - - - - - - - - */
+.guide-link {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin: 20px;
+    gap: 20px;
+}
+.guide-link .guide-icon {
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+    padding: 5px;
+}
+.guide-link a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+}
+.guide-link p {
+    margin-bottom: 3px;
+    color: #333;
+    font-weight: bold;
+}
+.guide-link a:hover {
+    color: #666;
+}
+.guide-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.guide-area {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.guide-header {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 10px;
+    margin: 20px;
+}
+.guide-header i,
+.guide-header h4 {
+    margin: 0;
+    padding: 0;
+    color: #333;
+    font-size: 20px;
+}
+.guide-header h4 {
+    margin-bottom: 3px;
+}
+.guide-content {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    list-style: none;
+}
+.guide-content li {
+    width: 100%;
+    min-width: 300px;
+}
+.guide-link-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 20px 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+    gap: 10px;
+}
+.guide-link-box i,
+.guide-content a {
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+}
+.guide-link-box p {
+    margin-bottom: 3px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+.guide-link-box:hover {
+    background-color: #ebebeb;
+}
+/* - - - - - - - - ガイド関連ここまで - - - - - - - - */
+
+/* - - - - - - - - カテゴリ管理画面 - - - - - - - - */
+/* 全体のリストのリセット */
+.category-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.category-area .category-list {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.main-category-list, .sub-category-list {
+    width: 50%;
+    min-width: 300px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.category-add-buttons {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    gap: 10px;
+}
+/* メインカテゴリカード */
+.main-category-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+.main-category-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.main-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 左寄せ */
+    padding: 5px 0;
+    gap: 10px; /* ボタンとテキストの間隔を調整 */
+}
+
+/* 開閉ボタンとカテゴリ名のグループ */
+.main-category-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.category-name {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+/* 編集・削除ボタンを右寄せ */
+.main-category-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+/* 開閉ボタン */
+.toggle-subcategory {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 10px;
+    transition: transform 0.5s ease;
+}
+.toggle-subcategory.active i {
+    transform: rotate(180deg);
+}
+/* サブカテゴリリスト */
+.sub-category-list {
+    margin-left: 20px;
+    display: none; /* 初期状態は非表示 */
+}
+.sub-category-item {
+    display: flex;
+    justify-content: space-between; /* 左右に要素を配置 */
+    align-items: center; /* 縦方向の中央揃え */
+    padding: 5px 0;
+    border-bottom: 1px dotted #ccc;
+    gap: 10px;
+    margin-left: 30px;
+}
+.sub-category-item:last-child {
+    border-bottom: none;
+}
+/* ボタンをグループ化 */
+.sub-category-actions {
+    display: flex;
+    gap: 10px;
+}
+/* ボタン類 */
+.btn-edit, .btn-delete, .btn-add{
+    font-size: 0.9em;
+    text-decoration: none;
+    color: #007bff;
+    margin-left: auto;
+}
+.btn-delete {
+    color: #dc3545;
+}
+.btn-add-main {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: lightcoral;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.btn-add-main:hover {
+    background-color: #d96c6c; /* 濃いめのコーラル */
+    transform: scale(1.05);
+}
+.btn-add-sub {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: lightskyblue;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.btn-add-sub:hover {
+    background-color: #5aaedc; /* 濃いめのスカイブルー */
+    transform: scale(1.05);
+}
+/* - - - - - - - - カテゴリ管理画面ここまで - - - - - - - - */
+/* - - - - - - - - 追加削除等フォーム画面 - - - - - - - - */
+.form-header {
+    width: 500px;
+    min-width: 300px;
+    margin: 10px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.form-header h4,
+.price-history-header h4,
+.banner-header-title h4,
+.news-header-title h4 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+.form-header p,
+.price-history-header p,
+.banner-header-title p,
+.news-header-title p {
+    color: #666;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+.form-content {
+    width: 500px;
+    min-width: 300px;
+    margin: 20px auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+}
+.form-content form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.form-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+.form-group input,
+.form-group select,
+.form-group textarea  {
+    width: 100%;
+    min-width: 300px;
+    padding: 8px;
+    border: 1px solid #a5a5a5;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.form-group textarea {
+    height: 100px;
+    max-width: auto;
+}
+.form-actions-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.form-actions-btn .complete-btn {
+    padding: 10px 20px;
+    background-color: lightcoral;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.form-actions-btn .cancel-btn {
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #676767;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.add-page-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+.add-page-link a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background-color: lightslategray;
+    border: none;
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+.add-page-link i {
+    padding-right: 3px;
+    color: #fff;
+    font-size: 14px;
+}
+.add-page-link p {
+    margin-bottom: 3px;
+    padding: 0;
+    color: #fff;
+    font-size: 12px;
+}
+/* 削除画面 削除するデータ表示のためののtableスタイル */
+.delete-warning {
+    width: 400px;
+    min-width: 300px;
+    background-color: #fff3f3;
+    border: 1px solid #ffcccc;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+.delete-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.delete-table th {
+    min-width: 100px;
+    text-align: left;
+    padding: 8px;
+    background-color: #ffe6e6;
+    font-weight: bold;
+}
+.delete-table td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ffcccc;
+}
+.product-preview-img,
+.banner-preview-img {
+    max-width: 100px;
+    height: auto;
+}
+/* - - - - - - - - 追加削除等フォーム画面ここまで - - - - - - - - */
+/* - - - - - - - - 商品価格履歴 - - - - - - - - */
+.price-history-search .search-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.price-history-search .search-group input {
+    width: 200px;
+    height: 45px;
+    border: 2px solid #797979;
+    padding: 0 10px;
+    border-radius: 5px;
+}
+.search-group .search-action-btn {
+    width: 90px;
+    height: 45px;
+}
+.search-group .search-action-btn .search-btn {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    color: #484848;
+    background-color: lightblue;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+.search-group .search-action-btn .search-btn span {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.price-history-main {
+    width: 70%;
+    min-width: 400px;
+    margin: 40px auto;
+}
+.price-history-main .table-container {
+    overflow-x: auto;
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.price-history-main .table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+}
+.price-history-main .table-container table thead th {
+    background-color: #f7f7f7;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e2e2;
+    text-align: left;
+    font-weight: normal;
+}
+.price-history-main .table-container table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e2e2e2;
+    text-align: left;
+}
+.price-history-main .table-container table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+.price-history-main .table-container table tbody tr:last-child td {
+    border-bottom: none;
+}
+.price-history-main .table-container table tbody .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+/* - - - - - - - - 商品価格履歴ここまで - - - - - - - - */

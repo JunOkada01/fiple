@@ -2,14 +2,14 @@ from rest_framework import generics
 from .models import Notification
 from .serializers import NotificationSerializer
 
-class NotificationListView(generics.ListAPIView):
-    queryset = Notification.objects.all().order_by('-created_at')
-    serializer_class = NotificationSerializer
-
 from django.shortcuts import render, redirect,get_object_or_404
 from .models import Notification
 from .forms import NotificationForm
 from django.http import JsonResponse
+
+class NotificationListView(generics.ListAPIView):
+    queryset = Notification.objects.all().order_by('-created_at')
+    serializer_class = NotificationSerializer
 
 def notifications_list(request):
     notifications = Notification.objects.all().order_by('-created_at')

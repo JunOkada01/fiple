@@ -1,16 +1,50 @@
 {% extends 'base.html' %}
-{% block title %}バナー一覧{% endblock %}
+{% block title %}バナー管理{% endblock %}
+
 {% block content %}
-<h4>バナー一覧</h4>
-<a href="{% url 'fipleapp:banner_add' %}" class="btn btn-primary">バナー追加</a>
-<ul>
-    {% for banner in banners %}
-        <li>
-            <img src="{{ banner.image.url }}" alt="Banner Image" width="100">
-            <a href="{{ banner.link }}" target="_blank">{{ banner.link }}</a>
-            <a href="{% url 'fipleapp:banner_edit' banner.id %}">編集</a>
-            <a href="{% url 'fipleapp:banner_delete' banner.id %}">削除</a>
-        </li>
-    {% endfor %}
-</ul>
+<div class="banner-container">
+    <!-- バナー追加ボタン -->
+    <div class="banner-header">
+        <div class="banner-header-title">
+            <h4>バナー</h4>
+            <p>バナーを管理します</p>
+        </div>
+        <a href="{% url 'fipleapp:banner_add' %}" class="banner-add-btn">
+            バナー追加
+        </a>
+    </div>
+    
+    <!-- バナーリスト -->
+    <div class="banner-list">
+        <ul>
+            {% for banner in banners %}
+            <li>
+                <!-- 作成日時 -->
+                <small>{{ banner.created_at|date:"Y/d/m H:i" }}</small>
+                <div class="banner-link-box">
+                    <!-- 画像 -->
+                    <img src="{{ banner.image.url }}" alt="Banner Image" class="banner-image">
+                    <!-- リンク -->
+                    <div class="banner-info">
+                    <a href="{{ banner.link }}" target="_blank" class="banner-link">{{ banner.link }}</a>
+                    </div>
+                    <!-- 編集・削除ボタン -->
+                    <div class="banner-actions">
+                        <a href="{% url 'fipleapp:banner_edit' banner.id %}" class="banner-edit-btn">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            編集
+                        </a>
+                        <a href="{% url 'fipleapp:banner_delete' banner.id %}" class="banner-delete-btn">
+                            <i class="fa-solid fa-trash"></i>
+                            削除
+                        </a>
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <div class="no-banner">バナーが存在しません。</div>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}

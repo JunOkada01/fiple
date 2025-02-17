@@ -3,18 +3,33 @@
 {% block title %}FAQ登録{% endblock %}
 
 {% block content %}
-<h4>・FAQの登録</h4>
-{% if messages %}
-<ul>
-  {% for message in messages %}
-    <li>{{ message }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">FAQを登録</button>
-</form>
-<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
+<div class="page-container">
+  <div class="form-header">
+      <h4>FAQ</h4>
+      <p>FAQカテゴリごとによくある質問の解答の登録を行います</p>
+  </div>
+  <div class="form-content">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+        {{ form.category }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label>
+        {{ form.question }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.answer.id_for_label }}">{{ form.answer.label }}</label>
+        {{ form.answer }}
+      </div>
+      <div class="form-actions-btn">
+        <button type="submit" class="complete-btn">追加</button>
+        <button type="button" onclick="window.history.back();" class="cancel-btn">
+            戻る
+        </button>
+    </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

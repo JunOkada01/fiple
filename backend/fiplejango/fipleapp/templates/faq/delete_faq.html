@@ -3,11 +3,30 @@
 {% block title %}FAQ削除{% endblock %}
 
 {% block content %}
-<h1>質問「{{ faq.question }}」を削除しますか？</h1>
-<p>この操作は取り消せません。本当に削除しますか？</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">削除する</button>
-  <a href="{% url 'fipleapp:faq_list' %}">キャンセル</a>
-</form>
+<div class="page-container">
+  <div class="form-header">
+      <h4>FAQ</h4>
+      <p>よくある質問の削除を行います</p>
+  </div>
+  <div class="form-content">
+    <p>本当に以下のよくある質問を削除しますか？</p>
+    <p>この操作は取り消せません。本当に削除しますか？</p>
+    <div class="delete-warning">
+      <table class="delete-table">
+          <tr><th>質問カテゴリ</th><td>{{ faq.category }}</td></tr>
+          <tr><th>質問</th><td>{{ faq.question }}</td></tr>
+          <tr><th>回答</th><td>{{ faq.answer }}</td></tr>
+      </table>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions-btn">
+          <button type="submit" class="complete-btn">削除</button>
+          <button type="button" onclick="window.history.back();" class="cancel-btn">
+              戻る
+          </button>
+      </div>
+  </form>
+  </div>
+</div>
 {% endblock %}

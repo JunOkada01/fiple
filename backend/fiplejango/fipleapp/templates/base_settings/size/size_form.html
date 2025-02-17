@@ -2,14 +2,24 @@
 {% block title %}サイズ追加{% endblock %}
 {% block content %}
 <div class="page-container">
-    <h4>サイズ追加</h4>
-    <br>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">追加</button>
-    </form>
-    <br>
-    <a href="{% url 'fipleapp:size_list' %}"><h5>戻る</h5></a>
+    <div class="form-header">
+        <h4>サイズ</h4>
+        <p>サイズの登録変更を行います</p>
+    </div>
+    <div class="form-content">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.size_name.id_for_label }}">{{ form.size_name.label }}</label>
+                {{ form.size_name }}
+            </div>
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">追加</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

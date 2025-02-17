@@ -8,7 +8,7 @@ const AccountsHeader: React.FC = () => {
             <header className="flex items-center justify-center border-b w-full h-20 sm:h-28 md:h-32 lg:h-36 mx-auto">
                 <Link href="/" className="flex justify-center w-full">
                     <Image
-                        src="/fipleheader.png"
+                        src="/fiple3.png"
                         alt="fipleheader"
                         width={200}
                         height={80}
