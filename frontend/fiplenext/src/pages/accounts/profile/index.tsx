@@ -37,7 +37,7 @@ const Profile: React.FC = () => {
     
     const logout = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/logout/', {}, {
+            const response = await axios.post('http://54.221.185.90/logout/', {}, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('access_token')}`, // トークンをヘッダーに追加
                 },

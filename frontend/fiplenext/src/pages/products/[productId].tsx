@@ -87,7 +87,7 @@ const ProductDetail: React.FC = () => {
     const access_token = localStorage.getItem('access_token');
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/cart/add/',
+        'http://54.221.185.90/api/cart/add/',
         { product_id: productId, quantity: 1 },
         {
           headers: {

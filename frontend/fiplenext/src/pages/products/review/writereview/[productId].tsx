@@ -29,7 +29,7 @@ const ProductReviewWrite = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:8000/api/token/verify/', {
+      await axios.post('http://54.221.185.90/api/token/verify/', {
         token: accessToken,
       });
     } catch {
