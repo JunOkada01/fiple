@@ -4,9 +4,9 @@ def admin_info(request):
     if request.user.is_authenticated:
         context = {
             # 'username': request.user.username,  # nameの代わりにusernameを使用
-            # 'name': request.user.name,
+            'name': request.user.name,
             # 'name': getattr(request.user, 'get_full_name', lambda: request.user.name)(),
-            # 'admin_id': request.user.admin_id
+            'admin_id': request.user.admin_id
         }
     return context
 

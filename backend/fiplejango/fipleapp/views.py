@@ -865,7 +865,7 @@ class AdminTop(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['user'] = self.request.user.name
+            context['name'] = self.request.user.name
             context['admin_id'] = self.request.user.admin_id
         
         # 現在の日付を取得
