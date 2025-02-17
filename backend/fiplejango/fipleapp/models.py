@@ -35,14 +35,14 @@ class CustomUser(AbstractUser):
 
 class AdminUserManager(BaseUserManager):
     def create_user(self, name, password=None, **extra_fields):
-        if not name:
-            raise ValueError('名前を入力してください')
-        user = self.model(name=name, **extra_fields)
-        user.set_password(password)
-        if not user.admin_id:
-            user.admin_id = user.generate_admin_id()
-        user.save(using=self._db)
-        return user
+      if not name:
+          raise ValueError('名前を入力してください')
+      if 'admin_id' not in extra_fields or not extra_fields['admin_id']:
+          extra_fields['admin_id'] = self.model.generate_admin_id()
+      user = self.model(name=name, **extra_fields)
+      user.set_password(password)
+      user.save(using=self._db)
+      return user
 
     def create_superuser(self, name, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
@@ -62,8 +62,9 @@ class AdminUser(AbstractBaseUser):
 
     admin_id = models.CharField(
         max_length=8, 
-        unique=True, 
-        blank=True,
+        unique=True,
+        blank=False,
+        null=False,
         verbose_name="管理者ID"
     )
     
