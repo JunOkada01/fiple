@@ -26,7 +26,7 @@ const ReviewList: React.FC<ReviewProps> = ({ productId }) => {
         const fetchReviews = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://13.216.135.244:8000/api/reviews/?productId=${productId}`);
+                const response = await axios.get(`http://34.201.127.158:8000/api/reviews/?productId=${productId}`);
                
                 setReviews(response.data.reviews);
                 setAverageRating(response.data.average_rating);

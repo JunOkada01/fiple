@@ -80,7 +80,7 @@ const Register = () => {
         };
 
         try {
-            const response = await fetch('http://13.216.135.244:8000/register/', {
+            const response = await fetch('http://34.201.127.158:8000/register/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

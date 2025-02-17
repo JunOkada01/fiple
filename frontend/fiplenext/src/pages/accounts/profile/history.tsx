@@ -39,7 +39,7 @@ const OrderHistoryPage: React.FC = () => {
   useEffect(() => {
     const fetchOrderHistory = async () => {
       try {
-        const response = await axios.get<ApiResponse>('http://13.216.135.244:8000/api/orders/', {
+        const response = await axios.get<ApiResponse>('http://34.201.127.158:8000/api/orders/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -66,7 +66,7 @@ const OrderHistoryPage: React.FC = () => {
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) return;
 
-        const response = await axios.get<number[]>('http://13.216.135.244:8000/reviews/', {
+        const response = await axios.get<number[]>('http://34.201.127.158:8000/reviews/', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -94,7 +94,7 @@ const OrderHistoryPage: React.FC = () => {
         return;
       }
 
-      const response = await axios.delete(`http://13.216.135.244:8000/reviews/${productId}/`, {
+      const response = await axios.delete(`http://34.201.127.158:8000/reviews/${productId}/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

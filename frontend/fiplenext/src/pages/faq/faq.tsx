@@ -18,7 +18,7 @@ const FAQPage: React.FC = () => {
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
-        const res = await fetch('http://13.216.135.244:8000/api/faqs/');
+        const res = await fetch('http://34.201.127.158:8000/api/faqs/');
         const data = await res.json();
         setFaqs(data);
       } catch (err) {

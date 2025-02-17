@@ -37,7 +37,7 @@ const Profile: React.FC = () => {
     
     const logout = async () => {
         try {
-            const response = await axios.post('http://13.216.135.244:8000/logout/', {}, {
+            const response = await axios.post('http://34.201.127.158:8000/logout/', {}, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('access_token')}`, // トークンをヘッダーに追加
                 },
@@ -68,7 +68,7 @@ const Profile: React.FC = () => {
       }
         const fetchUserData = async () => {
             try {
-                const response = await axios.get('http://13.216.135.244:8000/api/user/', {
+                const response = await axios.get('http://34.201.127.158:8000/api/user/', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('access_token')}`,  // トークンをヘッダーに追加
                     },

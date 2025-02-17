@@ -29,7 +29,7 @@ const ProductReviewWrite = () => {
       return;
     }
     try {
-      await axios.post('http://13.216.135.244:8000/api/token/verify/', {
+      await axios.post('http://34.201.127.158:8000/api/token/verify/', {
         token: accessToken,
       });
     } catch {
@@ -42,7 +42,7 @@ const ProductReviewWrite = () => {
     if (!productId) return;
     try {
       const response = await axios.get(
-        `http://13.216.135.244:8000/api/products/review/${productId}/`
+        `http://34.201.127.158:8000/api/products/review/${productId}/`
       );
       setProduct(response.data);
     } catch {
@@ -76,7 +76,7 @@ const ProductReviewWrite = () => {
       }
 
       await axios.post(
-        'http://13.216.135.244:8000/api/reviews/write/',
+        'http://34.201.127.158:8000/api/reviews/write/',
         {
           ...formData,
           product: productId,

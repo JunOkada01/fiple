@@ -34,7 +34,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1","fiple.vercel.app","13.216.135.244"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1","fiple.vercel.app","34.201.127.158"]
 # ↓デプロイ時に変更
 # ALLOWED_HOSTS = ["*"]
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'rest_framework',
-	'rest_framework.authtoken',
+	  'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
     'django.contrib.humanize',
@@ -79,6 +79,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://fiple.vercel.app", # デプロイ後のURL
     "http://54.221.185.90", # デプロイ後のURL
     "http://13.216.135.244"
+    "http://34.201.127.158"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -242,7 +243,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('34.201.127.158', 6379)],
         },
     },
 }

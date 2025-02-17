@@ -19,7 +19,7 @@ const ResetPassword = () => {
 
         setIsLoading(true);
         try {
-            await axios.post('http://13.216.135.244:8000/password-reset/confirm/', {
+            await axios.post('http://34.201.127.158:8000/password-reset/confirm/', {
                 token,
                 password,
             });
