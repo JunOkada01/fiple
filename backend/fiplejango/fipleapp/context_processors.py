@@ -3,8 +3,9 @@ def admin_info(request):
     context = {}
     if request.user.is_authenticated:
         context = {
-            # 'name': request.user.get_full_name() or request.user.username,
-            'name': getattr(request.user, 'get_full_name', lambda: request.user.name)(),
+            # 'username': request.user.username,  # nameの代わりにusernameを使用
+            # 'name': request.user.name,
+            # 'name': getattr(request.user, 'get_full_name', lambda: request.user.name)(),
             # 'admin_id': request.user.admin_id
         }
     return context
@@ -18,3 +19,14 @@ def admin_info(request):
 #             'name': request.user.get_full_name() or request.user.username,  # フルネームがない場合はusernameを使用
 #         }
 #     return {}
+
+
+# # 全ての管理者ページに管理者名と管理者IDを表示するためのコンテキストプロセッサ
+# def admin_info(request):
+#     context = {}
+#     if request.user.is_authenticated:
+#         context = {
+#             'name': request.user.name,
+#             'admin_id': request.user.admin_id
+#         }
+#     return context
