@@ -37,19 +37,6 @@ const Profile: React.FC = () => {
     // birthの年、月、日を分割
     const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
     
-    if (!token) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        Router.push({
-        pathname: '/accounts/login',
-        query: { 
-            error: 'authentication', 
-            message: 'セッションが期限切れです。再度ログインしてください。' 
-        }
-        });
-        return;
-    }
-    
     const logout = async () => {
         try {
             const response = await axios.post('http://localhost:8000/logout/', {}, {
@@ -76,9 +63,15 @@ const Profile: React.FC = () => {
             setTimeout(() => {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
-                router.push('/accounts/login');
+                router.push({
+                    pathname: '/accounts/login',
+                    query: {
+                        error: 'authentication',
+                        message: 'セッションが期限切れです。再度ログインしてください。',
+                    }
+                })
             }, 3000);
-
+            setLoading(false);
             return;
         }
 
@@ -96,6 +89,7 @@ const Profile: React.FC = () => {
                 // 3秒後にログイン画面へリダイレクト
                 setTimeout(() => {
                     localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
                     router.push('/accounts/login');
                 }, 3000);
 

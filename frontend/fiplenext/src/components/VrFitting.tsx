@@ -663,37 +663,10 @@ const FittingArea: React.FC = () => {
       >
         {/* 固定ヘッダー部分 */}
         <div className="flex-none border-b border-gray-200">
-          {/* 身長体重入力 */}
-          <div className="p-2">
-            <div className="flex justify-center space-x-4">
-              <div className="flex items-center">
-                <input
-                  type="number"
-                  value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
-                  className="w-16 p-1 border rounded text-center"
-                  min={100}
-                  max={200}
-                />
-                <span className="ml-1">cm</span>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="number"
-                  value={weight}
-                  onChange={(e) => setWeight(Number(e.target.value))}
-                  className="w-16 p-1 border rounded text-center"
-                  min={30}
-                  max={150}
-                />
-                <span className="ml-1">kg</span>
-              </div>
-            </div>
-            <div>
+            <div className='row justify-center text-center m-3'>
               <p className='text-xs text-gray-500'>※表示が不安定なのでドラッグして</p>
               <p className='text-xs text-gray-500'>位置を調整してください</p>
             </div>
-          </div>
         </div>
 
         {/* マネキンエリア（固定） */}
