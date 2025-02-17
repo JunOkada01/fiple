@@ -34,7 +34,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1","fiple.vercel.app"]
+ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1","fiple.vercel.app","13.216.135.244"]
 # ↓デプロイ時に変更
 # ALLOWED_HOSTS = ["*"]
 
@@ -78,6 +78,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000", # Next.jsのURL
     "https://fiple.vercel.app", # デプロイ後のURL
     "http://54.221.185.90", # デプロイ後のURL
+    "http://13.216.135.244"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
