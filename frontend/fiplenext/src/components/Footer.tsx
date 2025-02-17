@@ -20,11 +20,10 @@ const Footer = () => {
             ]
         },
         {
-            title: 'Size Guide',
+            title: 'information',
             items: [
-                { label: 'MENS', href: '#' },
-                { label: 'LADIES', href: '#' },
-                { label: 'KIDS', href: '#' },
+                { label: 'おしらせ', href: '/notifications/' },
+                { label: 'よくある質問', href: '/faq/faq' },
             ]
         },
     ];
@@ -35,7 +34,7 @@ const Footer = () => {
                 {/* ロゴ */}
                 <div className="flex justify-center mb-10">
                     <Link href="/" className="text-2xl font-light tracking-widest">
-                        <Image src="/fipleheader.png" alt="fipleheader" width="200" height="50" />
+                        <Image src="/fiple3.png" alt="fipleheader" width="150" height="50" />
                     </Link>
                 </div>
 

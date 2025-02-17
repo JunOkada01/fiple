@@ -38,10 +38,10 @@ const NotificationsPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-xl mx-auto px-4 py-8 mt-5">
+        <div className="max-w-xl mx-auto px-8 py-8 mt-5">
             <h2 className="text-2xl font-bold mb-6 border-b pb-2">News</h2>
             {notifications.length === 0 ? (
-                <p className="text-gray-600">お知らせがありません</p>
+                <p className="text-gray-600 text-center">お知らせがありません</p>
             ) : (
                 <ul className="space-y-4">
                     {notifications.map((notification) => (
