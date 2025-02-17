@@ -19,6 +19,13 @@ const Footer = () => {
                 { label: '特定商取引法', href: '/footer/tokushoho' },
             ]
         },
+        {
+          title: 'information',
+          items: [
+              { label: 'おしらせ', href: '/notifications/' },
+              { label: 'よくある質問', href: '/faq/faq' },
+          ]
+        },
     ];
 
     return (
