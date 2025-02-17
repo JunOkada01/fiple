@@ -16,12 +16,13 @@ def admin_info(request):
     if request.user.is_authenticated:
         if isinstance(request.user, CustomUser):
             context = {
-                'name': request.user.name,
-                'admin_id': request.user.admin_id
+                'username': request.user.username,
+
             }
         elif isinstance(request.user, AdminUser):
             context = {
-                'username': request.user.username,
+                'name': request.user.name,
+                'admin_id': request.user.admin_id
             }
     
     return context
