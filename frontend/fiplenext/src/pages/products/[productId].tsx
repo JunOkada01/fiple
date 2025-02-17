@@ -63,10 +63,10 @@ const ProductDetail: React.FC = () => {
             if (!productId) return;
             try {
                 setLoading(true);
-                const response = await axios.get(`http://54.221.185.90:8000/api/products/${productId}/`);
+                const response = await axios.get(`http://13.216.135.244:8000/api/products/${productId}/`);
                 setProduct(response.data);
                 if (response.data.variants[0]?.images[0]) {
-                setSelectedImage(`http://54.221.185.90:8000/${response.data.variants[0].images[0].image}`);
+                setSelectedImage(`http://13.216.135.244:8000/${response.data.variants[0].images[0].image}`);
                 setSelectedColor(response.data.variants[0].color.color_name);
                 }
             } catch (err) {
@@ -87,7 +87,7 @@ const ProductDetail: React.FC = () => {
     const access_token = localStorage.getItem('access_token');
     try {
       const response = await axios.post(
-        'http://54.221.185.90:8000/api/cart/add/',
+        'http://13.216.135.244:8000/api/cart/add/',
         { product_id: productId, quantity: 1 },
         {
           headers: {
@@ -154,7 +154,7 @@ const ProductDetail: React.FC = () => {
                                             setSelectedColor(colorName);
                                             const firstImage = groupedVariants[colorName][0]?.images[0];
                                             if (firstImage) {
-                                                setSelectedImage(`http://54.221.185.90:8000/${firstImage.image}`);
+                                                setSelectedImage(`http://13.216.135.244:8000/${firstImage.image}`);
                                             }
                                         }}
                                     ></button>
@@ -169,7 +169,7 @@ const ProductDetail: React.FC = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-4">
                         {selectedVariants.flatMap(variant =>
                             variant.images.map(image => {
-                                const imageUrl = `http://54.221.185.90:8000/${image.image}`;
+                                const imageUrl = `http://13.216.135.244:8000/${image.image}`;
                                 return (
                                     <div
                                         key={image.id}

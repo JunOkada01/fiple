@@ -20,7 +20,7 @@ const SizeRecommendation: React.FC<Props> = ({ productId }) => {
  
             try {
                 const response = await axios.get(
-                    `http://127.0.0.1:8000/api/products/${productId}/size-recommendation/`,
+                    `http://13.216.135.244:8000/api/products/${productId}/size-recommendation/`,
                     {
                         headers: {
                             Authorization: `Bearer ${access_token}`,
