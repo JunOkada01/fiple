@@ -18,7 +18,7 @@ const NotificationsPage: React.FC = () => {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await axios.get<NotificationData[]>('http://54.221.185.90/api/notifications/');
+                const response = await axios.get<NotificationData[]>('http://54.221.185.90:8000/api/notifications/');
                 setNotifications(response.data);
                 setLoading(false);
             } catch (err) {

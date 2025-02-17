@@ -54,7 +54,7 @@ const ProductReviews = () => {
             if (!productId) return;
             try {
                 setLoading(true);
-                const response = await axios.get(`http://127.0.0.1:8000/api/reviews/?productId=${productId}`);
+                const response = await axios.get(`http://54.221.185.90:8000/api/reviews/?productId=${productId}`);
                 setReviews(response.data.reviews);
                 setRatingDistribution(response.data.rating_distribution || {});
             } catch (err) {
@@ -73,7 +73,7 @@ const ProductReviews = () => {
             if (!productId) return;
             try {
                 setLoading(true);
-                const response = await axios.get(`http://127.0.0.1:8000/api/products/review/${productId}/`);
+                const response = await axios.get(`http://54.221.185.90:8000/api/products/review/${productId}/`);
                 setProduct(response.data);
             } catch (err) {
                 console.log(err)

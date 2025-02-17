@@ -26,7 +26,7 @@ const DeliveryAddressSelect: React.FC<DeliveryAddressSelectProps> = ({ onAddress
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get('http://54.221.185.90/api/delivery-addresses/', {
+      const response = await axios.get('http://54.221.185.90:8000/api/delivery-addresses/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }

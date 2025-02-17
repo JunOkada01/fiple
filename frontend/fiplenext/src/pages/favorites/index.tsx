@@ -58,7 +58,7 @@ const FavoriteList: React.FC = () => {
             }
 
             try {
-                const response = await axios.get('http://54.221.185.90/api/favorites/', {
+                const response = await axios.get('http://54.221.185.90:8000/api/favorites/', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -94,7 +94,7 @@ const FavoriteList: React.FC = () => {
                                     categoryPosition={favorite.product.product_origin.category.category_name} // Add categoryPosition
                                     subcategoryName={favorite.product.product_origin.subcategory.subcategory_name}
                                     price={favorite.product.price}
-                                    imageUrl={`http://54.221.185.90/${favorite.product.images[0]?.image}`}
+                                    imageUrl={`http://54.221.185.90:8000/${favorite.product.images[0]?.image}`}
                                 />
                             </div>
                         ))}

@@ -22,7 +22,7 @@ const ContactForm = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch('http://54.221.185.90/api/contact-categories/');
+      const res = await fetch('http://54.221.185.90:8000/api/contact-categories/');
       const data = await res.json();
       setCategories(data);
     };
@@ -50,7 +50,7 @@ const ContactForm = () => {
     data.append('category', formData.category);
 
     try {
-      const res = await fetch('http://54.221.185.90/api/submit-contact-form/', {
+      const res = await fetch('http://54.221.185.90:8000/api/submit-contact-form/', {
         method: 'POST',
         body: data,  // FormDataを送信
       });

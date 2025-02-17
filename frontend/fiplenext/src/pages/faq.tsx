@@ -13,7 +13,7 @@ const FAQPage = () => {
 
   useEffect(() => {
     const fetchFAQs = async () => {
-      const res = await fetch('http://54.221.185.90/api/faqs/'); // DjangoのAPIエンドポイント
+      const res = await fetch('http://54.221.185.90:8000/api/faqs/'); // DjangoのAPIエンドポイント
       const data = await res.json();
       setFaqs(data);
     };
