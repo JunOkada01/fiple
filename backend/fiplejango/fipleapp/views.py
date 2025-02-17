@@ -1002,6 +1002,13 @@ class CategoryTopView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'base_settings/category/top.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # ログイン中の管理者が作成したメインカテゴリをすべて取得（サブカテゴリもまとめて）
+        context['categories'] = Category.objects.filter(
+            admin_user=self.request.user
+        ).prefetch_related('subcategories')
+        return context
 
 class CategoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
