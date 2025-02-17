@@ -190,4 +190,5 @@ urlpatterns = [
     # 管理画面ガイド
     path('guide/', GuideTopView.as_view(), name='guide'),
     path('guide/product-guide/', ProductGuideView.as_view(), name='product-guide'),
+    path('guide/base-setting-guide/', BaseSettingGuideView.as_view(), name='base-setting-guide'),
 ]

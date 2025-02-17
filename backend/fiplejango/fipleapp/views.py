@@ -1303,7 +1303,7 @@ class ProductPriceHistoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = PriceHistory
-    template_name = 'price_history_list.html'
+    template_name = 'price_history/price_history_list.html'
     context_object_name = 'price_histories'
     paginate_by = 20
     
@@ -1764,14 +1764,14 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-# カテゴリ一覧表示ビュー
+# FAQカテゴリ一覧表示ビュー
 def question_category_list(request):
     categories = QuestionCategory.objects.all()
     return render(request, 'faq/question_category_list.html', {'categories': categories})
 
 # FAQ一覧表示ビュー
 def faq_list_view(request):
-    faqs = FAQ.objects.all()
+    faqs = FAQ.objects.all().order_by('category')
     return render(request, 'faq/faq_list.html', {'faqs': faqs})
 
 # JSONレスポンス用FAQ一覧ビュー
@@ -1793,7 +1793,6 @@ def create_question_category(request):
         form = QuestionCategoryForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'カテゴリが登録されました。')
             return redirect('fipleapp:create_question_category')
     else:
         form = QuestionCategoryForm()
@@ -1805,7 +1804,6 @@ def create_faq(request):
         form = FAQForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'FAQが登録されました。')
             return redirect('fipleapp:create_faq')
     else:
         form = FAQForm()
@@ -1815,32 +1813,32 @@ def create_faq(request):
 def edit_question_category(request, category_id):
     category = get_object_or_404(QuestionCategory, id=category_id)
     if request.method == 'POST':
-        category.name = request.POST.get('name')
-        category.save()
-        messages.success(request, 'カテゴリが更新されました。')
-        return redirect('fipleapp:question_category_list')
-    return render(request, 'faq/edit_question_category.html', {'category': category})
+        form = QuestionCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('fipleapp:question_category_list')
+    else:
+        form = QuestionCategoryForm(instance=category)
+    return render(request, 'faq/edit_question_category.html', {'form': form})
 
 # FAQ編集ビュー
 def edit_faq(request, faq_id):
     faq = get_object_or_404(FAQ, id=faq_id)
     if request.method == 'POST':
-        faq.question = request.POST.get('question')
-        faq.answer = request.POST.get('answer')
-        faq.category_id = request.POST.get('category_id')
-        faq.save()
-        messages.success(request, 'FAQが更新されました。')
-        return redirect('fipleapp:faq_list')
-    categories = QuestionCategory.objects.all()
-    return render(request, 'faq/edit_faq.html', {'faq': faq, 'categories': categories})
+        form = FAQForm(request.POST, instance=faq)
+        if form.is_valid():
+            form.save()
+            return redirect('fipleapp:faq_list_view')
+    else:
+        form = FAQForm(instance=faq)
+    return render(request, 'faq/edit_faq.html', {'form': form})
 
 # FAQカテゴリ削除ビュー
 def delete_question_category(request, category_id):
     category = get_object_or_404(QuestionCategory, id=category_id)
     if request.method == 'POST':
         category.delete()
-        messages.success(request, 'カテゴリが削除されました。')
-        return redirect('fipleapp:create_question_category')
+        return redirect('fipleapp:question_category_list')
     return render(request, 'faq/delete_question_category.html', {'category': category})
 
 # FAQ削除ビュー
@@ -1848,8 +1846,7 @@ def delete_faq(request, faq_id):
     faq = get_object_or_404(FAQ, id=faq_id)
     if request.method == 'POST':
         faq.delete()
-        messages.success(request, 'FAQが削除されました。')
-        return redirect('fipleapp:create_faq')
+        return redirect('fipleapp:faq_list_view')
     return render(request, 'faq/delete_faq.html', {'faq': faq})
 
 # FAQ管理画面ビュー
@@ -2395,4 +2392,9 @@ class ProductGuideView(LoginRequiredMixin, TemplateView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     template_name = 'guide/product_guide.html'
+
+class BaseSettingGuideView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/base_setting_guide.html'
 # ------------------------------------------------------

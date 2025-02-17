@@ -170,6 +170,9 @@ class ContactCategoryForm(forms.ModelForm):
     class Meta:
         model = ContactCategory
         fields = ['name']
+        labels = {
+            'name': 'お問い合わせ件名',
+        }
 
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, required=True)

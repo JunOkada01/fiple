@@ -5,14 +5,27 @@
 
 {% block content %}
 <div class="page-container">
-    <h4>お知らせ削除確認</h4>
-    <p>本当に削除しますか？</p>
-    <p>{{ notification.title }}</p>
-    <p>{{ notification.message }}</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">削除</button>
-        <a href="{% url 'notification_list' %}" class="btn btn-secondary">キャンセル</a>
-    </form>
+    <div class="form-header">
+        <h4>おしらせ</h4>
+        <p>おしらせの削除を行います</p>
+    </div>
+    <div class="form-content">
+        <p>本当に以下のおしらせを削除しますか？</p>
+        <div class="delete-warning">
+            <table class="delete-table">
+                <tr><th>タイトル</th><td>{{ notification.title }}</td></tr>
+                <tr><th>メッセージ</th><td>{{ notification.message }}</td></tr>
+            </table>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">削除</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

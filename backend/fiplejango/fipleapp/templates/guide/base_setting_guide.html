@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}基盤設定ガイド{% endblock %}
+{% block content %}
+    <div class="page-container">
+        <div class="process-header">
+            <h4 class="process-title">基盤設定ガイド</h4>
+            <p>基盤設定ではECサイト全体の商品関連の</p>
+            <p>基盤となるデータを管理します</p>
+        </div>
+        <div class="process-area">
+            <div class="process-guide-content">
+                <ol class="process-steps">
+                    <li class="step">
+                        <a href="{% url 'fipleapp:category_top' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-shapes icons" style="color: #a7e7aa;"></i>
+                                <p>カテゴリー管理</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:color_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-palette icons" style="color: #e7dea7;"></i>
+                                <p>カラー管理</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:size_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-ruler-combined icons" style="color: #e7a7a7;"></i>
+                                <p>サイズ管理</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="step">
+                        <a href="{% url 'fipleapp:tag_list' %}" class="step-link">
+                            <div class="step-tile">
+                                <i class="fa-solid fa-tags icons" style="color: #e7a7c7;"></i>
+                                <p>ハッシュタグ追加</p>
+                            </div>
+                        </a>
+                    </li>
+                </ol>
+            </div>
+        
+            <div class="process-detail">
+                <h4>各機能のご説明</h4>
+                <ol class="step-descriptions">
+                    <li>
+                        <h5>カテゴリー管理</h5>
+                        <p>商品を分類するメインカテゴリーとそれに紐づくサブカテゴリーを管理します</p>
+                    </li>
+                    <li>
+                        <h5>カラー管理</h5>
+                        <p>商品のカラーを管理します</p>
+                    </li>
+                    <li>
+                        <h5>サイズ管理</h5>
+                        <p>サイズを管理します</p>
+                    </li>
+                    <li>
+                        <h5>ハッシュタグ管理</h5>
+                        <p>商品のハッシュタグを管理します</p>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

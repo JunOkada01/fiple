@@ -195,6 +195,7 @@ main.sidebar-closed {
     list-style: none;
     padding: 0;
     margin: 0;
+    margin-bottom: 100px;
 }
 
 .sidebar .side-main li {
@@ -527,14 +528,14 @@ a[aria-expanded="true"] .rotate-icon {
 
 .radio-inline div {
     display: inline-block;
-    margin-right: 20px;
 }
 
 .radio-inline input[type="radio"] {
-    margin-right: 5px;
+    margin-right: 0;
 }
 
 .radio-inline label {
+    font-weight: normal;
     cursor: pointer;
     font-size: 16px;
 }
@@ -882,235 +883,144 @@ input[type="file"] {
     max-width: 400px;
 }
 /* お問い合わせ関連 */
-.contact-category-head {
+.created-contact-category {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    margin: 20px;
-}
-.plus-circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #0073ff;
-    width: 25px;
-    height: 25px;
-    /* border: 2px solid rgb(37, 99, 255); */
-    border-radius: 50%;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.5s;
-}
-.plus-circle .contact-plus-icon {
-    color: #fff;
-    font-size: 16px;
-}
-.contact-category-head span {
-    font-size: 16px;
-    font-weight: normal;
-    color: #333;
-}
-.contact-main {
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-.contact-list {
-    width: 80%;
-    min-height: 500px;
+.created-contact-category-header {
+    width: 60%;
+    min-width: 250px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid rgb(59, 59, 59);
-    border-radius: 10px;
+    margin: 20px auto;
 }
 
 /* - - - - - - - - お知らせ配信用 - - - - - - - - */
-.news-header {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-.news-header h2 {
-    font-size: 25px;
-}
+/* - - - - - - - - ※バナーやFAQで再利用可能な場合も利用 - - - - - - - - */
+.contact-main,
+.contact-category-main,
+.faq-main,
+.banner-list,
 .news-main {
+    width: 60%;
+    min-width: 300px;
     display: flex;
+    align-items: center;
     justify-content: center;
+    margin: auto;
 }
-.news-main .list-group {
-    width: 100%;
-    max-width: 50%;
+.contact-main ul,
+.contact-category-main ul,
+.faq-main ul,
+.banner-list ul,
+.news-main ul {
     padding: 0;
-    gap: 8px;
 }
-.news-main .list-group .list-group-item {
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-}
-.news-main .list-group .list-group-item h2 {
-    font-size: 20px;
-}
-.news-main .list-group .list-group-item small {
-    color: gray;
-}
-.news-form {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 30px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-.news-form form {
+.contact-main li,
+.contact-category-main li,
+.faq-main li,
+.banner-list li,
+.news-main li {
+    width: 100%;
     display: flex;
     flex-direction: column;
+    list-style: none;
 }
-.news-form form p {
-    margin-bottom: 15px;
+.banner-list small,
+.news-main small {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 5px 10px;
 }
-.news-form input,
-.news-form textarea,
-.news-form select {
+.contact-link-box,
+.faq-link-box,
+.banner-link-box,
+.news-link-box {
     width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-/* テキストエリア専用の調整 */
-.news-form textarea {
-    min-height: 80px;
-    resize: vertical;
-}
-.news-list-actions,
-.news-form .form-actions {
-    text-align: center;
-}
-
-.news-list-actions .news-action-btn {
-    padding: 5px 15px;
-    border: 1;
-    border-radius: 5px;
-    margin: 0 5px;
-    display: inline-flex;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 5px; /* アイコンとテキストの間に余白を確保 */
-}
-/* お知らせフォームの送信ボタン */
-.news-form .form-actions button {
-    padding: 7px 40px;
-    color: white;
-    background-color: rgb(70, 184, 255);
-    border: none;
+    justify-content: space-between;
+    padding: 20px 30px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
     border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+    gap: 10px;
 }
-.news-list-actions a,
-.news-form .form-actions a {
-    text-decoration: none;
+.faq-info,
+.news-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
 }
-.news-footer {
-    text-align: center;
-}
-.back-link {
+.contact-link-box h2,
+.faq-link-box h2,
+.news-link-box h2 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
     color: #333;
+    margin: 0;
+    gap: 5px;
+    text-align: left;
+}
+.contact-link-box p,
+.faq-link-box p,
+.news-link-box p {
+    font-size: 16px;
+    margin-bottom: 3px;
+    text-align: left;
+}
+.faq-actions,
+.banner-actions,
+.news-actions {
+    min-width: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.faq-actions .faq-edit-btn,
+.faq-actions .faq-delete-btn,
+.banner-actions .banner-edit-btn,
+.banner-actions .banner-delete-btn,
+.news-actions .news-edit-btn,
+.news-actions .news-delete-btn {
+    color: #959595;
     text-decoration: none;
-    font-weight: bold;
 }
-.back-link:hover {
-    text-decoration: underline;
-}
-
-/* - - - - - - - - バナー管理 - - - - - - - - */
-/* コンテナ全体のスタイル */
-.banner-container {
-    max-width: 60%;
-    margin: 20px auto;
-    padding: 0 15px;
-}
-
-/* ヘッダー部分のスタイル */
-.banner-header {
-text-align: center;
-margin-bottom: 20px;
-}
-
-/* バナーリストの全体設定 */
-.banner-list {
-background-color: #fff;
-border: 1px solid #ddd;
-border-radius: 4px;
-overflow: hidden;
-}
-
-/* 各バナーアイテムのレイアウト */
-.banner-item {
-display: flex;
-align-items: center;
-padding: 15px;
-border-bottom: 1px solid #eee;
-}
-
-.banner-item:last-child {
-border-bottom: none;
-}
-
-/* バナー画像のスタイル */
-.banner-image {
-width: 100px;
-margin-right: 15px;
-}
-
-/* リンク部分のスタイル */
-.banner-info {
-flex-grow: 1;
-}
-
-.banner-link {
-color: #007bff;
-text-decoration: none;
-}
-
-/* 編集・削除ボタンの配置 */
-.banner-actions a {
-margin-left: 10px;
-}
-
-/* バナーが存在しない場合のメッセージ */
-.no-banner {
-padding: 15px;
-text-align: center;
-color: #888;
-}
-
-/* - - - - - - - - バナー管理ここまで - - - - - - - - */
-
 /* - - - - - - - - FAQ - - - - - - - - */
-
-.faq-content {
-    width: 60%;
-    margin: 20px auto;
-    padding: 0 15px;
+.faq-category {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-
-.faq-header h2 {
-    color: #333;
+.faq-category h3 {
+    font-size: 20px;
+    text-align: left;
+    margin: 15px 0;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-left: 4px solid lightcoral;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.faq-category h3 i {
     font-size: 24px;
-    margin-bottom: 10px;
+    color: lightcoral;
 }
-
-.faq-header p {
-    color: #666;
-    font-size: 14px;
-}
-
 .faq-links {
     margin-top: 20px;
     display: flex;
@@ -1132,6 +1042,69 @@ color: #888;
     background-color: #0056b3;
 }
 /* - - - - - - - - FAQここまで - - - - - - - - */
+/* - - - - - - - - バナー管理 - - - - - - - - */
+/* コンテナ全体のスタイル */
+.contact-main,
+.faq-main,
+.banner-container {
+    max-width: 60%;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ヘッダー部分のスタイル */
+.price-history-header,
+.contact-header,
+.faq-header,
+.banner-header,
+.news-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+.contact-add-btn,
+.faq-add-btn,
+.banner-add-btn,
+.news-add-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    background-color: lightcoral;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.banner-item:last-child {
+    border-bottom: none;
+}
+
+/* バナー画像のスタイル */
+.banner-image {
+    width: 100px;
+}
+
+/* リンク部分のスタイル */
+.banner-info {
+    margin: auto;
+}
+
+.banner-link {
+    color: gray;
+    text-decoration: none;
+}
+
+/* バナーが存在しない場合のメッセージ */
+.no-banner {
+    padding: 15px;
+    text-align: center;
+    color: #888;
+}
+
+/* - - - - - - - - バナー管理ここまで - - - - - - - - */
 /* - - - - - - - - 商品管理画面 - - - - - - - - */
 .process-area {
     display: flex;
@@ -1140,7 +1113,7 @@ color: #888;
     justify-content: center;
     gap: 20px;
 }
-.process-guide-container {
+.process-guide-content {
     width: 50%;
     margin: 20px 0;
     display: flex;
@@ -1152,7 +1125,12 @@ color: #888;
 }
 .process-header {
     width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: 10px 10px;
+    margin: auto;
 }
 .process-header .process-title {
     text-align: left;
@@ -1278,7 +1256,7 @@ color: #888;
     flex-direction: column;
     align-items: center;
 }
-.process-guide-container,
+.process-guide-content,
 .process-detail {
     width: 90%;
 }
@@ -1298,7 +1276,6 @@ color: #888;
 }
 
 /* - - - - - - - - 商品管理画面ここまで - - - - - - - - */
-
 /* - - - - - - - - ガイド関連 - - - - - - - - */
 .guide-link {
     display: flex;
@@ -1308,15 +1285,23 @@ color: #888;
     gap: 20px;
 }
 .guide-link .guide-icon {
-    font-size: 15px;
+    font-size: 16px;
     color: #333;
     text-decoration: none;
     padding: 5px;
 }
 .guide-link a {
-    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
     color: #333;
     text-decoration: none;
+}
+.guide-link p {
+    margin-bottom: 3px;
+    color: #333;
+    font-weight: bold;
 }
 .guide-link a:hover {
     color: #666;
@@ -1346,7 +1331,10 @@ color: #888;
     margin: 0;
     padding: 0;
     color: #333;
-    font-size: 25px;
+    font-size: 20px;
+}
+.guide-header h4 {
+    margin-bottom: 3px;
 }
 .guide-content {
     width: 50%;
@@ -1379,6 +1367,12 @@ color: #888;
     font-size: 16px;
     color: #333;
     text-decoration: none;
+}
+.guide-link-box p {
+    margin-bottom: 3px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
 }
 .guide-link-box:hover {
     background-color: #ebebeb;
@@ -1413,6 +1407,7 @@ color: #888;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-weight: bold;
     gap: 10px;
 }
 /* メインカテゴリカード */
@@ -1521,3 +1516,238 @@ color: #888;
     transform: scale(1.05);
 }
 /* - - - - - - - - カテゴリ管理画面ここまで - - - - - - - - */
+/* - - - - - - - - 追加削除等フォーム画面 - - - - - - - - */
+.form-header {
+    width: 500px;
+    min-width: 300px;
+    margin: 10px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.form-header h4,
+.price-history-header h4,
+.banner-header-title h4,
+.news-header-title h4 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+.form-header p,
+.price-history-header p,
+.banner-header-title p,
+.news-header-title p {
+    color: #666;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+.form-content {
+    width: 500px;
+    min-width: 300px;
+    margin: 20px auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+}
+.form-content form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.form-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+.form-group input,
+.form-group select,
+.form-group textarea  {
+    width: 100%;
+    min-width: 300px;
+    padding: 8px;
+    border: 1px solid #a5a5a5;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.form-group textarea {
+    height: 100px;
+    max-width: auto;
+}
+.form-actions-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.form-actions-btn .complete-btn {
+    padding: 10px 20px;
+    background-color: lightcoral;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.form-actions-btn .cancel-btn {
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #676767;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.add-page-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+.add-page-link a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background-color: lightslategray;
+    border: none;
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+.add-page-link i {
+    padding-right: 3px;
+    color: #fff;
+    font-size: 14px;
+}
+.add-page-link p {
+    margin-bottom: 3px;
+    padding: 0;
+    color: #fff;
+    font-size: 12px;
+}
+/* 削除画面 削除するデータ表示のためののtableスタイル */
+.delete-warning {
+    width: 400px;
+    min-width: 300px;
+    background-color: #fff3f3;
+    border: 1px solid #ffcccc;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+.delete-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.delete-table th {
+    min-width: 100px;
+    text-align: left;
+    padding: 8px;
+    background-color: #ffe6e6;
+    font-weight: bold;
+}
+.delete-table td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ffcccc;
+}
+.product-preview-img,
+.banner-preview-img {
+    max-width: 100px;
+    height: auto;
+}
+/* - - - - - - - - 追加削除等フォーム画面ここまで - - - - - - - - */
+/* - - - - - - - - 商品価格履歴 - - - - - - - - */
+.price-history-search .search-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.price-history-search .search-group input {
+    width: 200px;
+    height: 45px;
+    border: 2px solid #797979;
+    padding: 0 10px;
+    border-radius: 5px;
+}
+.search-group .search-action-btn {
+    width: 90px;
+    height: 45px;
+}
+.search-group .search-action-btn .search-btn {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    color: #484848;
+    background-color: lightblue;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+.search-group .search-action-btn .search-btn span {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.price-history-main {
+    width: 70%;
+    min-width: 400px;
+    margin: 40px auto;
+}
+.price-history-main .table-container {
+    overflow-x: auto;
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.price-history-main .table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+}
+.price-history-main .table-container table thead th {
+    background-color: #f7f7f7;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e2e2;
+    text-align: left;
+    font-weight: normal;
+}
+.price-history-main .table-container table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e2e2e2;
+    text-align: left;
+}
+.price-history-main .table-container table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+.price-history-main .table-container table tbody tr:last-child td {
+    border-bottom: none;
+}
+.price-history-main .table-container table tbody .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+/* - - - - - - - - 商品価格履歴ここまで - - - - - - - - */

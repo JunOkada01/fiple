@@ -2,15 +2,21 @@
 {% block title %}サブカテゴリ削除確認{% endblock %}
 {% block content %}
 <div class="page-container">
-    <h4>サブカテゴリ削除</h4>
-    <br>
-    <p>本当に「{{ object.subcategory_name }}」を削除しますか？</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">削除</button>
-    </form>
-    <button onclick="window.history.back();" style="background: none; border: none; color: blue; cursor: pointer;">
-        戻る
-    </button>
+    <div class="form-header">
+        <h4>サブカテゴリ</h4>
+        <p>サブカテゴリーの削除を行います</p>
+    </div>
+    <div class="form-content">
+        <p>本当に「{{ object.subcategory_name }}」を削除しますか？</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">削除</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

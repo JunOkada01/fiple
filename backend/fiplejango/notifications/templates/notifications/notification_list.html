@@ -5,22 +5,37 @@
 {% block content %}
 <div class="page-container">
     <div class="news-header">
-        <a href="{% url 'notification_form' %}" class="btn btn-primary">お知らせを配信する</a>
+        <div class="news-header-title">
+            <h4>おしらせ</h4>
+            <p>おしらせを管理します</p>
+        </div>
+        <a href="{% url 'notification_form' %}" class="news-add-btn">
+            お知らせを配信する
+        </a>
     </div>
     <div class="news-main">
-        <ul class="list-group">
+        <ul>
             {% for notification in notifications %}
-                <li class="list-group-item">
-                    <small>{{ notification.created_at }}</small>
-                    <h2>{{ notification.title }}</h2>
-                    <p>{{ notification.message }}</p>
-                    <div class="news-list-actions mt-2">
-                        <a href="{% url 'notification_edit' notification.id %}" class="btn btn-outline-secondary news-action-btn">
-                            <i class="fa-solid fa-pen-to-square"></i> 編集
-                        </a>
-                        <a href="{% url 'notification_delete' notification.id %}" class="btn btn-outline-danger news-action-btn">
-                            <i class="fa-solid fa-trash"></i> 削除
-                        </a>
+                <li>
+                    <small>{{ notification.created_at|date:"Y/d/m H:i" }}</small>
+                    <div class="news-link-box">
+                        <div class="news-info">
+                            <h2>
+                                <i class="fa-regular fa-message"></i>
+                                <p>{{ notification.title }}</p>
+                            </h2>
+                            <p>{{ notification.message }}</p>
+                        </div>
+                        <div class="news-actions">
+                            <a href="{% url 'notification_edit' notification.id %}" class="news-edit-btn">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                編集
+                            </a>
+                            <a href="{% url 'notification_delete' notification.id %}" class="news-delete-btn">
+                                <i class="fa-solid fa-trash"></i>
+                                削除
+                            </a>
+                        </div>
                     </div>
                 </li>
             {% endfor %}
