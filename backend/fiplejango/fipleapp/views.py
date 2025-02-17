@@ -1291,7 +1291,7 @@ class ProductPriceHistoryListView(LoginRequiredMixin, ListView):
     login_url = 'fipleapp:admin_login'
     redirect_field_name = 'redirect_to'
     model = PriceHistory
-    template_name = 'price_history_list.html'
+    template_name = 'price_history/price_history_list.html'
     context_object_name = 'price_histories'
     paginate_by = 20
     
@@ -1869,8 +1869,8 @@ def add_contact_category(request):
             return render(request, 'contact/contact_manager.html')  # 管理画面にリダイレクト
     else:
         form = ContactCategoryForm()
-    
-    return render(request, 'contact/add_contact_category.html', {'form': form})
+    categories = ContactCategory.objects.all()
+    return render(request, 'contact/add_contact_category.html', {'form': form, 'categories': categories})
     
 def contact_manager(request):
     return render(request, 'contact/contact_manager.html')
@@ -2373,3 +2373,20 @@ class StockView(LoginRequiredMixin, ListView):
     model = Product
     def get_queryset(self):
         return Product.objects.all().select_related('product_origin', 'color', 'size')
+    
+# -------------------管理画面ガイド関連-------------------
+class GuideTopView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/guide_top.html'
+
+class ProductGuideView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/product_guide.html'
+
+class BaseSettingGuideView(LoginRequiredMixin, TemplateView):
+    login_url = 'fipleapp:admin_login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'guide/base_setting_guide.html'
+# ------------------------------------------------------

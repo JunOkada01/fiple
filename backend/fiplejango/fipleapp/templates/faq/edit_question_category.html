@@ -3,15 +3,25 @@
 {% block title %}カテゴリ編集{% endblock %}
 
 {% block content %}
-<h4>FAQカテゴリ編集</h4>
-
-<form method="POST">
-  {% csrf_token %}
-  <label for="name">カテゴリ名:</label>
-  <input type="text" name="name" id="name" value="{{ category.name }}" required>
-  
-  <button type="submit">更新</button>
-</form>
-
-<a href="{% url 'fipleapp:question_category_list' %}">戻る</a>
+<div class="page-container">
+  <div class="form-header">
+      <h4>FAQカテゴリ</h4>
+      <p>よくある質問カテゴリの変更を行います</p>
+  </div>
+  <div class="form-content">
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        {{ form.name }}
+      </div>
+      <div class="form-actions-btn">
+        <button type="submit" class="complete-btn">変更</button>
+        <button type="button" onclick="window.history.back();" class="cancel-btn">
+            戻る
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -3,31 +3,54 @@
 {% block title %}FAQ一覧{% endblock %}
 
 {% block content %}
-<h4>FAQ一覧</h4>
-<table>
-  <thead>
-    <tr>
-      <th>質問</th>
-      <th>答え</th>
-      <th>カテゴリ</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for faq in faqs %}
-    <tr>
-      <td>{{ faq.question }}</td>
-      <td>{{ faq.answer }}</td>
-      <td>{{ faq.category.name }}</td>
-      <td>
-        <a href="{% url 'fipleapp:edit_faq' faq.id %}">編集</a>
-        |
-        <a href="{% url 'fipleapp:delete_faq' faq.id %}">削除</a>
-      </td>
-    </tr>
+<div class="page-container">
+  <div class="faq-header">
+      <div class="faq-header-title">
+          <h4>FAQ</h4>
+          <p>よくある質問を管理します</p>
+      </div>
+      <a href="{% url 'fipleapp:create_faq' %}" class="faq-add-btn">
+          FAQを追加する
+      </a>
+  </div>
+  <div class="faq-main">
+    {% regroup faqs by category as grouped_faqs %}
+    {% for group in grouped_faqs %}
+      <div class="faq-category">
+        <h3>
+          <i class="fa-solid fa-folder"></i>
+          {{ group.grouper.name }}
+        </h3>
+        <ul>
+          {% for faq in group.list %}
+          <li>
+            <div class="faq-link-box">
+              <div class="faq-info">
+                <h2>
+                  <i class="fa-solid fa-q">.</i>
+                  {{ faq.question }}
+                </h2>
+                <p>
+                  <i class="fa-regular fa-a">.</i>
+                  {{ faq.answer }}
+                </p>
+              </div>
+              <div class="faq-actions">
+                <a href="{% url 'fipleapp:edit_faq' faq.id %}" class="faq-edit-btn">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    編集
+                </a>
+                <a href="{% url 'fipleapp:delete_faq' faq.id %}" class="faq-delete-btn">
+                    <i class="fa-solid fa-trash"></i>
+                    削除
+                </a>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
     {% endfor %}
-  </tbody>
-</table>
-<a href="{% url 'fipleapp:create_faq' %}">新しいFAQを作成</a>
-<a href="{% url 'fipleapp:faq_manager' %}">戻る</a>
+  </div>
+</div>
 {% endblock %}

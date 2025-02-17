@@ -1,14 +1,35 @@
 {% extends 'base.html' %}
 {% block title %}商品タグ追加{% endblock %}
 {% block content %}
-<h4>商品タグ追加</h4>
-<br>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">追加</button>
-</form>
-<br>
-<a href="{% url 'fipleapp:product_tag_list' %}"><h5>戻る</h5></a>
-
+<div class="page-container">
+    <div class="form-header">
+        <h4>商品ハッシュタグ</h4>
+        <p>商品元につけるハッシュタグの登録変更を行います</p>
+    </div>
+    <div class="form-content">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.product_origin.id_for_label }}">{{ form.product_origin.label }}</label>
+                {{ form.product_origin }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.tag.id_for_label }}">{{ form.tag.label }}</label>
+                {{ form.tag }}
+            </div>
+            <div class="add-page-link">
+                <a href="{% url 'fipleapp:tag_add' %}">
+                    <i class="fa-solid fa-plus"></i>
+                    <p>ハッシュタグ追加</p>
+                </a>
+            </div>
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">追加</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

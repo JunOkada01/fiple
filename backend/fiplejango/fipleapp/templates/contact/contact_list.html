@@ -4,27 +4,31 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="contact-category-head">
-        <a href="/add-contact-category/" class="plus-circle">
-            <i class="fa-solid fa-plus fa-wrench animated-hover contact-plus-icon"></i>
+    <div class="contact-header">
+        <div class="contact-header-title">
+            <h4>お問い合わせ</h4>
+            <p>ユーザーからのお問い合わせを管理します</p>
+        </div>
+        <a href="{% url 'fipleapp:add_contact_category' %}" class="contact-add-btn">
+            お問い合わせ件名を追加する
         </a>
-        <span>件名を追加</span>
     </div>
     <div class="contact-main">
-        <div class="contact-list">
+        <ul>
             {% if contacts %}
                 {% for contact in contacts %}
+                <li>
                     名前{{ contact.name }}  
                     件名{{ contact.category }}  
                     お問い合わせ内容{{ contact.message|truncatewords:10 }}  
                     お問い合わせ日{{ contact.created_at }}  
                     <a href="{% url 'fipleapp:contact_detail' contact.id %}">詳細</a>
-                    <br>
+                </li>
                 {% endfor %}
             {% else %}
                 <p>現在お問い合わせがありません。</p>
             {% endif %}
-        </div>
+        </ul>
     </div>
 </div>
 {% endblock %}

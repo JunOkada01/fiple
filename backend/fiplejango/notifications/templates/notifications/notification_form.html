@@ -5,12 +5,30 @@
 
 {% block content %}
 <div class="page-container">
-    <h4>お知らせ配信フォーム</h4>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">送信</button>
-    </form>
-    <a href="{% url 'notification_list' %}">お知らせ一覧に戻る</a>
+    <div class="form-header">
+        <h4>おしらせ</h4>
+        <p>おしらせの配信を行います</p>
+    </div>
+    <div class="form-content">
+        <div class="news-form">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                    {{ form.title }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+                    {{ form.message }}
+                </div>
+                <div class="form-actions-btn">
+                    <button type="submit" class="complete-btn">配信</button>
+                    <button type="button" onclick="window.history.back();" class="cancel-btn">
+                        戻る
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

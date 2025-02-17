@@ -34,7 +34,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["54.221.185.90", "localhost", "127.0.0.1","fiple.vercel.app"]
 # ↓デプロイ時に変更
 # ALLOWED_HOSTS = ["*"]
 

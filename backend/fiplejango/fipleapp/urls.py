@@ -76,6 +76,10 @@ urlpatterns = [
     path('delivery/<int:pk>/update/', DeliveryUpdateView.as_view(), name='delivery-update'),
     path('sales/', SalesView.as_view(), name='sales'),
     path('sales/<int:sales_id>/', SalesDetailView.as_view(), name='sales_detail'),
+    # 管理画面ガイド
+    path('guide/', GuideTopView.as_view(), name='guide'),
+    path('guide/product-guide/', ProductGuideView.as_view(), name='product-guide'),
+    path('guide/base-setting-guide/', BaseSettingGuideView.as_view(), name='base-setting-guide'),
     # 在庫管理
     path('stock/', StockView.as_view(), name='stock'),
     # トークン

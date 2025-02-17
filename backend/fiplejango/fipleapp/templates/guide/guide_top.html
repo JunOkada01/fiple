@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}商品管理ガイド{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="guide-page">
+        <div class="guide-area">
+            <div class="guide-header">
+                <i class="fa-regular fa-circle-question"></i>
+                <h4>ガイド</h4>
+            </div>
+            <div class="guide-content">
+                <li>
+                    <a href="/guide/base-setting-guide">
+                        <div class="guide-link-box">
+                            <i class="fa-regular fa-circle-question"></i>
+                            <p>基盤設定について</p>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="/guide/product-guide">
+                        <div class="guide-link-box">
+                            <i class="fa-regular fa-circle-question"></i>
+                            <p>商品管理について</p>
+                        </div>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

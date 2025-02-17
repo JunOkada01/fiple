@@ -1,13 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}商品元削除確認{% endblock %}
 {% block content %}
-<h4>商品元削除</h4>
-<br>
-<p>本当に「{{ object.product_name }}」を削除しますか？</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">削除</button>
-</form>
-<br>
-<a href="{% url 'fipleapp:product_origin_list' %}"><h5>キャンセル</h5></a>
+<div class="page-container">
+    <div class="form-header">
+        <h4>商品元</h4>
+        <p>商品元データの削除を行います</p>
+    </div>
+    <div class="form-content">
+        <p>本当に以下の商品元データを削除しますか？</p>
+        <div class="delete-warning">
+            <table class="delete-table">
+                <tr><th>商品元名</th><td>{{ object.product_name }}</td></tr>
+                <tr><th>カテゴリー</th><td>{{ object.category.category_name }}</td></tr>
+                <tr><th>サブカテゴリー</th><td>{{ object.subcategory.subcategory_name }}</td></tr>
+                <tr><th>性別</th><td>{{ object.gender }}</td></tr>
+                <tr><th>説明</th><td>{{ object.description }}</td></tr>
+            </table>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">削除</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

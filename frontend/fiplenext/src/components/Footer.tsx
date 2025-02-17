@@ -19,14 +19,6 @@ const Footer = () => {
                 { label: '特定商取引法', href: '/footer/tokushoho' },
             ]
         },
-        {
-            title: 'Size Guide',
-            items: [
-                { label: 'MENS', href: '#' },
-                { label: 'LADIES', href: '#' },
-                { label: 'KIDS', href: '#' },
-            ]
-        },
     ];
 
     return (

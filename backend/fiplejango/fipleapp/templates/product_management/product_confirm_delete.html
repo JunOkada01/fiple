@@ -1,17 +1,32 @@
 {% extends 'base.html' %}
 {% block title %}商品削除確認{% endblock %}
 {% block content %}
-<h4>商品削除</h4>
-<br>
-<p>本当に<br>
-        商品名:「{{ object.product_origin.product_name }}」<br>
-        色:「{{ object.color.color_name }}」<br>
-        サイズ:「{{ object.size.size_name }}」<br>
-        を削除しますか？</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">削除</button>
-</form>
-<br>
-<a href="{% url 'fipleapp:product_list' %}"><h5>キャンセル</h5></a>
+<div class="page-container">
+    <div class="form-header">
+        <h4>商品</h4>
+        <p>商品データの削除を行います</p>
+    </div>
+    <div class="form-content">
+        <p>本当に以下の商品データを削除しますか？</p>
+        <div class="delete-warning">
+            <table class="delete-table">
+                <tr><th>商品名</th><td>{{ object.product_origin.product_name }}</td></tr>
+                <tr><th>色</th><td>{{ object.color.color_name }}</td></tr>
+                <tr><th>サイズ</th><td>{{ object.size.size_name }}</td></tr>
+                <tr><th>在庫数</th><td>×{{ object.stock }}</td></tr>
+                <tr><th>価格</th><td>¥{{ object.price }}</td></tr>
+                <tr><th>販売ステータス</th><td>{{ object.status }}</td></tr>
+            </table>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions-btn">
+                <button type="submit" class="complete-btn">削除</button>
+                <button type="button" onclick="window.history.back();" class="cancel-btn">
+                    戻る
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

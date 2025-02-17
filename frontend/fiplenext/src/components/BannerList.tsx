@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Banner from './Banner';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import styles from '../styles/BannerList.module.css';
 
 interface BannerData {
@@ -65,11 +67,13 @@ const BannerList: React.FC = () => {
                     </div>
                 ))}
             </div>
-            <button className={`${styles.arrow} ${styles.arrowLeft}`} onClick={prevBanner}>
-                &lt;
+            {/* 左矢印ボタン */}
+            <button className={`${styles.arrow} ${styles.arrowLeft}`} onClick={prevBanner} title="Previous Banner">
+                <FontAwesomeIcon icon={faAngleLeft} className="text-md" />
             </button>
-            <button className={`${styles.arrow} ${styles.arrowRight}`} onClick={nextBanner}>
-                &gt;
+            {/* 右矢印ボタン */}
+            <button className={`${styles.arrow} ${styles.arrowRight}`} onClick={nextBanner} title="Next Banner">
+                <FontAwesomeIcon icon={faAngleRight} className="text-md" />
             </button>
             <div className={styles.indicators}>
                 {banners.map((_, index) => (
