@@ -124,7 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         if (!token) return;
 
         try {
-        const response = await axios.get('http://34.201.127.158:8000/api/favorites/', {
+        const response = await axios.get('http://34.230.156.248:8000/api/favorites/', {
             headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -152,7 +152,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
         try {
             if (isFavorite && favoriteId) {
                 // お気に入り解除
-                await axios.delete(`http://34.201.127.158:8000/api/favorites/delete/${favoriteId}/`, {
+                await axios.delete(`http://34.230.156.248:8000/api/favorites/delete/${favoriteId}/`, {
                 headers: { Authorization: `Bearer ${token}` }
                 });
                 setIsFavorite(false);
@@ -161,7 +161,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, productName, product_id, 
             } else {
                 // お気に入り登録
                 const response = await axios.post(
-                'http://34.201.127.158:8000/api/favorites/add/',
+                'http://34.230.156.248:8000/api/favorites/add/',
                 { product_id: product_id},
                 { headers: { Authorization: `Bearer ${token}` } }
                 );

@@ -68,7 +68,7 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
     const { categoryName } = context.params!;
 
     try {
-        const res = await axios.get(`http://34.201.127.158:8000/api/products/category/${categoryName}`);
+        const res = await axios.get(`http://34.230.156.248:8000/api/products/category/${categoryName}`);
         const products = res.data;
 
         return {
@@ -116,7 +116,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ products, categoryName }) =
                     ) : (
                         products.map((product) => {
                             const imageUrl = product.images[0]?.image 
-                                ? `http://34.201.127.158:8000/${product.images[0].image}` 
+                                ? `http://34.230.156.248:8000/${product.images[0].image}` 
                                 : '';
 
                             return (

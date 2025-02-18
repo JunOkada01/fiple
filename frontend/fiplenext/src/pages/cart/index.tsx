@@ -69,7 +69,7 @@ const Cart: React.FC = () => {
 
     const fetchCartItems = async (token?: string) => {
         try {
-            const response = await axios.get('http://34.201.127.158:8000/api/cart/', {
+            const response = await axios.get('http://34.230.156.248:8000/api/cart/', {
                 headers: {
                     Authorization: `Bearer ${token || localStorage.getItem('access_token')}`
                 }
@@ -113,7 +113,7 @@ const Cart: React.FC = () => {
 
     const refreshToken = async () => {
         try {
-            const response = await axios.post('http://34.201.127.158:8000/api/token/refresh/', {
+            const response = await axios.post('http://34.230.156.248:8000/api/token/refresh/', {
                 refresh: localStorage.getItem('refresh_token'),
             });
             const newToken = response.data.access;
@@ -129,7 +129,7 @@ const Cart: React.FC = () => {
     const handleQuantityChange = async (itemId: number, newQuantity: number) => {
         try {
             const response = await axios.patch(
-                `http://34.201.127.158:8000/api/cart/${itemId}/`,
+                `http://34.230.156.248:8000/api/cart/${itemId}/`,
                 { quantity: newQuantity },
                 {
                     headers: {
@@ -152,7 +152,7 @@ const Cart: React.FC = () => {
 
     const handleRemoveItem = async (itemId: number) => {
         try {
-            await axios.delete(`http://34.201.127.158:8000/api/cart/${itemId}/delete/`, {
+            await axios.delete(`http://34.230.156.248:8000/api/cart/${itemId}/delete/`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('access_token')}`
                 }
@@ -213,7 +213,7 @@ const Cart: React.FC = () => {
                                     <Link href={`/products/${item.product.product_origin.id}`}>
                                         <img   
                                             alt={item.product.product_origin.product_name}  
-                                            src={`http://34.201.127.158:8000/${item.product.images[0]?.image}`}
+                                            src={`http://34.230.156.248:8000/${item.product.images[0]?.image}`}
                                             className="itemImage w-auto h-[150px] object-cover"   
                                         />
                                     </Link>

@@ -39,7 +39,7 @@ const OrderHistoryPage: React.FC = () => {
   useEffect(() => {
     const fetchOrderHistory = async () => {
       try {
-        const response = await axios.get<ApiResponse>('http://34.201.127.158:8000/api/orders/', {
+        const response = await axios.get<ApiResponse>('http://34.230.156.248:8000/api/orders/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -66,7 +66,7 @@ const OrderHistoryPage: React.FC = () => {
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) return;
 
-        const response = await axios.get<number[]>('http://34.201.127.158:8000/reviews/', {
+        const response = await axios.get<number[]>('http://34.230.156.248:8000/reviews/', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -94,7 +94,7 @@ const OrderHistoryPage: React.FC = () => {
         return;
       }
 
-      const response = await axios.delete(`http://34.201.127.158:8000/reviews/${productId}/`, {
+      const response = await axios.delete(`http://34.230.156.248:8000/reviews/${productId}/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -138,15 +138,15 @@ const OrderHistoryPage: React.FC = () => {
                 {order.items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center py-2 border-b">
                     <div className="flex items-center">
-                      <Link href={`http://13.216.135.244/products/${item.product.product_origin.id}`}>
+                      <Link href={`http://34.230.156.248/products/${item.product.product_origin.id}`}>
                         <img 
-                          src={`http://localhost:8000${item.product_image}`}
+                          src={`http://34.230.156.248${item.product_image}`}
                           alt={item.product.product_origin.product_name} 
                           className="w-16 h-16 object-cover mr-4 rounded"
                         />
                       </Link>
                       <div>
-                        <Link href={`http://13.216.135.244/products/${item.product.product_origin.id}`}>
+                        <Link href={`http://34.230.156.248/products/${item.product.product_origin.id}`}>
                           <p className="font-medium text-blue-600 hover:underline">
                             {item.product.product_origin.product_name}
                           </p>

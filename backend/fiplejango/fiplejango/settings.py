@@ -34,9 +34,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS = ["localhost", "127.0.0.1","fiple.vercel.app","34.201.127.158"]
+# ALLOWED_HOSTS = ["localhost", "127.0.0.1","fiple.vercel.app","34.201.127.158"]
 # ↓デプロイ時に変更
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -80,6 +80,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://54.221.185.90", # デプロイ後のURL
     "http://13.216.135.244",
     "http://34.201.127.158",
+    "http://34.230.156.248",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -243,7 +244,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('34.201.127.158', 6379)],
+            "hosts": [('34.230.156.248', 6379)],
         },
     },
 }

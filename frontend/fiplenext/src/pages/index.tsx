@@ -77,7 +77,7 @@ interface ProductListProps {
  
 export const getServerSideProps: GetServerSideProps<ProductListProps> = async () => {
   try {
-    const res = await fetch('http://34.201.127.158:8000/api/products/');
+    const res = await fetch('http://34.230.156.248:8000/api/products/');
     const products = await res.json();
  
     return {
@@ -212,7 +212,7 @@ export default function ProductList({ initialProducts }: ProductListProps) {
                     categoryPosition={product.category.category_position}
                     subcategoryName={product.product_origin.subcategory.subcategory_name}
                     price={product.price}
-                    imageUrl={`http://34.201.127.158:8000/${product.images[0]?.image}`} // 画像のURLを設定
+                    imageUrl={`http://34.230.156.248:8000/${product.images[0]?.image}`} // 画像のURLを設定
                     // tags={product.product_tags?.map(pt => pt.tag.tag_name)} // タグ情報を追加
                   />
                 ))}

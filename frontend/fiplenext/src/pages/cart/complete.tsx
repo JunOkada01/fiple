@@ -30,7 +30,7 @@ const OrderConfirmation: React.FC = () => {
         const completeOrder = async () => {
           if (orderId && storedOrderDetails) {
             try {
-              const response = await axios.post('http://34.201.127.158:8000/api/complete-payment/', {
+              const response = await axios.post('http://34.230.156.248:8000/api/complete-payment/', {
                 orderId,
                 total_amount: storedOrderDetails.total_amount,
                 tax_amount: storedOrderDetails.tax_amount,
