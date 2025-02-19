@@ -33,10 +33,24 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 #deploy時にFalseに変更
 DEBUG = os.getenv('DEBUG')
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-# ALLOWED_HOSTS = ["localhost", "127.0.0.1","fiple.vercel.app","34.201.127.158"]
+# セキュリティ強化
+SECURE_HSTS_SECONDS = 31536000  # 1年間
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+
+
+# その他の推奨設定
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = "DENY"
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1","fiple.vercel.app","34.230.156.248"]
 # ↓デプロイ時に変更
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
