@@ -7,6 +7,7 @@ from django.core.validators import MinValueValidator
 import random, string
 
 class CustomUser(AbstractUser):
+    name = models.CharField(max_length=255, default='')
     password = models.TextField(max_length=128, default='')  # パスワード
     hurigana = models.CharField(max_length=255, default='')  # フリガナ
     class SexChoices(models.TextChoices):

@@ -4,6 +4,6 @@ def admin_info(request):
     if request.user.is_authenticated:
         context = {
             'name': request.user.name,
-            'admin_id': request.user.admin_id
+            'admin_id': getattr(request.user, 'admin_id', None)
         }
     return context
