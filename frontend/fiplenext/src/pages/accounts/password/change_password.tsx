@@ -28,7 +28,7 @@ const ChangePass: React.FC = () => {
 
         try {
             const response = await axios.post(
-                'http://34.230.156.248:8000/password-change/', // APIエンドポイント
+                'http://127.0.0.1:8000/password-change/', // APIエンドポイント
                 {
                     current_password: currentPassword,
                     new_password: newPassword,

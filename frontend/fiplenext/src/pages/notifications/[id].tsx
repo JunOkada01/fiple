@@ -21,7 +21,7 @@ const NotificationDetail: React.FC = () => {
         if (id) {
             const fetchNotification = async () => {
                 try {
-                    const response = await axios.get<Notification>(`http://34.230.156.248:8000/notifications/${id}/`);
+                    const response = await axios.get<Notification>(`http://127.0.0.1:8000/notifications/${id}/`);
                     setNotification(response.data);
                 } catch (err) {
                     if (axios.isAxiosError(err) && err.response) {

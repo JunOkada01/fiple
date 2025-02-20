@@ -17,7 +17,7 @@ const BannerList: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState(false);
 
     useEffect(() => {
-        axios.get('http://34.230.156.248:8000/api/banners/')
+        axios.get('http://127.0.0.1:8000/api/banners/')
             .then(response => {
                 setBanners(response.data);
             })

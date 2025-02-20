@@ -22,7 +22,7 @@ const Contact: React.FC = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch('http://34.230.156.248:8000/api/contact-categories/');
+      const res = await fetch('http://127.0.0.1:8000/api/contact-categories/');
       const data = await res.json();
       setCategories(data);
     };
@@ -50,7 +50,7 @@ const Contact: React.FC = () => {
     data.append('category', formData.category);
 
     try {
-      const res = await fetch('http://34.230.156.248:8000/api/submit-contact-form/', {
+      const res = await fetch('http://127.0.0.1:8000/api/submit-contact-form/', {
         method: 'POST',
         body: data,
       });

@@ -131,7 +131,7 @@ const CheckoutPage = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get('http://34.230.156.248:8000/api/cart/', {
+      const response = await axios.get('http://127.0.0.1:8000/api/cart/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -147,7 +147,7 @@ const CheckoutPage = () => {
 
   const fetchUserInfo = async () => {  
     try {  
-      const response = await axios.get('http://34.230.156.248:8000/api/user/', {  
+      const response = await axios.get('http://127.0.0.1:8000/api/user/', {  
         headers: {  
           Authorization: `Bearer ${localStorage.getItem('access_token')}`  
         }  
@@ -372,7 +372,7 @@ const CheckoutPage = () => {
       
       const deliveryAddress = `〒${selectedAddress.postal_code} ${selectedAddress.prefecture} ${selectedAddress.city} ${selectedAddress.street}`;
       
-      const response = await axios.post('http://34.230.156.248:8000/api/complete-payment/', {
+      const response = await axios.post('http://127.0.0.1:8000/api/complete-payment/', {
         orderId: orderId,
         total_amount: totalWithTax,
         tax_amount: totalWithTax - subtotal,

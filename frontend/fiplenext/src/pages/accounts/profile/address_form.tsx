@@ -26,7 +26,7 @@ const AddressManagement: React.FC = () => {
 
     // APIクライアントの設定
     const api = axios.create({
-        baseURL: 'http://34.230.156.248:8000/',
+        baseURL: 'http://127.0.0.1:8000/',
         headers: {
             'Content-Type': 'application/json',
         }

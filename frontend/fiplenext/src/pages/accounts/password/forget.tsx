@@ -10,7 +10,7 @@ const ForgetPassword = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await axios.post('http://34.230.156.248:8000/password-reset/', {
+            await axios.post('http://127.0.0.1:8000/password-reset/', {
                 email,
             });
             setMessage('パスワードリセットリンクをメールで送信しました。');

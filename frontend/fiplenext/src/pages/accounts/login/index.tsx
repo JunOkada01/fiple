@@ -15,7 +15,7 @@ const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://34.230.156.248:8000/login/', {
+            const response = await axios.post('http://127.0.0.1:8000/login/', {
                 email,
                 password,
             });

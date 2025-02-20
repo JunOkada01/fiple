@@ -113,7 +113,7 @@ const FittingArea: React.FC = () => {
 
     try {
       // 現在のお気に入り情報を取得
-      const favoriteResponse = await axios.get<FavoriteProduct[]>('http://34.230.156.248:8000/api/favorites/', {
+      const favoriteResponse = await axios.get<FavoriteProduct[]>('http://127.0.0.1:8000/api/favorites/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const existingFavorites = favoriteResponse.data || [];
@@ -132,7 +132,7 @@ const FittingArea: React.FC = () => {
       // お気に入り登録
       const addPromises = itemsToAdd.map(item =>
         axios.post(
-          'http://34.230.156.248:8000/api/favorites/add/',
+          'http://127.0.0.1:8000/api/favorites/add/',
           { product_id: item.product_id },
           { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -158,7 +158,7 @@ const FittingArea: React.FC = () => {
   
     try {
       // 現在のカート情報を取得
-      const cartResponse = await axios.get('http://34.230.156.248:8000/api/cart/', {
+      const cartResponse = await axios.get('http://127.0.0.1:8000/api/cart/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const existingCartItems = cartResponse.data || [];
@@ -185,7 +185,7 @@ const FittingArea: React.FC = () => {
   
         try {
           await axios.post(
-            'http://34.230.156.248:8000/api/cart/add/',
+            'http://127.0.0.1:8000/api/cart/add/',
             {
               product_id: selectedVariant.id,
               quantity: 1
@@ -222,7 +222,7 @@ const FittingArea: React.FC = () => {
     if (!token) return false;
 
     try {
-      const response = await axios.get('http://34.230.156.248:8000/api/favorites/', {
+      const response = await axios.get('http://127.0.0.1:8000/api/favorites/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const isFavorite = response.data.some((fav: FavoriteProduct) => fav.product.id === productId);
@@ -245,12 +245,12 @@ const FittingArea: React.FC = () => {
     try {
       if (itemFavorites[productId]) {
         // お気に入り解除
-        const favoriteResponse = await axios.get<FavoriteProduct[]>('http://34.230.156.248:8000/api/favorites/', {
+        const favoriteResponse = await axios.get<FavoriteProduct[]>('http://127.0.0.1:8000/api/favorites/', {
           headers: { Authorization: `Bearer ${token}` }
         });
         const favorite = favoriteResponse.data.find((fav: FavoriteProduct) => fav.product.id === productId);
         if (favorite) {
-          await axios.delete(`http://34.230.156.248:8000/api/favorites/delete/${favorite.id}/`, {
+          await axios.delete(`http://127.0.0.1:8000/api/favorites/delete/${favorite.id}/`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setNotification('お気に入りから削除しました');
@@ -258,7 +258,7 @@ const FittingArea: React.FC = () => {
       } else {
         // お気に入り登録
         await axios.post(
-          'http://34.230.156.248:8000/api/favorites/add/',
+          'http://127.0.0.1:8000/api/favorites/add/',
           { product_id: productId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -296,7 +296,7 @@ const FittingArea: React.FC = () => {
 
       // カート追加
       await axios.post(
-        'http://34.230.156.248:8000/api/cart/add/',
+        'http://127.0.0.1:8000/api/cart/add/',
         {
           product_id: selectedVariant.id,
           quantity: 1
@@ -451,10 +451,10 @@ const FittingArea: React.FC = () => {
                 imageWidth: imageSize.width,
                 imageHeight: imageSize.height,
                 imageUrl: selectedVariant.images[0]?.image 
-                  ? `http://34.230.156.248:8000/${selectedVariant.images[0].image}`
+                  ? `http://localhost:8000/${selectedVariant.images[0].image}`
                   : item.imageUrl,
-                selectedFrontImageUrl: `http://34.230.156.248:8000/${selectedVariant.front_image}`,
-                selectedBackImageUrl: `http://34.230.156.248:8000/${selectedVariant.back_image}`,
+                selectedFrontImageUrl: `http://localhost:8000/${selectedVariant.front_image}`,
+                selectedBackImageUrl: `http://localhost:8000/${selectedVariant.back_image}`,
               };
             } catch (error) {
               console.error('Failed to fetch product details:', error);
