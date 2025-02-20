@@ -799,8 +799,8 @@ const FittingArea: React.FC = () => {
                 </div>  
 
                 {/* アイテム表示 */}
-                {/* 下半身のアイテム */}
-                <div className="absolute border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25 w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                {/* 下半身のアイテム  border-2 rounded-b border-sky-500 bg-sky-200 bg-opacity-25*/}
+                <div className="absolute w-[170px] h-[170px] top-[200px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'l')
                     .map(item => (
@@ -825,8 +825,8 @@ const FittingArea: React.FC = () => {
                     ))}
                 </div>
 
-                {/* 上半身のアイテム */}
-                <div className="absolute border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                {/* 上半身のアイテム  border-2 rounded-t border-rose-500 bg-rose-200 bg-opacity-25 */}
+                <div className="absolute w-[170px] h-[170px] top-[130px] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                   {fittingItems
                     .filter(item => item.categoryPosition === 'u')
                     .map(item => (
@@ -850,11 +850,10 @@ const FittingArea: React.FC = () => {
                       </Draggable>
                     ))}
                 </div>
-
-                            </div>
-                          </div>
-                        )}
-                      </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* スクロール可能なアイテムリスト */}
         <div className="flex-1 overflow-hidden flex flex-col">
