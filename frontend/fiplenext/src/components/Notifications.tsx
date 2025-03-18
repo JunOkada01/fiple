@@ -11,7 +11,7 @@ interface NotificationData {
 
 const Notifications: React.FC = () => {
     const [notifications, setNotifications] = useState<NotificationData[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {

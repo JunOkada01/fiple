@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import Router from 'next/router';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
@@ -30,10 +29,10 @@ interface User {
 const Profile: React.FC = () => {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const token = localStorage.getItem('access_token');
+    // const token = localStorage.getItem('access_token');
     // birthの年、月、日を分割
     const [birthYear, birthMonth, birthDay] = user?.birth.split('-') || ["", "", ""];
     

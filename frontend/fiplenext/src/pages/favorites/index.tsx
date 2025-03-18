@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Router from 'next/router';
 import ProductCard from '../../components/ProductCard'; // ProductCardをインポート
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
 
 interface FavoriteItem {
     id: number;
@@ -95,6 +93,7 @@ const FavoriteList: React.FC = () => {
                                     subcategoryName={favorite.product.product_origin.subcategory.subcategory_name}
                                     price={favorite.product.price}
                                     imageUrl={favorite.product.images[0]?.image}
+                                    categoryPosition=''
                                 />
                             </div>
                         ))}

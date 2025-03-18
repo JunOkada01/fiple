@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faVest, faXmark, faCartPlus, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Draggable from 'react-draggable';
-import dynamic from 'next/dynamic';
 import axios from 'axios';
 
 // ローディングアニメーション
@@ -65,11 +64,8 @@ const FittingArea: React.FC = () => {
   const [selectedVariants, setSelectedVariants] = useState<{[key: number]: number}>({});
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [height, setHeight] = useState<number>(170);
-  const [weight, setWeight] = useState<number>(60);
   const [notification, setNotification] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [itemFavorites, setItemFavorites] = useState<{[key: number]: boolean}>({});
 
   // 試着エリアの開閉

@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./infra/docker/django/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/fiplejango:/app # 開発環境用らしい コードの即時反映
+  frontend:
+    build:
+      context: .
+      dockerfile: ./infra/docker/node/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/fiplenext:/app

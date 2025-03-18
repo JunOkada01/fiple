@@ -4,7 +4,7 @@ import axios from 'axios';
 const SizeRecommendation = ({ productId }) => {
     const [recommendation, setRecommendation] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error] = useState(null);
  
     useEffect(() => {
         const fetchRecommendation = async () => {
